@@ -1,0 +1,8 @@
+# Default ignored files
+.idea/
+.idea\
+venv/
+*.csv
+mm2.sav
+goblin*
+__pycache__/
