@@ -38,6 +38,14 @@ class beed:
         else:
             dgt[pl - 1].pull(force)
 
+    def draft_pushpull(self, push: bool, force: int):
+        dgt = self.cell.val
+        pl = dgt.index(self)
+        nxt = dgt[pl - 1 + (2 * push)]
+        if push == self.up:
+
+
+
 
 class end:
     def __init__(self, up, cell):
@@ -66,6 +74,15 @@ class end:
             return 'Top'
         else:
             return 'Bottom'
+
+    def draft_pushpull(self, push: bool, force: int):
+        if push == self.up:
+            print('carry')
+        else:
+            dgt = self.cell.val
+            pl_nxt = dgt.index(self) - 1 + (2 * push)
+            dgt[pl_nxt].draftpushpull(push, force)
+
 
 
 class cell:
@@ -104,3 +121,7 @@ c56 = cell('small', 'c56')
 c06.bottom.push(3)
 c06.b3.pull(1)
 print(c06.expose())
+
+"""TODO:.trying to make a function that will actually be more localised to the one beed, 
+at the price of running more of them, it will also be more ready to add carry.
+will probably want to seperate push and pull anyway"""
