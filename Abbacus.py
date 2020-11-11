@@ -1,8 +1,14 @@
+def initorder(obj, cell):
+    obj.cell = cell.val
+    obj.pl = obj.cell.index(obj)
+
+
 class beed:
     def __init__(self, bid, cell):
         self.id = bid
         self.up = False
-        self.cell = cell
+        self.cell = []
+        self.pl = 0
 
     def expose(self):
         if self.up:
@@ -10,20 +16,19 @@ class beed:
         else:
             return 'Down'
 
-    def initpushpull(self, force):
-        dgt = self.cell.val
-        force = min(len(dgt) - 2, force)  # putting a ceiling on force avoids index error
-        pl = dgt.index(self)
-        return dgt, force, pl
+    def initorder(self, cell):
+        self.cell = cell.val
+        self.pl = self.cell.index(self)
 
     def push(self, force):
         """pusshes up as much beeds as the given force"""
-        dgt, force, pl = self.initpushpull(force)
-        if dgt[pl + force].up:
-            for b in dgt[pl:pl + force]:
+        cell, pl = self.cell, self.pl
+        force = min(len(cell) - 2, force)  # putting a ceiling on force avoids index error
+        if cell[pl + force].up:
+            for b in cell[pl:pl + force]:
                 b.up = True
         else:
-            dgt[pl + 1].push(force)
+            cell[pl + 1].push(force)
         """notable sideefect: inputting negative force works. 
         for big cell -1=0 -2=5 -3=4 and so forth until -8.
          -9 is out of range.
@@ -31,41 +36,41 @@ class beed:
         """
 
     def pull(self, force):
-        dgt, force, pl = self.initpushpull(force)
-        if not dgt[pl - force].up:
-            for b in dgt[pl - force + 1:pl + 1]:
+        cell, pl = self.cell, self.pl
+        force = min(len(cell) - 2, force)  # putting a ceiling on force avoids index error
+        if not cell[pl - force].up:
+            for b in cell[pl - force + 1:pl + 1]:
                 b.up = False
         else:
-            dgt[pl - 1].pull(force)
+            cell[pl - 1].pull(force)
 
     def draft_pushpull(self, push: bool, force: int):
-        dgt = self.cell.val
-        pl = dgt.index(self)
-        nxt = dgt[pl - 1 + (2 * push)]
+        cell, pl = self.cell, self.pl
+        nxt = cell[pl - 1 + (2 * push)]
         if push == self.up:
-
-
+            return  # placeholder
 
 
 class end:
     def __init__(self, up, cell):
         self.up = up
         self.id = 'end'
-        self.cell = cell
+        self.cell = []
+        self.pl = 0
 
     def push(self, force):
         if self.up:
             return
         else:
-            dgt = self.cell.val
-            pl = dgt.index(self)
-            dgt[pl + 1].push(force)
+            cell, pl = self.cell, self.pl
+            pl = cell.index(self)
+            cell[pl + 1].push(force)
 
     def pull(self, force):
         if self.up:
-            dgt = self.cell.val
-            pl = dgt.index(self)
-            dgt[pl - 1].pull(force)
+            cell, pl = self.cell, self.pl
+            pl = cell.index(self)
+            cell[pl - 1].pull(force)
         else:
             return
 
@@ -79,10 +84,9 @@ class end:
         if push == self.up:
             print('carry')
         else:
-            dgt = self.cell.val
-            pl_nxt = dgt.index(self) - 1 + (2 * push)
-            dgt[pl_nxt].draftpushpull(push, force)
-
+            cell, pl = self.cell, self.pl
+            pl_nxt = cell.index(self) - 1 + (2 * push)
+            cell[pl_nxt].draftpushpull(push, force)
 
 
 class cell:
@@ -100,6 +104,8 @@ class cell:
             self.val.extend([self.b4, self.b5])
         self.top = end(1, self)
         self.val.append(self.top)
+        for b in self.val:
+            initorder(b, self)
 
     def expose(self):
         return [(i.expose(), i.id) for i in self.val]
