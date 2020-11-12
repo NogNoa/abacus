@@ -16,10 +16,6 @@ class beed:
         else:
             return 'Down'
 
-    def initorder(self, cell):
-        self.cell = cell.val
-        self.pl = self.cell.index(self)
-
     def push(self, force):
         """pusshes up as much beeds as the given force"""
         cell, pl = self.cell, self.pl
