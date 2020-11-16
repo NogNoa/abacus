@@ -91,13 +91,20 @@ class End:
             cell, pl = self.cell, self.pl
             pl_nxt = cell.index(self) - dr
             cell[pl_nxt].push_pull(push, force)
-        else:
-            nxt_cell = abacus.val[self.mother.pl + dr].val
-            nxt_cell[push * -1].push_pull(push, 1)
+        elif push:
+            nxt_cell = abacus.val[self.mother.pl + 1]
+            nxt_cell.top.push_pull(True, 1)
             for b in self.cell:
                 if type(b) == Beed:
                     b.up = False
-            self.cell[push * -1].push_pull(push, force - 1)
+            self.mother.top.push_pull(True, force - 1)
+        else:  # pull
+            nxt_cell = abacus.val[self.mother.pl + 1]
+            nxt_cell.bottom.push_pull(False, 1)
+            for b in self.cell:
+                if type(b) == Beed:
+                    b.up = True
+            self.mother.bottom.push_pull(False, force - 1)
         # just seperate them damnit
 
 
@@ -175,7 +182,7 @@ class Abacus:
 abacus = Abacus()
 abacus.val[0].bottom.old_push(3)
 abacus.c56.bottom.old_push(1)
-abacus.c00.top.push_pull(False, 1)
+abacus.c00.bottom.push_pull(False, 1)
 print(abacus.c00.expose())
 print(abacus.c56.expose())
 abacus.expose()
