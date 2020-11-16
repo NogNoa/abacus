@@ -1,6 +1,6 @@
 def initorder(obj, mother):
     mother = mother.val
-    pl = obj.cell.index(obj)
+    pl = mother.index(obj)
     return mother, pl
 
 
@@ -53,11 +53,12 @@ class beed:
 
 
 class end:
-    def __init__(self, up):
+    def __init__(self, up, mother):
         self.up = up
         self.id = 'end'
         self.cell = []
         self.pl = 0
+        self.mother = mother
 
     def old_push(self, force):
         if self.up:
@@ -91,12 +92,8 @@ class end:
             pl_nxt = cell.index(self) - dr
             cell[pl_nxt].push_pull(push, force)
         else:
-            nxt_cell = abacus[self.cell.pl + dir]
-            if push:
-                nxt_end = nxt_cell.bottom
-            else:
-                nxt_end = nxt_cell.top
-            nxt_end.push_pull(push, 1)
+            nxt_cell = abacus.val[self.mother.pl + dr].val
+            nxt_cell[push * -1].push_pull(push, 1)
         # just seperate them damnit
 
 
@@ -106,7 +103,7 @@ class cell:
         self.id = cid
         self.size = (size == 'big')
         self.color = color
-        self.bottom = end(False)
+        self.bottom = end(False, self)
         self.abacus = []
         self.pl = 0
         self.b1 = beed(cid + '.b1')
@@ -117,7 +114,7 @@ class cell:
             self.b4 = beed(cid + '.b4')
             self.b5 = beed(cid + '.b5')
             self.val.extend([self.b4, self.b5])
-        self.top = end(True)
+        self.top = end(True, self)
         self.val.append(self.top)
         for b in self.val:
             b.cell, b.pl = initorder(b, self)
@@ -173,8 +170,8 @@ class abacus:
 
 
 abacus = abacus()
-#abacus.val[0].bottom.old_push(3)
-abacus.c00.bottom.push_pull(False, 2)
+abacus.val[0].bottom.old_push(3)
+abacus.c00.top.push_pull(False, 1)
 print(abacus.c00.expose())
 abacus.expose()
 
