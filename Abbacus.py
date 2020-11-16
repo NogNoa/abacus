@@ -171,8 +171,10 @@ class abacus:
 
 abacus = abacus()
 abacus.val[0].bottom.old_push(3)
+abacus.c56.bottom.old_push(1)
 abacus.c00.top.push_pull(False, 1)
 print(abacus.c00.expose())
+print(abacus.c56.expose())
 abacus.expose()
 
 """TODO:.trying to make a function that will actually be more localised to the one beed, 
