@@ -4,7 +4,7 @@ def initorder(obj, mother):
     return mother, pl
 
 
-class beed:
+class Beed:
     def __init__(self, bid):
         self.up = False
         self.id = bid
@@ -45,14 +45,14 @@ class beed:
         if force < 1:
             return
         cell, pl = self.cell, self.pl
-        dr = - 1 + (2 * push)  # direction
-        if self.up != cell[pl + dr]:
+        dr = - 1 + (2 * push)  # direction push = +1 pull = -1
+        if self.up != cell[pl + dr].up:
             self.up = not self.up
             force -= 1
         cell[pl - dr].push_pull(push, force)
 
 
-class end:
+class End:
     def __init__(self, up, mother):
         self.up = up
         self.id = 'end'
@@ -86,7 +86,7 @@ class end:
         if force < 1:
             return
         push = bool(push)
-        dr = - 1 + (2 * push)  # direction
+        dr = - 1 + (2 * push)  # direction push = +1 pull = -1
         if push == self.up:
             cell, pl = self.cell, self.pl
             pl_nxt = cell.index(self) - dr
@@ -94,27 +94,30 @@ class end:
         else:
             nxt_cell = abacus.val[self.mother.pl + dr].val
             nxt_cell[push * -1].push_pull(push, 1)
+            for b in self.cell:
+                if type(b) == Beed:
+                    b.up = False
+            self.cell[push * -1].push_pull(push, force - 1)
         # just seperate them damnit
 
 
-
-class cell:
+class Cell:
     def __init__(self, size, cid, color):
         self.id = cid
         self.size = (size == 'big')
         self.color = color
-        self.bottom = end(False, self)
+        self.bottom = End(False, self)
         self.abacus = []
         self.pl = 0
-        self.b1 = beed(cid + '.b1')
-        self.b2 = beed(cid + '.b2')
-        self.b3 = beed(cid + '.b3')
+        self.b1 = Beed(cid + '.b1')
+        self.b2 = Beed(cid + '.b2')
+        self.b3 = Beed(cid + '.b3')
         self.val = [self.bottom, self.b1, self.b2, self.b3]
         if self.size:
-            self.b4 = beed(cid + '.b4')
-            self.b5 = beed(cid + '.b5')
+            self.b4 = Beed(cid + '.b4')
+            self.b5 = Beed(cid + '.b5')
             self.val.extend([self.b4, self.b5])
-        self.top = end(True, self)
+        self.top = End(True, self)
         self.val.append(self.top)
         for b in self.val:
             b.cell, b.pl = initorder(b, self)
@@ -123,20 +126,20 @@ class cell:
         return [(i.expose(), i.id) for i in self.val]
 
 
-class abacus:
+class Abacus:
     def __init__(self):
-        self.c00 = cell('big', 'c00', 'red')
-        self.c06 = cell('small', 'c06', 'red')
-        self.c10 = cell('big', 'c10', 'yellow')
-        self.c16 = cell('small', 'c16', 'yellow')
-        self.c20 = cell('big', 'c20', 'green')
-        self.c26 = cell('small', 'c26', 'green')
-        self.c30 = cell('big', 'c30', 'blue')
-        self.c36 = cell('small', 'c36', 'blue')
-        self.c40 = cell('big', 'c40', 'indigo')
-        self.c46 = cell('small', 'c46', 'indigo')
-        self.c50 = cell('big', 'c50', 'violet')
-        self.c56 = cell('small', 'c56', 'violet')
+        self.c00 = Cell('big', 'c00', 'red')
+        self.c06 = Cell('small', 'c06', 'red')
+        self.c10 = Cell('big', 'c10', 'yellow')
+        self.c16 = Cell('small', 'c16', 'yellow')
+        self.c20 = Cell('big', 'c20', 'green')
+        self.c26 = Cell('small', 'c26', 'green')
+        self.c30 = Cell('big', 'c30', 'blue')
+        self.c36 = Cell('small', 'c36', 'blue')
+        self.c40 = Cell('big', 'c40', 'indigo')
+        self.c46 = Cell('small', 'c46', 'indigo')
+        self.c50 = Cell('big', 'c50', 'violet')
+        self.c56 = Cell('small', 'c56', 'violet')
         self.val = (self.c00, self.c06, self.c10, self.c16, self.c20, self.c26,
                     self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
         for c in self.val:
@@ -147,7 +150,7 @@ class abacus:
         for c in self.val:
             up = False
             for b in c.val:
-                if type(b) == end:
+                if type(b) == End:
                     if not b.up:
                         table.write('||-,')
                     else:
@@ -169,7 +172,7 @@ class abacus:
         print(table)
 
 
-abacus = abacus()
+abacus = Abacus()
 abacus.val[0].bottom.old_push(3)
 abacus.c56.bottom.old_push(1)
 abacus.c00.top.push_pull(False, 1)
