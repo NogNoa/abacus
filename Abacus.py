@@ -91,21 +91,14 @@ class End:
             cell, pl = self.cell, self.pl
             pl_nxt = cell.index(self) - dr
             cell[pl_nxt].push_pull(push, force)
-        elif push:
-            nxt_cell = abacus.val[self.mother.pl + 1]
-            nxt_cell.top.push_pull(True, 1)
+        else:
+            if self.mother.id != 'c56':
+                nxt_cell = abacus.val[self.mother.pl + 1].val
+                nxt_cell[push * -1].push_pull(push, 1)  # cell[-1] is top cell[0] is bottom
             for b in self.cell:
                 if type(b) == Beed:
-                    b.up = False
-            self.mother.top.push_pull(True, force - 1)
-        else:  # pull
-            nxt_cell = abacus.val[self.mother.pl + 1]
-            nxt_cell.bottom.push_pull(False, 1)
-            for b in self.cell:
-                if type(b) == Beed:
-                    b.up = True
-            self.mother.bottom.push_pull(False, force - 1)
-        # just seperate them damnit
+                    b.up = not push
+            self.cell[push * -1].push_pull(push, force - 1)
 
 
 class Cell:
@@ -180,9 +173,10 @@ class Abacus:
 
 
 abacus = Abacus()
-abacus.val[0].bottom.old_push(3)
-abacus.c56.bottom.old_push(1)
-abacus.c00.bottom.push_pull(False, 1)
+#abacus.val[0].bottom.old_push(3)
+#abacus.c56.bottom.old_push(1)
+abacus.c00.top.push_pull(True, 854)
+abacus.c00.top.push_pull(True, 849)
 print(abacus.c00.expose())
 print(abacus.c56.expose())
 abacus.expose()
