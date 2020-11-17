@@ -97,7 +97,12 @@ class Cell:
                 b.up = False
 
     def load(self, const):
+        pl = self.pl
         self.clear()
+        self.abacus[pl + 1].clear()
+        if const > 24:
+            self.abacus[pl + 2].clear()
+            self.abacus[pl + 3].clear()
         self.push(const)
 
     def numerise(self):
@@ -157,30 +162,44 @@ class Abacus:
         for c in self.val:
             c.clear()
 
-    def load(self, const, row=0):
-        if const < 24 ** 2:
-            self.val[2 * row].load(const)
+    def load(self, call, row=0):
+        if call < 24 ** 2:
+            self.val[2 * row].load(call)
+        elif call < 2870:
+            call = call - 830
+            self.load(call, row)
+            self.val[2 * row].push(830)
         else:
-            horn = const // 24 ** 2
-            const = const % 24 ** 2
-            self.load(const, row)
+            horn = call // 24 ** 2
+            call = call % 24 ** 2
+            self.load(call, row)
             self.load(horn, row + 2)
 
+    def add1(self, call, row=0):
+        if call < 830:
+            self.val[2 * row].push(call)
+        elif call < 2870:
+            call = call - 830
+            self.add1(call, row)
+            self.val[2 * row].push(830)
+        else:
+            horn = call // 24 ** 2
+            call = call % 24 ** 2
+            self.add1(call, row)
+            self.add1(horn, row + 2)
 
 
-
-
-
-abacus = Abacus()
-#abacus.c00.top.push_pull(True, 853)
-#abacus.c00.top.push_pull(True, 840)
-#abacus.c00.top.push_pull(True, 849)
-abacus.load(3000)
-print(abacus.c00.expose())
-print(abacus.c56.expose())
-abacus.expose()
+if __name__ == "__main__":
+    abacus = Abacus()
+    #abacus.c00.top.push_pull(True, 853)
+    #abacus.c00.top.push_pull(True, 840)
+    #abacus.c00.top.push_pull(True, 849)
+    abacus.load(2869)
+    abacus.expose()
+    print(24 ** 2 * 4.999)
 
 """ max add around 840-850
+TODO: treat the clear issue
 Done:.trying to make a function that will actually be more localised to the one beed, 
 at the price of running more of them, it will also be more ready to add carry.
 will probably want to seperate push and pull anyway"""
