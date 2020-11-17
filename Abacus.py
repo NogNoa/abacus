@@ -17,30 +17,6 @@ class Beed:
         else:
             return 'Down'
 
-    def old_push(self, force):
-        """pusshes up as much beeds as the given force"""
-        cell, pl = self.cell, self.pl
-        force = min(len(cell) - 2, force)  # putting a ceiling on force avoids index error
-        if cell[pl + force].up:
-            for b in cell[pl:pl + force]:
-                b.up = True
-        else:
-            cell[pl + 1].old_push(force)
-        """notable sideefect: inputting negative force works. 
-        for big cell -1=0 -2=5 -3=4 and so forth until -8.
-         -9 is out of range.
-        for small cells it's goes down to -6 and fails at -7
-        """
-
-    def old_pull(self, force):
-        cell, pl = self.cell, self.pl
-        force = min(len(cell) - 2, force)  # putting a ceiling on force avoids index error
-        if not cell[pl - force].up:
-            for b in cell[pl - force + 1:pl + 1]:
-                b.up = False
-        else:
-            cell[pl - 1].old_pull(force)
-
     def push_pull(self, push: bool, force: int):
         if force < 1:
             return
@@ -59,22 +35,6 @@ class End:
         self.cell = []
         self.pl = 0
         self.mother = mother
-
-    def old_push(self, force):
-        if self.up:
-            return
-        else:
-            cell, pl = self.cell, self.pl
-            pl = cell.index(self)
-            cell[pl + 1].old_push(force)
-
-    def old_pull(self, force):
-        if self.up:
-            cell, pl = self.cell, self.pl
-            pl = cell.index(self)
-            cell[pl - 1].old_pull(force)
-        else:
-            return
 
     def expose(self):
         if self.up:
@@ -125,6 +85,28 @@ class Cell:
     def expose(self):
         return [(i.expose(), i.id) for i in self.val]
 
+    def push(self, force):
+        self.top.push_pull(True, force)
+
+    def pull(self, force):
+        self.bottom.push_pull(False, force)
+
+    def clear(self):
+        for b in self.val:
+            if type(b) == Beed:
+                b.up = False
+
+    def load(self, const):
+        self.clear()
+        self.push(const)
+
+    def numerise(self):
+        back = 0
+        for b in self.val:
+            if type(b) == Beed:
+                back += 1
+        return back
+
 
 class Abacus:
     def __init__(self):
@@ -171,16 +153,34 @@ class Abacus:
         table = table.replace(',', '\t')
         print(table)
 
+    def clear(self):
+        for c in self.val:
+            c.clear()
+
+    def load(self, const, row=0):
+        if const < 24 ** 2:
+            self.val[2 * row].load(const)
+        else:
+            horn = const // 24 ** 2
+            const = const % 24 ** 2
+            self.load(const, row)
+            self.load(horn, row + 2)
+
+
+
+
+
 
 abacus = Abacus()
-#abacus.val[0].bottom.old_push(3)
-#abacus.c56.bottom.old_push(1)
-abacus.c00.top.push_pull(True, 854)
-abacus.c00.top.push_pull(True, 849)
+#abacus.c00.top.push_pull(True, 853)
+#abacus.c00.top.push_pull(True, 840)
+#abacus.c00.top.push_pull(True, 849)
+abacus.load(3000)
 print(abacus.c00.expose())
 print(abacus.c56.expose())
 abacus.expose()
 
-"""TODO:.trying to make a function that will actually be more localised to the one beed, 
+""" max add around 840-850
+Done:.trying to make a function that will actually be more localised to the one beed, 
 at the price of running more of them, it will also be more ready to add carry.
 will probably want to seperate push and pull anyway"""
