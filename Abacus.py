@@ -19,13 +19,14 @@ class Beed:
 
     def push_pull(self, push: bool, force: int):
         if force < 1:
-            return
+            return force
         cell, pl = self.cell, self.pl
         dr = - 1 + (2 * push)  # direction push = +1 pull = -1
         if self.up != cell[pl + dr].up:
             self.up = not self.up
             force -= 1
-        cell[pl - dr].push_pull(push, force)
+        force = cell[pl - dr].push_pull(push, force)
+        return force
 
 
 class End:
@@ -44,22 +45,25 @@ class End:
 
     def push_pull(self, push, force: int):
         if force < 1:
-            return False
+            return force
         push = bool(push)
         dr = - 1 + (2 * push)  # direction push = +1 pull = -1
         if push == self.up:
             cell, pl = self.cell, self.pl
             pl_nxt = cell.index(self) - dr
-            cell[pl_nxt].push_pull(push, force)
+            force = cell[pl_nxt].push_pull(push, force)
         else:
+            """ clear_set the cell,  \
+            push_pull by 1 the next cell  \
+            and return the push_pull to the other end of same cell"""
             if self.mother.id != 'c56':
                 nxt_cell = abacus.val[self.mother.pl + 1].val
                 nxt_cell[push * -1].push_pull(push, 1)  # cell[-1] is top cell[0] is bottom
             for b in self.cell:
                 if type(b) == Beed:
                     b.up = not push
-            self.cell[push * -1].push_pull(push, force - 1)
-            return True
+            #force = self.cell[push * -1].push_pull(push, force - 1)
+        return force
 
 
 class Cell:
@@ -70,6 +74,9 @@ class Cell:
         self.bottom = End(False, self)
         self.abacus = []
         self.pl = 0
+        self.didcarry = False
+        self.didborrow = False
+
         self.b1 = Beed(cid + '.b1')
         self.b2 = Beed(cid + '.b2')
         self.b3 = Beed(cid + '.b3')
@@ -87,10 +94,8 @@ class Cell:
         return [(i.expose(), i.id) for i in self.val]
 
     def push_pull(self, push, force):
-        carry = self.top.push_pull(push, force)
-        if carry:
-            self.val[push * -1].push_pull(push, force -1)
-
+        while force > 0:
+            force = self.val[push * -1].push_pull(push, force - 1)
 
     def push(self, force):
         self.top.push_pull(True, force)
@@ -198,10 +203,10 @@ class Abacus:
 
 if __name__ == "__main__":
     abacus = Abacus()
-    #abacus.c00.top.push_pull(True, 853)
+    abacus.c00.push_pull(True, 3000)
     #abacus.c00.top.push_pull(True, 840)
     #abacus.c00.top.push_pull(True, 849)
-    abacus.load(2869)
+    #abacus.load(2869)
     abacus.expose()
     print(24 ** 2 * 4.999)
 
