@@ -44,7 +44,7 @@ class End:
 
     def push_pull(self, push, force: int):
         if force < 1:
-            return
+            return False
         push = bool(push)
         dr = - 1 + (2 * push)  # direction push = +1 pull = -1
         if push == self.up:
@@ -59,6 +59,7 @@ class End:
                 if type(b) == Beed:
                     b.up = not push
             self.cell[push * -1].push_pull(push, force - 1)
+            return True
 
 
 class Cell:
@@ -84,6 +85,12 @@ class Cell:
 
     def expose(self):
         return [(i.expose(), i.id) for i in self.val]
+
+    def push_pull(self, push, force):
+        carry = self.top.push_pull(push, force)
+        if carry:
+            self.val[push * -1].push_pull(push, force -1)
+
 
     def push(self, force):
         self.top.push_pull(True, force)
