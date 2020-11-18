@@ -30,12 +30,11 @@ class Beed:
 
 
 class End:
-    def __init__(self, up, mother):
+    def __init__(self, up):
         self.up = up
         self.id = 'end'
         self.cell = []
         self.pl = 0
-        self.mother = mother
 
     def expose(self):
         if self.up:
@@ -49,18 +48,10 @@ class End:
         push = bool(push)
         dr = - 1 + (2 * push)  # direction push = +1 pull = -1
         if push == self.up:
+            # only work in the right direction, when reaching the other end it returns to the cell
             cell, pl = self.cell, self.pl
             pl_nxt = cell.index(self) - dr
             force = cell[pl_nxt].push_pull(push, force)
-        else:
-            """ clear_set the cell,  \
-            push_pull by 1 the next cell  \
-            and return the push_pull to the other end of same cell"""
-            if self.mother.id != 'c56':
-                nxt_cell = abacus.val[self.mother.pl + 1].val
-                nxt_cell[push * -1].push_pull(push, 1)  # cell[-1] is top cell[0] is bottom
-            force -= 1
-            #force = self.cell[push * -1].push_pull(push, force - 1)
         return force
 
 
@@ -69,7 +60,7 @@ class Cell:
         self.id = cid
         self.size = (size == 'big')
         self.color = color
-        self.bottom = End(False, self)
+        self.bottom = End(False)
         self.abacus = []
         self.pl = 0
         self.didcarry = False
@@ -83,7 +74,7 @@ class Cell:
             self.b4 = Beed(cid + '.b4')
             self.b5 = Beed(cid + '.b5')
             self.val.extend([self.b4, self.b5])
-        self.top = End(True, self)
+        self.top = End(True)
         self.val.append(self.top)
         for b in self.val:
             b.cell, b.pl = initorder(b, self)
@@ -94,20 +85,31 @@ class Cell:
     def push_pull(self, push, force):
         force = self.val[push * -1].push_pull(push, force)
         while force > 0:
+            """ push_pull by 1 the next cell  \
+            clear_set the cell,  \
+            and aplly the push_pull to itself again s.t force -= 1"""
+            if self.id != 'c56':
+                abacus.val[self.pl + 1].push_pull(push, 1)  # cell[-1] is top cell[0] is bottom
             self.set_clear(not push)
-            force = self.val[push * -1].push_pull(push, force)
-
+            force = self.val[push * -1].push_pull(push, force - 1)
 
     def push(self, force):
-        self.top.push_pull(True, force)
+        self.push_pull(True, force)
 
     def pull(self, force):
-        self.bottom.push_pull(False, force)
+        self.push_pull(False, force)
 
     def set_clear(self, st: bool):
         for b in self.val:
             if type(b) == Beed:
                 b.up = st
+
+    def set(self):
+        self.set_clear(True)
+
+    def clear(self):
+        self.set_clear(False)
+
     """
     def load(self, const):
         pl = self.pl
@@ -166,15 +168,37 @@ class Abacus:
             if self.val.index(c) % 2:
                 table.write(c.color + '\n')
 
+    def new_expose(self):
+        back = ''
+        for c in self.val:
+            up = False
+            for b in c.val:
+                if type(b) == End:
+                    if not b.up:
+                        back += '||-,'
+                    else:
+                        if not up:
+                            back += '---,' * 3
+                        back += '-||,'
+                elif b.up == up:  # type(b) == beed
+                    back += '-O-,'
+                else:  # b.up != up:
+                    back += '---,' * 3 + '-O-,'
+                    up = True
+            if self.val.index(c) % 2:
+                back += c.color + '\n'
+        back = back.replace(',', '\t')
+        print(back)
+
     def expose(self, table='abacus.csv'):
         self.prnt(table)
         table = open(table, 'r+').read()
         table = table.replace(',', '\t')
         print(table)
 
-    def set_clear(self, st:bool):
+    def clear(self):
         for c in self.val:
-            c.set_clear(st)
+            c.set_clear(False)
 
     def load(self, call, row=0):
         if call < 24 ** 2:
@@ -205,11 +229,13 @@ class Abacus:
 
 if __name__ == "__main__":
     abacus = Abacus()
-    abacus.c00.push_pull(True, 23)
-    #abacus.c00.top.push_pull(True, 840)
-    #abacus.c00.top.push_pull(True, 849)
-    #abacus.load(2869)
+    abacus.c00.push_pull(True, 300)
+    # abacus.c00.set_clear(False)
+    # abacus.c00.top.push_pull(True, 840)
+    # abacus.c00.top.push_pull(True, 849)
+    # abacus.load(2869)
     abacus.expose()
+    print(abacus.c06.numerise())
 
 """ max add around 840-850
 TODO: treat the clear issue
