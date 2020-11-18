@@ -148,53 +148,31 @@ class Abacus:
         for c in self.val:
             c.abacus, c.pl = initorder(c, self)
 
-    def prnt(self, table='abacus.csv'):
-        table = open(table, 'w+')
-        for c in self.val:
-            up = False
-            for b in c.val:
-                if type(b) == End:
-                    if not b.up:
-                        table.write('||-,')
-                    else:
-                        if not up:
-                            table.write('---,' * 3)
-                        table.write('-||,')
-                elif b.up == up:  # type(b) == beed
-                    table.write('-O-,')
-                else:  # b.up != up:
-                    table.write('---,' * 3 + '-O-,')
-                    up = True
-            if self.val.index(c) % 2:
-                table.write(c.color + '\n')
-
-    def new_expose(self):
+    def expose(self):
         back = ''
         for c in self.val:
             up = False
             for b in c.val:
                 if type(b) == End:
                     if not b.up:
-                        back += '||-,'
+                        back += '||-\t'
                     else:
                         if not up:
-                            back += '---,' * 3
-                        back += '-||,'
+                            back += '---\t' * 3
+                        back += '-||\t'
                 elif b.up == up:  # type(b) == beed
-                    back += '-O-,'
+                    back += '-O-\t'
                 else:  # b.up != up:
-                    back += '---,' * 3 + '-O-,'
+                    back += '---\t' * 3 + '-O-\t'
                     up = True
             if self.val.index(c) % 2:
                 back += c.color + '\n'
-        back = back.replace(',', '\t')
-        print(back)
+        return back
 
-    def expose(self, table='abacus.csv'):
-        self.prnt(table)
-        table = open(table, 'r+').read()
-        table = table.replace(',', '\t')
-        print(table)
+    def prnt(self, table='abacus.csv'):
+        back = self.expose()
+        back = back.replace('\t', ',')
+        open(table, 'w+').write(back)
 
     def clear(self):
         for c in self.val:
@@ -229,13 +207,14 @@ class Abacus:
 
 if __name__ == "__main__":
     abacus = Abacus()
-    abacus.c00.push_pull(True, 300)
+    abacus.c00.push_pull(True, 13)
     # abacus.c00.set_clear(False)
     # abacus.c00.top.push_pull(True, 840)
     # abacus.c00.top.push_pull(True, 849)
     # abacus.load(2869)
-    abacus.expose()
+    # abacus.expose()
     print(abacus.c06.numerise())
+    abacus.prnt()
 
 """ max add around 840-850
 TODO: treat the clear issue
