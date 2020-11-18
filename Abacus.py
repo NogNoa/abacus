@@ -59,9 +59,7 @@ class End:
             if self.mother.id != 'c56':
                 nxt_cell = abacus.val[self.mother.pl + 1].val
                 nxt_cell[push * -1].push_pull(push, 1)  # cell[-1] is top cell[0] is bottom
-            for b in self.cell:
-                if type(b) == Beed:
-                    b.up = not push
+            force -= 1
             #force = self.cell[push * -1].push_pull(push, force - 1)
         return force
 
@@ -94,8 +92,11 @@ class Cell:
         return [(i.expose(), i.id) for i in self.val]
 
     def push_pull(self, push, force):
+        force = self.val[push * -1].push_pull(push, force)
         while force > 0:
-            force = self.val[push * -1].push_pull(push, force - 1)
+            self.set_clear(not push)
+            force = self.val[push * -1].push_pull(push, force)
+
 
     def push(self, force):
         self.top.push_pull(True, force)
@@ -103,24 +104,25 @@ class Cell:
     def pull(self, force):
         self.bottom.push_pull(False, force)
 
-    def clear(self):
+    def set_clear(self, st: bool):
         for b in self.val:
             if type(b) == Beed:
-                b.up = False
-
+                b.up = st
+    """
     def load(self, const):
         pl = self.pl
-        self.clear()
+        self.st_clear(st=True)
         self.abacus[pl + 1].clear()
         if const > 24:
             self.abacus[pl + 2].clear()
             self.abacus[pl + 3].clear()
         self.push(const)
+    """
 
     def numerise(self):
         back = 0
         for b in self.val:
-            if type(b) == Beed:
+            if type(b) == Beed and b.up:
                 back += 1
         return back
 
@@ -170,9 +172,9 @@ class Abacus:
         table = table.replace(',', '\t')
         print(table)
 
-    def clear(self):
+    def set_clear(self, st:bool):
         for c in self.val:
-            c.clear()
+            c.set_clear(st)
 
     def load(self, call, row=0):
         if call < 24 ** 2:
@@ -203,12 +205,11 @@ class Abacus:
 
 if __name__ == "__main__":
     abacus = Abacus()
-    abacus.c00.push_pull(True, 3000)
+    abacus.c00.push_pull(True, 23)
     #abacus.c00.top.push_pull(True, 840)
     #abacus.c00.top.push_pull(True, 849)
     #abacus.load(2869)
     abacus.expose()
-    print(24 ** 2 * 4.999)
 
 """ max add around 840-850
 TODO: treat the clear issue
