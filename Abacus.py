@@ -60,12 +60,12 @@ class Cell:
         self.id = cid
         self.size = (size == 'big')
         self.color = color
-        self.bottom = End(False)
         self.abacus = []
         self.pl = 0
         self.didcarry = False
         self.didborrow = False
 
+        self.bottom = End(up=False)
         self.b1 = Beed(cid + '.b1')
         self.b2 = Beed(cid + '.b2')
         self.b3 = Beed(cid + '.b3')
@@ -74,7 +74,7 @@ class Cell:
             self.b4 = Beed(cid + '.b4')
             self.b5 = Beed(cid + '.b5')
             self.val.extend([self.b4, self.b5])
-        self.top = End(True)
+        self.top = End(up=True)
         self.val.append(self.top)
         for b in self.val:
             b.cell, b.pl = initorder(b, self)
@@ -94,25 +94,24 @@ class Cell:
             force = self.val[push * -1].push_pull(push, force - 1)
 
     def push(self, force):
-        self.push_pull(True, force)
+        self.push_pull(push=True, force=force)
 
     def pull(self, force):
-        self.push_pull(False, force)
+        self.push_pull(push=False, force=force)
 
     def set_clear(self, st: bool):
         for b in self.val[1:-1]:
             b.up = st
 
     def set(self):
-        self.set_clear(True)
+        self.set_clear(st=True)
 
     def clear(self):
-        self.set_clear(False)
+        self.set_clear(st=False)
 
     def load(self, const):
-        pl = self.pl
         self.set_clear(st=False)
-        #self.abacus[pl + 1].clear()
+        # self.abacus[pl + 1].clear()
         self.push(const)
 
     def numerise(self):
@@ -174,51 +173,49 @@ class Abacus:
         for c in self.val:
             c.set_clear(False)
 
-    def load(self, call, row=0):
-        if call < 24 ** 2:
-            self.val[2 * row].load(call)
-        elif call < 2870:
-            call = call - 830
-            self.load(call, row)
-            self.val[2 * row].push(830)
-        else:
-            horn = call // 24 ** 2
-            call = call % 24 ** 2
-            self.load(call, row)
-            self.load(horn, row + 2)
+    def load(self, call, cell_0=0, lngth=1):
+        for c in range(1, lngth):
+            self.val[cell_0 + c].clear()
+        # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
+        self.val[cell_0].load(call)
 
-    def add1(self, call, row=0):
-        if call < 830:
-            self.val[2 * row].push(call)
-        elif call < 2870:
-            call = call - 830
-            self.add1(call, row)
-            self.val[2 * row].push(830)
-        else:
-            horn = call // 24 ** 2
-            call = call % 24 ** 2
-            self.add1(call, row)
-            self.add1(horn, row + 2)
+    def add1(self, call, cell_0=0):
+        self.val[cell_0].push(call)
+
+    def sub1(self,call, cell_0=0):
+        self.val[cell_0].pull(call)
+
+    def addition(self, augend, *addendi):
+        self.load(augend)
+        for a in addendi:
+            self.add1(a)
+
+    def subtraction(self, minuend, *subtrendi):
+        self.load(minuend)
+        for s in subtrendi:
+            self.sub1(s)
             
 
 if __name__ == "__main__":
     abacus = Abacus()
-    abacus.c00.push(3000)
+    #abacus.c00.push(3000)
     """
     # abacus.c00.set_clear(False)
-    # abacus.c00.top.push_pull(True, 840)
-    # abacus.c00.top.push_pull(True, 849)
+    # abacus.c00.top.push_pull(push=True, 840)
+    # abacus.c00.top.push_pull(push=True, 849)
     # abacus.load(2869)
     # abacus.expose()
     for c in abacus.val:
         print(c.id, c.numerise())
+    abacus.load(3, 1, lngth=1)
     """
-    abacus.c06.load(4)
+    abacus.subtraction(3000, 300, 24)
     abacus.prnt(tee=True)
 
 
 """ max add around 840-850
-TODO: treat the clear issue
-Done:.trying to make a function that will actually be more localised to the one beed, 
+TODO: how to treat the carry and borrow flags
+Done: treat the clear issue
+trying to make a function that will actually be more localised to the one beed, 
 at the price of running more of them, it will also be more ready to add carry.
 will probably want to seperate push and pull anyway"""
