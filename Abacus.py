@@ -100,9 +100,8 @@ class Cell:
         self.push_pull(False, force)
 
     def set_clear(self, st: bool):
-        for b in self.val:
-            if type(b) == Beed:
-                b.up = st
+        for b in self.val[1:-1]:
+            b.up = st
 
     def set(self):
         self.set_clear(True)
@@ -110,21 +109,16 @@ class Cell:
     def clear(self):
         self.set_clear(False)
 
-    """
     def load(self, const):
         pl = self.pl
-        self.st_clear(st=True)
-        self.abacus[pl + 1].clear()
-        if const > 24:
-            self.abacus[pl + 2].clear()
-            self.abacus[pl + 3].clear()
+        self.set_clear(st=False)
+        #self.abacus[pl + 1].clear()
         self.push(const)
-    """
 
     def numerise(self):
         back = 0
-        for b in self.val:
-            if type(b) == Beed and b.up:
+        for b in self.val[1:-1]:
+            if b.up:
                 back += 1
         return back
 
@@ -169,8 +163,10 @@ class Abacus:
                 back += c.color + '\n'
         return back
 
-    def prnt(self, table='abacus.csv'):
+    def prnt(self, table='abacus.csv', tee=False):
         back = self.expose()
+        if tee:
+            print(back)
         back = back.replace('\t', ',')
         open(table, 'w+').write(back)
 
@@ -203,18 +199,23 @@ class Abacus:
             call = call % 24 ** 2
             self.add1(call, row)
             self.add1(horn, row + 2)
-
+            
 
 if __name__ == "__main__":
     abacus = Abacus()
-    abacus.c00.push_pull(True, 13)
+    abacus.c00.push(3000)
+    """
     # abacus.c00.set_clear(False)
     # abacus.c00.top.push_pull(True, 840)
     # abacus.c00.top.push_pull(True, 849)
     # abacus.load(2869)
     # abacus.expose()
-    print(abacus.c06.numerise())
-    abacus.prnt()
+    for c in abacus.val:
+        print(c.id, c.numerise())
+    """
+    abacus.c06.load(4)
+    abacus.prnt(tee=True)
+
 
 """ max add around 840-850
 TODO: treat the clear issue
