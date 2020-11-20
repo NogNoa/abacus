@@ -42,10 +42,9 @@ class End:
         else:
             return 'Bottom'
 
-    def push_pull(self, push, force: int):
+    def push_pull(self, push: bool, force: int):
         if force < 1:
             return force
-        push = bool(push)
         dr = - 1 + (2 * push)  # direction push = +1 pull = -1
         if push == self.up:
             # only work in the right direction, when reaching the other end it returns to the cell
@@ -56,14 +55,13 @@ class End:
 
 
 class Cell:
-    def __init__(self, size, cid, color):
+    def __init__(self, size, cid, color, mother=None):
         self.id = cid
         self.size = (size == 'big')
         self.color = color
         self.abacus = []
         self.pl = 0
-        self.didcarry = False
-        self.didborrow = False
+        self.mother = mother
 
         self.bottom = End(up=False)
         self.b1 = Beed(cid + '.b1')
@@ -90,7 +88,9 @@ class Cell:
             and aplly the push_pull to itself again s.t force -= 1"""
             if self.id != 'c56':
                 abacus.val[self.pl + 1].push_pull(push, 1)  # cell[-1] is top cell[0] is bottom
-            self.set_clear(not push)
+            else:
+                self.mother.flow(over=push)
+            self.set_clear(st=not push)
             force = self.val[push * -1].push_pull(push, force - 1)
 
     def push(self, force):
@@ -110,7 +110,7 @@ class Cell:
         self.set_clear(st=False)
 
     def load(self, const):
-        self.set_clear(st=False)
+        self.clear()
         # self.abacus[pl + 1].clear()
         self.push(const)
 
@@ -124,7 +124,7 @@ class Cell:
 
 class Abacus:
     def __init__(self):
-        self.c00 = Cell('big', 'c00', 'red')
+        self.c00 = Cell('big', 'c00', 'red', )
         self.c06 = Cell('small', 'c06', 'red')
         self.c10 = Cell('big', 'c10', 'yellow')
         self.c16 = Cell('small', 'c16', 'yellow')
@@ -135,11 +135,13 @@ class Abacus:
         self.c40 = Cell('big', 'c40', 'indigo')
         self.c46 = Cell('small', 'c46', 'indigo')
         self.c50 = Cell('big', 'c50', 'violet')
-        self.c56 = Cell('small', 'c56', 'violet')
+        self.c56 = Cell('small', 'c56', 'violet', self)
         self.val = (self.c00, self.c06, self.c10, self.c16, self.c20, self.c26,
                     self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
         for c in self.val:
             c.abacus, c.pl = initorder(c, self)
+        self.overflow = False
+        self.underflow = False
 
     def expose(self):
         back = ''
@@ -169,9 +171,17 @@ class Abacus:
         back = back.replace('\t', ',')
         open(table, 'w+').write(back)
 
+    def flow(self, over):
+        if over:
+            self.overflow = True
+        else:
+            self.underflow = True
+
     def clear(self):
         for c in self.val:
-            c.set_clear(False)
+            c.clear()
+
+    # note no set, making a macro for this is superfluous.
 
     def load(self, call, cell_0=0, lngth=1):
         for c in range(1, lngth):
@@ -182,25 +192,33 @@ class Abacus:
     def add1(self, call, cell_0=0):
         self.val[cell_0].push(call)
 
-    def sub1(self,call, cell_0=0):
+    def sub1(self, call, cell_0=0):
         self.val[cell_0].pull(call)
 
     def addition(self, augend, *addendi):
+        self.overflow = False
         self.load(augend)
         for a in addendi:
             self.add1(a)
+        if self.overflow:
+            print("I got overflowed")
 
     def subtraction(self, minuend, *subtrendi):
+        self.underflow = False
         self.load(minuend)
         for s in subtrendi:
             self.sub1(s)
-            
+        if self.underflow:
+            print("I got undrflowed")
+
+
+
 
 if __name__ == "__main__":
     abacus = Abacus()
-    #abacus.c00.push(3000)
+    # abacus.c00.push(3000)
     """
-    # abacus.c00.set_clear(False)
+    # abacus.c00.clear(False)
     # abacus.c00.top.push_pull(push=True, 840)
     # abacus.c00.top.push_pull(push=True, 849)
     # abacus.load(2869)
@@ -212,10 +230,10 @@ if __name__ == "__main__":
     abacus.subtraction(3000, 300, 24)
     abacus.prnt(tee=True)
 
-
 """ max add around 840-850
-TODO: how to treat the carry and borrow flags
-Done: treat the clear issue
+TODO: cli
+Done: how to treat the carry and borrow flags
+treat the clear issue
 trying to make a function that will actually be more localised to the one beed, 
 at the price of running more of them, it will also be more ready to add carry.
 will probably want to seperate push and pull anyway"""
