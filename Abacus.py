@@ -4,6 +4,16 @@ def initorder(obj, mother):
     return mother, pl
 
 
+def length24(call):
+    log = (0, 24, 576, 13824, 331776, 7962624, 191102976)
+    back = 0
+    for n in log:
+        if call >= n:
+            back = log.index(n)
+        else:
+            return back + 1
+
+
 class Beed:
     def __init__(self, bid):
         self.up = False
@@ -93,10 +103,10 @@ class Cell:
             self.set_clear(st=not push)
             force = self.val[push * -1].push_pull(push, force - 1)
 
-    def push(self, force):
+    def push(self, force=1):
         self.push_pull(push=True, force=force)
 
-    def pull(self, force):
+    def pull(self, force=1):
         self.push_pull(push=False, force=force)
 
     def set_clear(self, st: bool):
@@ -189,6 +199,23 @@ class Abacus:
         # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
         self.val[cell_0].load(call)
 
+    def right(self):
+        self.c00.clear()
+        # c56 is the one that's actually end up cleared, as the last nxt
+        for c in self.val[:-2]:
+            nxt = self.val[c.pl + 2]
+            while nxt.numerise() != 0:
+                nxt.pull()
+                c.push()
+
+    def left(self):
+        self.c56.clear()
+        for c in self.val[:1:-1]:
+            nxt = self.val[c.pl - 2]
+            while nxt.numerise() != 0:
+                nxt.pull()
+                c.push()
+
     def add1(self, call, cell_0=0):
         self.val[cell_0].push(call)
 
@@ -197,6 +224,7 @@ class Abacus:
 
     def addition(self, augend, *addendi):
         self.overflow = False
+        self.clear()
         self.load(augend)
         for a in addendi:
             self.add1(a)
@@ -205,13 +233,23 @@ class Abacus:
 
     def subtraction(self, minuend, *subtrendi):
         self.underflow = False
+        self.clear()
         self.load(minuend)
         for s in subtrendi:
             self.sub1(s)
         if self.underflow:
             print("I got undrflowed")
 
-
+    def multiplication(self, multiplier, multiplicand):
+        lngth = length24(multiplier)
+        self.clear()
+        self.load(multiplier)
+        for count in range(lngth):
+            print(self.expose())
+            while not (self.c00.numerise() == 0 and self.c06.numerise() == 0):
+                self.add1(multiplicand, cell_0=lngth * 2)
+                self.c00.pull()
+            self.right()
 
 
 if __name__ == "__main__":
@@ -228,6 +266,7 @@ if __name__ == "__main__":
     abacus.load(3, 1, lngth=1)
     """
     abacus.subtraction(3000, 300, 24)
+    abacus.multiplication(24, 24)
     abacus.prnt(tee=True)
 
 """ max add around 840-850
