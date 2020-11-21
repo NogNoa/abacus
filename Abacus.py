@@ -5,13 +5,14 @@ def initorder(obj, mother):
 
 
 def length24(call):
-    log = (0, 24, 576, 13824, 331776, 7962624, 191102976)
+    log = (0, 24, 576, 13824, 331776)
     back = 0
     for n in log:
         if call >= n:
             back = log.index(n)
         else:
-            return back + 1
+            break
+    return back + 1
 
 
 class Beed:
@@ -266,7 +267,7 @@ if __name__ == "__main__":
     abacus.load(3, 1, lngth=1)
     """
     abacus.subtraction(3000, 300, 24)
-    abacus.multiplication(24, 24)
+    abacus.multiplication(1, 24 ** 5)
     abacus.prnt(tee=True)
 
 """ max add around 840-850
