@@ -261,18 +261,6 @@ class Abacus:
         if self.overflow:
             print("I got overflowed")
 
-    def multiplication16(self, multiplier, multiplicand):
-        self.c56.clear()
-        self.load(multiplier, cell_0=10)
-        for i in range(5):
-            self.right()
-        print(self.expose())
-        while not (self.c00.numerise() == 0 and self.c06.numerise() == 0):
-            self.add1(multiplicand)
-            self.c00.pull()
-        if self.overflow:
-            print("I got overflowed")
-
 
 if __name__ == "__main__":
     abacus = Abacus()
