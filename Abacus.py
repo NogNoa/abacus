@@ -121,8 +121,10 @@ class Cell:
         self.set_clear(st=False)
 
     def load(self, const):
+        if const >= 24**6:
+            print(f'Very funny. The input {const} is too big for my brain. I\'m not wasting my time')
+            const = 0
         self.clear()
-        # self.abacus[pl + 1].clear()
         self.push(const)
 
     def numerise(self):
@@ -199,6 +201,7 @@ class Abacus:
             self.val[cell_0 + c].clear()
         # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
         self.val[cell_0].load(call)
+        print(self.expose())
 
     def right(self):
         self.c00.clear()
@@ -241,18 +244,27 @@ class Abacus:
         if self.underflow:
             print("I got undrflowed")
 
+    def magnitude(self):
+        back = 6
+        for i in range(6):
+            icositetrigit = self.val[-2 * i - 1].numerise() + self.val[-2 * i - 2].numerise()
+            if icositetrigit == 0:
+                back -= 1
+            else:
+                break
+        return back
+
     def multiplication(self, multiplier, multiplicand):
-        lngth = length24(multiplier)
+        self.clear()
+        self.load(multiplier)
+        lngth = self.magnitude()
         if lngth > 6:
             print('multiplier is very big. I skipped the multiplication')
             return
         elif length24(multiplicand) > 5:
             self.multiplication(multiplicand, multiplier)
             return
-        self.clear()
-        self.load(multiplier)
         for count in range(lngth):
-            print(self.expose())
             while not (self.c00.numerise() == 0 and self.c06.numerise() == 0):
                 self.add1(multiplicand, cell_0=min(lngth * 2, 10))
                 self.c00.pull()
@@ -264,8 +276,8 @@ class Abacus:
 
 if __name__ == "__main__":
     abacus = Abacus()
+    """   
     # abacus.c00.push(3000)
-    """
     # abacus.c00.clear(False)
     # abacus.c00.top.push_pull(push=True, 840)
     # abacus.c00.top.push_pull(push=True, 849)
@@ -274,13 +286,14 @@ if __name__ == "__main__":
     for c in abacus.val:
         print(c.id, c.numerise())
     abacus.load(3, 1, lngth=1)
+    # abacus.subtraction(3000, -1)
     """
-    abacus.subtraction(3000, 300, 24)
-    abacus.multiplication(411111, 1)
+    abacus.multiplication(30000000, 1)
     abacus.prnt(tee=True)
 
 """ max add around 840-850
 TODO: cli
+replace length24
 Done: how to treat the carry and borrow flags
 treat the clear issue
 trying to make a function that will actually be more localised to the one beed, 
