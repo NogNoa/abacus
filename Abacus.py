@@ -5,7 +5,7 @@ def initorder(obj, mother):
 
 
 def length24(call):
-    log = (0, 24, 576, 13824, 331776)
+    log = (0, 24, 576, 13824, 331776, 24 ** 5)
     back = 0
     for n in log:
         if call >= n:
@@ -243,14 +243,35 @@ class Abacus:
 
     def multiplication(self, multiplier, multiplicand):
         lngth = length24(multiplier)
+        if lngth > 6:
+            print('multiplier is very big. I skipped the multiplication')
+            return
+        elif length24(multiplicand) > 5:
+            self.multiplication(multiplicand, multiplier)
+            return
         self.clear()
         self.load(multiplier)
         for count in range(lngth):
             print(self.expose())
             while not (self.c00.numerise() == 0 and self.c06.numerise() == 0):
-                self.add1(multiplicand, cell_0=lngth * 2)
+                self.add1(multiplicand, cell_0=min(lngth * 2, 10))
                 self.c00.pull()
+            if count < 5:
+                self.right()
+        if self.overflow:
+            print("I got overflowed")
+
+    def multiplication16(self, multiplier, multiplicand):
+        self.c56.clear()
+        self.load(multiplier, cell_0=10)
+        for i in range(5):
             self.right()
+        print(self.expose())
+        while not (self.c00.numerise() == 0 and self.c06.numerise() == 0):
+            self.add1(multiplicand)
+            self.c00.pull()
+        if self.overflow:
+            print("I got overflowed")
 
 
 if __name__ == "__main__":
@@ -267,7 +288,7 @@ if __name__ == "__main__":
     abacus.load(3, 1, lngth=1)
     """
     abacus.subtraction(3000, 300, 24)
-    abacus.multiplication(1, 24 ** 5)
+    abacus.multiplication(411111, 1)
     abacus.prnt(tee=True)
 
 """ max add around 840-850
