@@ -1,4 +1,4 @@
-verbose = False
+verbose = True
 
 
 def initorder(obj, mother):
@@ -31,7 +31,7 @@ class Beed:
         else:
             return 'Down'
 
-    def push_pull(self, push: bool, force: int):
+    def push_pull(self, force: int, push: bool):
         if force < 1:
             return force
         cell, pl = self.cell, self.pl
@@ -39,7 +39,7 @@ class Beed:
         if self.up != cell[pl + dr].up:
             self.up = not self.up
             force -= 1
-        force = cell[pl - dr].push_pull(push, force)
+        force = cell[pl - dr].push_pull(force, push)
         return force
 
 
@@ -56,7 +56,7 @@ class End:
         else:
             return 'Bottom'
 
-    def push_pull(self, push: bool, force: int):
+    def push_pull(self, force: int, push: bool):
         if force < 1:
             return force
         dr = - 1 + (2 * push)  # direction push = +1 pull = -1
@@ -64,7 +64,7 @@ class End:
             # only work in the right direction, when reaching the other end it returns to the cell
             cell, pl = self.cell, self.pl
             pl_nxt = cell.index(self) - dr
-            force = cell[pl_nxt].push_pull(push, force)
+            force = cell[pl_nxt].push_pull(force, push)
         return force
 
 
@@ -94,24 +94,24 @@ class Cell:
     def expose(self):
         return [(i.expose(), i.id) for i in self.val]
 
-    def push_pull(self, push, force):
-        force = self.val[push * -1].push_pull(push, force)
+    def push_pull(self, force, push):
+        force = self.val[push * -1].push_pull(force, push)
         while force > 0:
             """ push_pull by 1 the next cell  \
             clear_set the cell,  \
             and aplly the push_pull to itself again s.t force -= 1"""
             if self.id != 'c56':
-                abacus.val[self.pl + 1].push_pull(push, 1)  # cell[-1] is top cell[0] is bottom
+                abacus.val[self.pl + 1].push_pull(1, push)  # cell[-1] is top cell[0] is bottom
             else:
                 self.mother.flow(over=push)
             self.set_clear(st=not push)
-            force = self.val[push * -1].push_pull(push, force - 1)
+            force = self.val[push * -1].push_pull(force - 1, push)
 
     def push(self, force=1):
-        self.push_pull(push=True, force=force)
+        self.push_pull(force, push=True)
 
     def pull(self, force=1):
-        self.push_pull(push=False, force=force)
+        self.push_pull(force, push=False)
 
     def set_clear(self, st: bool):
         for b in self.val[1:-1]:
@@ -260,7 +260,7 @@ class Abacus:
     def magnitude(self):
         back = 6
         for i in range(6):
-            icositetrigit = self.val[-2 * i - 1].numerise() + self.val[-2 * i - 2].numerise()
+            icositetrigit = self.val[-2 * i - 1].numerise() and self.val[-2 * i - 2].numerise()
             if icositetrigit == 0:
                 back -= 1
             else:
@@ -286,7 +286,7 @@ class Abacus:
                 self.multiplication(multiplicand, multiplier)
             return
         for count in range(lngth):
-            while not (self.c00.numerise() == 0 and self.c06.numerise() == 0):
+            while not (self.c00.numerise() and self.c06.numerise() == 0):
                 self.c00.pull()
                 self.add1(multiplicand, cell_0=min(lngth * 2, 10))
             if count < 5:
@@ -297,20 +297,9 @@ class Abacus:
 
 if __name__ == "__main__":
     abacus = Abacus()
-    """   
-    # abacus.c00.push(3000)
-    # abacus.c00.clear(False)
-    # abacus.c00.top.push_pull(push=True, 840)
-    # abacus.c00.top.push_pull(push=True, 849)
-    # abacus.load(2869)
-    # abacus.expose()
-    for c in abacus.val:
-        print(c.id, c.numerise())
-    abacus.load(3, 1, lngth=1)
-    # abacus.subtraction(3000, -1)
-    """
     abacus.multiplication(7, 5)
     abacus.prnt(tee=True)
+
 
 """ max add around 840-850
 TODO: cli
