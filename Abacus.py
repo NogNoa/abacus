@@ -1,3 +1,6 @@
+verbose = False
+
+
 def initorder(obj, mother):
     mother = mother.val
     pl = mother.index(obj)
@@ -122,7 +125,8 @@ class Cell:
 
     def load(self, const):
         if const >= 24**6:
-            print(f'Very funny. The input {const} is too big for my brain. I\'m not wasting my time')
+            print(f'Very funny. The input {const} is too big for my brain. '
+                  f'I\'m not wasting my time. Try {24 ** 6 - 1} max.')
             const = 0
         self.clear()
         self.push(const)
@@ -201,7 +205,8 @@ class Abacus:
             self.val[cell_0 + c].clear()
         # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
         self.val[cell_0].load(call)
-        print(self.expose())
+        if verbose:
+            print(f'Loading {call} at row {int(cell_0 / 2)}', self.expose(), sep='\n')
 
     def right(self):
         self.c00.clear()
@@ -211,6 +216,8 @@ class Abacus:
             while nxt.numerise() != 0:
                 nxt.pull()
                 c.push()
+        if verbose:
+            print('Moving up', self.expose(), sep='\n')
 
     def left(self):
         self.c56.clear()
@@ -219,12 +226,18 @@ class Abacus:
             while nxt.numerise() != 0:
                 nxt.pull()
                 c.push()
+        if verbose:
+            print('Moving down', self.expose(), sep='\n')
 
     def add1(self, call, cell_0=0):
         self.val[cell_0].push(call)
+        if verbose:
+            print(f'Adding {call} at row {int(cell_0 / 2)}', self.expose(), sep='\n')
 
     def sub1(self, call, cell_0=0):
         self.val[cell_0].pull(call)
+        if verbose:
+            print(f'subtracting {call} at row {int(cell_0 / 2)}', self.expose(), sep='\n')
 
     def addition(self, augend, *addendi):
         self.overflow = False
@@ -233,7 +246,7 @@ class Abacus:
         for a in addendi:
             self.add1(a)
         if self.overflow:
-            print("I got overflowed")
+            print("I got overflowed\n")
 
     def subtraction(self, minuend, *subtrendi):
         self.underflow = False
@@ -242,7 +255,7 @@ class Abacus:
         for s in subtrendi:
             self.sub1(s)
         if self.underflow:
-            print("I got undrflowed")
+            print("I got undrflowed\n")
 
     def magnitude(self):
         back = 6
@@ -252,26 +265,34 @@ class Abacus:
                 back -= 1
             else:
                 break
+        if verbose:
+            print(f'Mesuring the order magnitude of loaded value as {back}\n')
         return back
 
     def multiplication(self, multiplier, multiplicand):
         self.clear()
+        self.load(multiplicand)
+        lngth_cand = self.magnitude()
+        self.clear()
         self.load(multiplier)
         lngth = self.magnitude()
-        if lngth > 6:
-            print('multiplier is very big. I skipped the multiplication')
-            return
-        elif length24(multiplicand) > 5:
-            self.multiplication(multiplicand, multiplier)
+        if lngth_cand > 5:
+            if lngth > 5:
+                print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
+                      f'Try to have at least one of them as {24 ** 5 - 1} or smaller')
+            else:
+                if verbose:
+                    print('Flipping the factors and going again\n')
+                self.multiplication(multiplicand, multiplier)
             return
         for count in range(lngth):
             while not (self.c00.numerise() == 0 and self.c06.numerise() == 0):
-                self.add1(multiplicand, cell_0=min(lngth * 2, 10))
                 self.c00.pull()
+                self.add1(multiplicand, cell_0=min(lngth * 2, 10))
             if count < 5:
                 self.right()
         if self.overflow:
-            print("I got overflowed")
+            print("I got overflowed\n")
 
 
 if __name__ == "__main__":
@@ -288,7 +309,7 @@ if __name__ == "__main__":
     abacus.load(3, 1, lngth=1)
     # abacus.subtraction(3000, -1)
     """
-    abacus.multiplication(30000000, 1)
+    abacus.multiplication(7, 5)
     abacus.prnt(tee=True)
 
 """ max add around 840-850
