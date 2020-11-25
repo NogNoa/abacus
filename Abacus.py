@@ -59,12 +59,11 @@ class End:
     def push_pull(self, force: int, push: bool):
         if force < 1:
             return force
-        dr = - 1 + (2 * push)  # direction push = +1 pull = -1
         if push == self.up:
-            # only work in the right direction, when reaching the other end it returns to the cell
+            # only does work in the right direction, when reaching the other end it returns to the cell
             cell, pl = self.cell, self.pl
-            pl_nxt = cell.index(self) - dr
-            force = cell[pl_nxt].push_pull(force, push)
+            dr = - 1 + (2 * push)  # direction push = +1 pull = -1
+            force = cell[pl - dr].push_pull(force, push)
         return force
 
 
@@ -95,6 +94,11 @@ class Cell:
         return [(i.expose(), i.id) for i in self.val]
 
     def push_pull(self, force, push):
+        if force >= 24**6:
+            print(f'\nVery funny. The input {force} is too big for my brain. '
+                  f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
+            self.mother.flow(over=push)
+            force = 0
         force = self.val[push * -1].push_pull(force, push)
         while force > 0:
             """ push_pull by 1 the next cell  \
@@ -124,10 +128,6 @@ class Cell:
         self.set_clear(st=False)
 
     def load(self, const):
-        if const >= 24**6:
-            print(f'Very funny. The input {const} is too big for my brain. '
-                  f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
-            const = 0
         self.clear()
         self.push(const)
 
@@ -141,17 +141,17 @@ class Cell:
 
 class Abacus:
     def __init__(self):
-        self.c00 = Cell('big', 'c00', 'red', )
-        self.c06 = Cell('small', 'c06', 'red')
-        self.c10 = Cell('big', 'c10', 'yellow')
-        self.c16 = Cell('small', 'c16', 'yellow')
-        self.c20 = Cell('big', 'c20', 'green')
-        self.c26 = Cell('small', 'c26', 'green')
-        self.c30 = Cell('big', 'c30', 'blue')
-        self.c36 = Cell('small', 'c36', 'blue')
-        self.c40 = Cell('big', 'c40', 'indigo')
-        self.c46 = Cell('small', 'c46', 'indigo')
-        self.c50 = Cell('big', 'c50', 'violet')
+        self.c00 = Cell('big', 'c00', 'red', self)
+        self.c06 = Cell('small', 'c06', 'red', self)
+        self.c10 = Cell('big', 'c10', 'yellow', self)
+        self.c16 = Cell('small', 'c16', 'yellow', self)
+        self.c20 = Cell('big', 'c20', 'green', self)
+        self.c26 = Cell('small', 'c26', 'green', self)
+        self.c30 = Cell('big', 'c30', 'blue', self)
+        self.c36 = Cell('small', 'c36', 'blue', self)
+        self.c40 = Cell('big', 'c40', 'indigo', self)
+        self.c46 = Cell('small', 'c46', 'indigo', self)
+        self.c50 = Cell('big', 'c50', 'violet', self)
         self.c56 = Cell('small', 'c56', 'violet', self)
         self.val = (self.c00, self.c06, self.c10, self.c16, self.c20, self.c26,
                     self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
@@ -195,22 +195,27 @@ class Abacus:
             self.underflow = True
 
     def clear(self):
+        self.overflow = False
+        self.underflow = False
         for c in self.val:
             c.clear()
 
     # note no set, making a macro for this is superfluous.
 
-    def load(self, call, cell_0=0, lngth=1):
+    def load(self, call, cell_0=0):
         if verbose:
             print(f'Loading {call} at row {int(cell_0 / 2)}')
-        for c in range(1, lngth):
-            self.val[cell_0 + c].clear()
+        self.clear()
         # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
         self.val[cell_0].load(call)
         if verbose:
             print(self.expose())
 
     def magnitude(self):
+        if self.overflow:
+            return 7
+        if self.underflow:
+            return -1
         back = 6
         for i in range(6):
             icositetrigit = self.val[-2 * i - 1].numerise() or self.val[-2 * i - 2].numerise()
@@ -219,7 +224,7 @@ class Abacus:
             else:
                 break
         if verbose:
-            print(f'Mesuring the order of magnitude of loaded value as {back}\n')
+            print(f'Mesuring the base-24 order of magnitude of loaded value as {back}\n')
         return back
 
     def right(self):
@@ -244,18 +249,21 @@ class Abacus:
             print('Moving down', self.expose(), sep='\n')
 
     def add1(self, call, cell_0=0):
+        if verbose:
+            print(f'Adding {call} at row {int(cell_0 / 2)}')
         self.val[cell_0].push(call)
         if verbose:
-            print(f'Adding {call} at row {int(cell_0 / 2)}', self.expose(), sep='\n')
+            print(self.expose())
 
     def sub1(self, call, cell_0=0):
+        if verbose:
+            print(f'subtracting {call} at row {int(cell_0 / 2)}')
         self.val[cell_0].pull(call)
         if verbose:
-            print(f'subtracting {call} at row {int(cell_0 / 2)}', self.expose(), sep='\n')
+            print(self.expose())
 
     def addition(self, augend, *addendi):
         self.overflow = False
-        self.clear()
         self.load(augend)
         for a in addendi:
             self.add1(a)
@@ -264,7 +272,6 @@ class Abacus:
 
     def subtraction(self, minuend, *subtrendi):
         self.underflow = False
-        self.clear()
         self.load(minuend)
         for s in subtrendi:
             self.sub1(s)
@@ -272,12 +279,13 @@ class Abacus:
             print("I got undrflowed\n")
 
     def multiplication(self, multiplier, multiplicand):
-        self.clear()
+        # Mesuring the factors
         self.load(multiplicand)
         lngth_cand = self.magnitude()
-        self.clear()
         self.load(multiplier)
         lngth = self.magnitude()
+
+        # High edge cases
         if lngth_cand > 5:
             if lngth > 5:
                 print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
@@ -286,14 +294,15 @@ class Abacus:
             else:
                 if verbose:
                     print('Flipping the factors and going again\n')
-                self.clear()
                 self.load(multiplicand)
                 lngth = self.magnitude()
                 multiplicand = multiplier
+
+        # The main operation
         for count in range(lngth):
-            while not self.c00.numerise() or self.c06.numerise():
+            while self.c00.numerise() or self.c06.numerise():
                 self.c00.pull()
-                self.add1(multiplicand, cell_0=min(lngth * 2, 10))
+                self.add1(multiplicand, cell_0=min((lngth - 1) * 2, 10))
             if count < 5:
                 self.right()
         if self.overflow:
@@ -302,11 +311,11 @@ class Abacus:
 
 if __name__ == "__main__":
     abacus = Abacus()
-    abacus.multiplication(24 ** 6, 24 ** 5)
+    abacus.multiplication(24 ** 2, 24 ** 3)
     abacus.prnt(tee=True)
 
 
-""" max add around 840-850
+"""
 TODO: cli
 replace length24
 Done: how to treat the carry and borrow flags
