@@ -2,7 +2,7 @@
 .idea/
 .idea\
 venv/
-*.csv
+abacus.csv
 mm2.sav
 goblin*
 __pycache__/

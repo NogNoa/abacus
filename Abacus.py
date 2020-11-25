@@ -126,7 +126,7 @@ class Cell:
     def load(self, const):
         if const >= 24**6:
             print(f'Very funny. The input {const} is too big for my brain. '
-                  f'I\'m not wasting my time. Try {24 ** 6 - 1} max.')
+                  f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
             const = 0
         self.clear()
         self.push(const)
@@ -201,12 +201,14 @@ class Abacus:
     # note no set, making a macro for this is superfluous.
 
     def load(self, call, cell_0=0, lngth=1):
+        if verbose:
+            print(f'Loading {call} at row {int(cell_0 / 2)}')
         for c in range(1, lngth):
             self.val[cell_0 + c].clear()
         # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
         self.val[cell_0].load(call)
         if verbose:
-            print(f'Loading {call} at row {int(cell_0 / 2)}', self.expose(), sep='\n')
+            print(self.expose())
 
     def magnitude(self):
         back = 6
@@ -217,7 +219,7 @@ class Abacus:
             else:
                 break
         if verbose:
-            print(f'Mesuring the order magnitude of loaded value as {back}\n')
+            print(f'Mesuring the order of magnitude of loaded value as {back}\n')
         return back
 
     def right(self):
@@ -280,13 +282,16 @@ class Abacus:
             if lngth > 5:
                 print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
                       f'Try to have at least one of them as {24 ** 5 - 1} or smaller\n')
+                return
             else:
                 if verbose:
                     print('Flipping the factors and going again\n')
-                self.multiplication(multiplicand, multiplier)
-            return
+                self.clear()
+                self.load(multiplicand)
+                lngth = self.magnitude()
+                multiplicand = multiplier
         for count in range(lngth):
-            while not (self.c00.numerise() or self.c06.numerise() == 0):
+            while not self.c00.numerise() or self.c06.numerise():
                 self.c00.pull()
                 self.add1(multiplicand, cell_0=min(lngth * 2, 10))
             if count < 5:
@@ -297,7 +302,7 @@ class Abacus:
 
 if __name__ == "__main__":
     abacus = Abacus()
-    abacus.multiplication(24 ** 5, 24 ** 5)
+    abacus.multiplication(24 ** 6, 24 ** 5)
     abacus.prnt(tee=True)
 
 
