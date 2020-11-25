@@ -94,7 +94,7 @@ class Cell:
         return [(i.expose(), i.id) for i in self.val]
 
     def push_pull(self, force, push):
-        if force >= 24**6:
+        if force >= 24 ** 6:
             print(f'\nVery funny. The input {force} is too big for my brain. '
                   f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
             self.mother.flow(over=push)
@@ -286,23 +286,24 @@ class Abacus:
         lngth = self.magnitude()
 
         # High edge cases
-        if lngth_cand > 5:
-            if lngth > 5:
-                print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
-                      f'Try to have at least one of them as {24 ** 5 - 1} or smaller\n')
-                return
-            else:
-                if verbose:
-                    print('Flipping the factors and going again\n')
-                self.load(multiplicand)
-                lngth = self.magnitude()
-                multiplicand = multiplier
+        if lngth_cand + lngth > 5:
+            print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
+                  f'Try to have at least one of them as {24 ** 5 - 1} or smaller\n')
+            return
+        elif lngth_cand + lngth == 5:
+            """
+            if verbose:
+                print('Flipping the factors and going again\n')
+            self.load(multiplicand)
+            lngth = self.magnitude()
+            multiplicand = multiplier
+            """
 
         # The main operation
         for count in range(lngth):
             while self.c00.numerise() or self.c06.numerise():
                 self.c00.pull()
-                self.add1(multiplicand, cell_0=min((lngth - 1) * 2, 10))
+                self.add1(multiplicand, cell_0=min(lngth * 2, 10))
             if count < 5:
                 self.right()
         if self.overflow:
@@ -314,11 +315,11 @@ if __name__ == "__main__":
     abacus.multiplication(24 ** 2, 24 ** 3)
     abacus.prnt(tee=True)
 
-
 """
 TODO: cli
-replace length24
-Done: how to treat the carry and borrow flags
+more rebust solution for length_lier+length_cand = 5
+Done: replace length24
+how to treat the carry and borrow flags
 treat the clear issue
 trying to make a function that will actually be more localised to the one beed, 
 at the price of running more of them, it will also be more ready to add carry.
