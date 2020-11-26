@@ -286,33 +286,44 @@ class Abacus:
         lngth = self.magnitude()
 
         # High edge cases
-        if lngth_cand + lngth > 5:
+        if lngth_cand + lngth > 7:
             print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
-                  f'Try to have at least one of them as {24 ** 5 - 1} or smaller\n')
+                  f'Try to have their order of magnitude sum as 5 or less.')
             return
+        """
         elif lngth_cand + lngth == 5:
-            """
+            
             if verbose:
                 print('Flipping the factors and going again\n')
             self.load(multiplicand)
             lngth = self.magnitude()
             multiplicand = multiplier
             """
-
         # The main operation
         for count in range(lngth):
             while self.c00.numerise() or self.c06.numerise():
                 self.c00.pull()
-                self.add1(multiplicand, cell_0=min(lngth * 2, 10))
-            if count < 5:
+                self.add1(multiplicand, cell_0=min(lngth * 2, ((6 - lngth_cand) * 2)))
+            if count < (6 - lngth_cand):
                 self.right()
         if self.overflow:
             print("I got overflowed\n")
 
+    def multiplication_high(self, multiplier, multiplicand):
+        self.load(multiplier)
+        lngth = self.magnitude()
+        for count in range(lngth - 1):
+            while self.c00.numerise() or self.c06.numerise():
+                self.c00.pull()
+                self.add1(multiplicand, cell_0=lngth * 2)
+                self.right()
+        self.c00.pull()
+        self.add1(multiplicand, cell_0=(lngth - 1) * 2)
+
 
 if __name__ == "__main__":
     abacus = Abacus()
-    abacus.multiplication(24 ** 2, 24 ** 3)
+    abacus.multiplication(24 ** 5, 0)
     abacus.prnt(tee=True)
 
 """
@@ -324,3 +335,12 @@ treat the clear issue
 trying to make a function that will actually be more localised to the one beed, 
 at the price of running more of them, it will also be more ready to add carry.
 will probably want to seperate push and pull anyway"""
+
+"""
+row to write to = lngth + length_cand - 2 (starting at 0)
+too big row = 5
+too big lngth = 7 - length_cand
+for 0 5
+for 1 4
+for 2 3
+"""
