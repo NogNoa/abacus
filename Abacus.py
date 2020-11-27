@@ -1,3 +1,5 @@
+import Abacus_Read_back
+
 verbose = True
 
 
@@ -285,7 +287,7 @@ class Abacus:
         self.load(multiplier)
         lngth = self.magnitude()
 
-        # High edge case
+        # High edge cases
         if lngth_cand + lngth > 7:
             print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
                   f'Try to have their order of magnitude sum as 7 or less.')
@@ -302,11 +304,29 @@ class Abacus:
         if self.overflow:
             print("I got overflowed\n")
 
+    def num_read(self, call: list) -> None:
+        for num in enumerate(call):
+            pl = num[0]
+            num = num[1]
+            self.val[pl].load(num)
+
+
+def main(file='abacus.csv'):
+    abacus = Abacus()
+    try:
+        abacus.num_read(Abacus_Read_back.table_num_listise(file))
+    except FileNotFoundError:
+        abacus.clear()
+
+    abacus.prnt(tee=True)
+
+
 
 if __name__ == "__main__":
     abacus = Abacus()
-    abacus.multiplication(24 ** 2, 24 ** 4 - 1)
-    abacus.prnt(tee=True)
+    # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
+    abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1])
+    # main()
 
 """
 TODO: cli
