@@ -285,45 +285,27 @@ class Abacus:
         self.load(multiplier)
         lngth = self.magnitude()
 
-        # High edge cases
+        # High edge case
         if lngth_cand + lngth > 7:
             print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
-                  f'Try to have their order of magnitude sum as 5 or less.')
+                  f'Try to have their order of magnitude sum as 7 or less.')
+            self.clear()
             return
-        """
-        elif lngth_cand + lngth == 5:
-            
-            if verbose:
-                print('Flipping the factors and going again\n')
-            self.load(multiplicand)
-            lngth = self.magnitude()
-            multiplicand = multiplier
-            """
+
         # The main operation
         for count in range(lngth):
             while self.c00.numerise() or self.c06.numerise():
                 self.c00.pull()
-                self.add1(multiplicand, cell_0=min(lngth * 2, ((6 - lngth_cand) * 2)))
-            if count < (6 - lngth_cand):
+                self.add1(multiplicand, cell_0=min(lngth * 2, (6 - lngth_cand) * 2, 10))
+            if count < min((6 - lngth_cand), 5):
                 self.right()
         if self.overflow:
             print("I got overflowed\n")
 
-    def multiplication_high(self, multiplier, multiplicand):
-        self.load(multiplier)
-        lngth = self.magnitude()
-        for count in range(lngth - 1):
-            while self.c00.numerise() or self.c06.numerise():
-                self.c00.pull()
-                self.add1(multiplicand, cell_0=lngth * 2)
-                self.right()
-        self.c00.pull()
-        self.add1(multiplicand, cell_0=(lngth - 1) * 2)
-
 
 if __name__ == "__main__":
     abacus = Abacus()
-    abacus.multiplication(24 ** 5, 0)
+    abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     abacus.prnt(tee=True)
 
 """
