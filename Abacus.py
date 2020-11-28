@@ -1,5 +1,3 @@
-import Abacus_Read_back
-
 verbose = True
 
 
@@ -311,22 +309,11 @@ class Abacus:
             self.val[pl].load(num)
 
 
-def main(file='abacus.csv'):
-    abacus = Abacus()
-    try:
-        abacus.num_read(Abacus_Read_back.table_num_listise(file))
-    except FileNotFoundError:
-        abacus.clear()
-
-    abacus.prnt(tee=True)
-
-
-
 if __name__ == "__main__":
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1])
-    # main()
+    abacus.prnt(tee=True)
 
 """
 TODO: cli

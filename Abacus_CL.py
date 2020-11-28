@@ -1,3 +1,6 @@
+import Abacus as Aba
+
+
 def table_num_listise(table='abacus.csv'):
     call = open(table, 'r+')
     call = call.readlines()
@@ -26,5 +29,13 @@ def table_num_listise(table='abacus.csv'):
     return back
 
 
-
 print(table_num_listise())
+if __name__ == "__main__":
+    file = 'abacus.csv'
+    abacus = Aba.Abacus()
+    try:
+        abacus.num_read(table_num_listise(file))
+    except FileNotFoundError:
+        abacus.clear()
+
+    abacus.prnt(tee=True)
