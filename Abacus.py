@@ -1,21 +1,10 @@
-verbose = True
+verbose = False
 
 
 def initorder(obj, mother):
     mother = mother.val
     pl = mother.index(obj)
     return mother, pl
-
-
-def length24(call):
-    log = (0, 24, 576, 13824, 331776, 24 ** 5)
-    back = 0
-    for n in log:
-        if call >= n:
-            back = log.index(n)
-        else:
-            break
-    return back + 1
 
 
 class Beed:
@@ -188,6 +177,10 @@ class Abacus:
         back = back.replace('\t', ',')
         open(table, 'w+').write(back)
 
+    def num_read(self, call: list) -> None:
+        for pl, num in enumerate(call):
+            self.val[pl].load(num)
+
     def flow(self, over):
         if over:
             self.overflow = True
@@ -281,9 +274,9 @@ class Abacus:
             print("I got undrflowed\n")
 
     def multiplication(self, multiplier, multiplicand):
+        self.overflow = False
         # Mesuring the factors
-        if not multiplicand is None:  # For useing former answer
-            self.load(multiplicand)
+        self.load(multiplicand)
         lngth_cand = self.magnitude()
         self.load(multiplier)
         lngth = self.magnitude()
@@ -308,20 +301,35 @@ class Abacus:
     def multi_multiplication(self, multplicand, *multiplieri):
         self.multiplication(multiplieri[0], multplicand)
         for m in multiplieri[1:]:
-            self.multiplication(m, None)
+            self.mult1(m)
 
-    def num_read(self, call: list) -> None:
-        for num in enumerate(call):
-            pl = num[0]
-            num = num[1]
-            self.val[pl].load(num)
+    def mult1(self, multiplicand):
+        self.overflow = False
+        lngth = self.magnitude()
+        try:
+            self.val[lngth * 2].push(multiplicand)
+        except IndexError:
+            self.flow(over=True)
+        if self.overflow or self.c50.numerise() or self.c56.numerise():
+            print(f'Sorry chemp, both previous answer and {multiplicand} were too big. '
+                  f'Try to have their order of magnitude sum as 7 or less.')
+            return
+        self.val[lngth * 2].pull(multiplicand)
+        for count in range(lngth):
+            while self.c00.numerise() or self.c06.numerise():
+                self.c00.pull()
+                self.add1(multiplicand, cell_0=lngth * 2)
+            self.right()
+        if self.overflow:
+            print("I got overflowed\n")
 
 
 if __name__ == "__main__":
+    verbose = True
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
-    abacus.multi_multiplication(4, 3, 6)
+    abacus.multi_multiplication(24 ** 3, 24, 24)
     abacus.prnt(tee=True)
 
 """
