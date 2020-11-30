@@ -264,7 +264,8 @@ class Abacus:
 
     def addition(self, augend, *addendi):
         self.overflow = False
-        self.load(augend)
+        if not augend is None:  # For useing former answer
+            self.load(augend)
         for a in addendi:
             self.add1(a)
         if self.overflow:
@@ -272,7 +273,8 @@ class Abacus:
 
     def subtraction(self, minuend, *subtrendi):
         self.underflow = False
-        self.load(minuend)
+        if not minuend is None:  # For useing former answer
+            self.load(minuend)
         for s in subtrendi:
             self.sub1(s)
         if self.underflow:
@@ -280,7 +282,8 @@ class Abacus:
 
     def multiplication(self, multiplier, multiplicand):
         # Mesuring the factors
-        self.load(multiplicand)
+        if not multiplicand is None:  # For useing former answer
+            self.load(multiplicand)
         lngth_cand = self.magnitude()
         self.load(multiplier)
         lngth = self.magnitude()
@@ -302,6 +305,11 @@ class Abacus:
         if self.overflow:
             print("I got overflowed\n")
 
+    def multi_multiplication(self, multplicand, *multiplieri):
+        self.multiplication(multiplieri[0], multplicand)
+        for m in multiplieri[1:]:
+            self.multiplication(m, None)
+
     def num_read(self, call: list) -> None:
         for num in enumerate(call):
             pl = num[0]
@@ -312,7 +320,8 @@ class Abacus:
 if __name__ == "__main__":
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
-    abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1])
+    # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
+    abacus.multi_multiplication(4, 3, 6)
     abacus.prnt(tee=True)
 
 """
