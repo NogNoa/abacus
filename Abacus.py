@@ -1,3 +1,13 @@
+help_dscrpt = \
+    """
+An interactive quad-seximal abacus for fun.
+The Abacus have 12 cells in 6 rows numbered 0 to 5.
+Each row has a lower cell with 5 beeds and a high cell with 3 beeds.
+The full cell is a distinct state, only when you add one to it does the next cell change 
+    and the first one empties.
+This make the abacus base 24 by row.
+"""
+
 verbose = False
 
 
@@ -156,15 +166,15 @@ class Abacus:
             for b in c.val:
                 if type(b) == End:
                     if not b.up:
-                        back += '||-\t'
+                        back += '||- '
                     else:
                         if not up:
-                            back += '---\t' * 3
-                        back += '-||\t'
+                            back += '--- ' * 3
+                        back += '-|| '
                 elif b.up == up:  # type(b) == beed
-                    back += '-O-\t'
+                    back += '-O- '
                 else:  # b.up != up:
-                    back += '---\t' * 3 + '-O-\t'
+                    back += '--- ' * 3 + '-O- '
                     up = True
             if self.val.index(c) % 2:
                 back += c.color + '\n'
@@ -174,7 +184,7 @@ class Abacus:
         back = self.expose()
         if tee:
             print(back)
-        back = back.replace('\t', ',')
+        back = back.replace(' ', ',')
         open(table, 'w+').write(back)
 
     def num_read(self, call: list) -> None:
@@ -188,6 +198,7 @@ class Abacus:
             self.underflow = True
 
     def clear(self):
+        """Resets every Cell of the abacus to 0"""
         self.overflow = False
         self.underflow = False
         for c in self.val:
@@ -329,7 +340,7 @@ if __name__ == "__main__":
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
-    abacus.multi_multiplication(24 ** 3, 24, 24)
+    abacus.multi_multiplication(24, 7, 8)
     abacus.prnt(tee=True)
 
 """

@@ -1,5 +1,5 @@
 import Abacus as Aba
-
+import argparse
 
 def table_num_listise(table='abacus.csv'):
     call = open(table, 'r+')
@@ -29,7 +29,17 @@ def table_num_listise(table='abacus.csv'):
     return back
 
 
-print(table_num_listise())
+def decimate(call: list[int]):
+    # input: number list
+    back = 0
+    for pl, num in enumerate(call):
+        row = pl // 2
+        high = pl % 2
+        back += num * 24 ** row * 6 ** high
+    return back
+
+
+
 if __name__ == "__main__":
     file = 'abacus.csv'
     abacus = Aba.Abacus()
@@ -37,5 +47,15 @@ if __name__ == "__main__":
         abacus.num_read(table_num_listise(file))
     except FileNotFoundError:
         abacus.clear()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--clear', help=abacus.clear.__doc__, action="store_true")
+    args = parser.parse_args()
+    if args.clear:
+        abacus.clear()
 
     abacus.prnt(tee=True)
+    """
+    num = table_num_listise()
+    print(num)   
+    print(decimate(num))
+    """
