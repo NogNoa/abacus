@@ -1,5 +1,7 @@
 import Abacus as Aba
 import argparse
+from string import ascii_lowercase
+
 
 def table_num_listise(table='abacus.csv'):
     call = open(table, 'r+')
@@ -38,6 +40,14 @@ def decimate(call: list[int]):
         back += num * 24 ** row * 6 ** high
     return back
 
+
+def base24_decimise(call: str):
+    back = 0
+    base = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] + list(ascii_lowercase[:14])
+    for pl, digit in enumerate(call[::-1]):
+        digit = base.index(digit)
+        back += digit * 24 ** pl
+    return back
 
 
 if __name__ == "__main__":
