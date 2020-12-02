@@ -31,7 +31,7 @@ def table_num_listise(table='abacus.csv'):
     return back
 
 
-def decimate(call: list[int]):
+def decimate(call: list):
     # input: number list
     back = 0
     for pl, num in enumerate(call):
@@ -58,7 +58,8 @@ if __name__ == "__main__":
     except FileNotFoundError:
         abacus.clear()
     parser = argparse.ArgumentParser()
-    parser.add_argument('--clear', help=abacus.clear.__doc__, action="store_true")
+    actions = parser.add_mutually_exclusive_group()
+    actions.add_argument('--clear', help=abacus.clear.__doc__, action="store_true")
     args = parser.parse_args()
     if args.clear:
         abacus.clear()
