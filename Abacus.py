@@ -111,9 +111,11 @@ class Cell:
             force = self.val[push * -1].push_pull(force - 1, push)
 
     def push(self, force=1):
+        """Move beeds to the Right of the cell"""
         self.push_pull(force, push=True)
 
     def pull(self, force=1):
+        """Return beeds to the Left of the cell"""
         self.push_pull(force, push=False)
 
     def set_clear(self, st: bool):
@@ -121,12 +123,15 @@ class Cell:
             b.up = st
 
     def set(self):
+        """Move all beeds to the Right of the cell."""
         self.set_clear(st=True)
 
     def clear(self):
+        """Return all beeds to the Left of the cell, reseting it to Zero."""
         self.set_clear(st=False)
 
     def load(self, const):
+        """Set the cell to a speicific number."""
         self.clear()
         self.push(const)
 
@@ -198,7 +203,7 @@ class Abacus:
             self.underflow = True
 
     def clear(self):
-        """Resets every Cell of the abacus to 0"""
+        """Clear every Cell of the abacus"""
         self.overflow = False
         self.underflow = False
         for c in self.val:
@@ -207,6 +212,7 @@ class Abacus:
     # note no set, making a macro for this is superfluous.
 
     def load(self, call, cell_0=0):
+        """Set the abacus to a specific number"""
         if verbose:
             print(f'Loading {call} at row {int(cell_0 / 2)}')
         self.clear()
@@ -232,6 +238,7 @@ class Abacus:
         return back
 
     def right(self):
+        """Moves all cells Up"""
         self.c00.clear()
         # c56 is the one that's actually end up cleared, as the last nxt
         for c in self.val[:-2]:
@@ -243,6 +250,7 @@ class Abacus:
             print('Moving up', self.expose(), sep='\n')
 
     def left(self):
+        """Moves all cells Down"""
         self.c56.clear()
         for c in self.val[:1:-1]:
             nxt = self.val[c.pl - 2]
