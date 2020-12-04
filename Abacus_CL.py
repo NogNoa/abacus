@@ -42,8 +42,9 @@ def decimate(call: list):
 
 
 def base24_decimise(call: str):
-    back = 0
+    call = call.lower()
     base = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] + list(ascii_lowercase[:14])
+    back = 0
     for pl, digit in enumerate(call[::-1]):
         digit = base.index(digit)
         back += digit * 24 ** pl
@@ -57,7 +58,7 @@ if __name__ == "__main__":
         abacus.num_read(table_num_listise(file))
     except FileNotFoundError:
         abacus.clear()
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=Aba.help_dscrpt)
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument('--clear', help=abacus.clear.__doc__, action="store_true")
     args = parser.parse_args()
