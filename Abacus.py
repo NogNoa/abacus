@@ -142,6 +142,9 @@ class Cell:
                 back += 1
         return back
 
+    def not_zero(self):
+        return self.val[0].up
+
 
 class Abacus:
     def __init__(self):
@@ -228,8 +231,8 @@ class Abacus:
             return -1
         back = 6
         for i in range(6):
-            icositetrigit = self.val[-2 * i - 1].numerise() or self.val[-2 * i - 2].numerise()
-            if icositetrigit == 0:
+            icositetrigit = self.val[-2 * i - 1].not_zero() or self.val[-2 * i - 2].not_zero()  # base 24 digit
+            if not icositetrigit:
                 back -= 1
             else:
                 break
@@ -329,7 +332,7 @@ class Abacus:
             self.val[lngth * 2].push(multiplicand)
         except IndexError:
             self.flow(over=True)
-        if self.overflow or self.c50.numerise() or self.c56.numerise():
+        if self.overflow or self.c50.not_zero() or self.c56.not_zero():
             print(f'Sorry chemp, both previous answer and {multiplicand} were too big. '
                   f'Try to have their order of magnitude sum as 7 or less.')
             return
@@ -349,6 +352,7 @@ if __name__ == "__main__":
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
     abacus.multi_multiplication(24, 7, 8)
+    abacus.c00.load(4)
     abacus.prnt(tee=True)
 
 """

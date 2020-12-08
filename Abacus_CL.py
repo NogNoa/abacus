@@ -60,10 +60,54 @@ if __name__ == "__main__":
         abacus.clear()
     parser = argparse.ArgumentParser(description=Aba.help_dscrpt)
     actions = parser.add_mutually_exclusive_group()
-    actions.add_argument('--clear', help=abacus.clear.__doc__, action="store_true")
+    actions.add_argument('--clear_full', help=abacus.clear.__doc__, action="store_true")
+    actions.add_argument('--load_full', help=abacus.load.__doc__, type=int)
+    actions.add_argument('--up', help=abacus.right.__doc__, action="count")
+    actions.add_argument('--down', help=abacus.left.__doc__, action="count")
+    actions.add_argument('--clear', help=Aba.Cell.clear.__doc__, type=int)
+    actions.add_argument('--set', help=Aba.Cell.set.__doc__, type=int)
+    actions.add_argument('--load', help=Aba.Cell.load.__doc__, type=tuple)
+    actions.add_argument('--push', help=Aba.Cell.push.__doc__, type=tuple)
+    actions.add_argument('--pull', help=Aba.Cell.pull.__doc__, type=tuple)
     args = parser.parse_args()
-    if args.clear:
+    if args.clear_full:
         abacus.clear()
+    if args.load_full is not None:
+        abacus.load(args.load_full)
+    if args.up:
+        for i in range(args.up):
+            abacus.right()
+    if args.down:
+        for i in range(args.down):
+            abacus.left()
+    if args.clear is not None:
+        abacus.val[args.clear].clear()
+    if args.set is not None:
+        abacus.val[args.set].set()
+    if args.load is not None:
+        if len(args.load) == 2:
+            cell = int(args.load[0])
+            value = int(args.load[1])
+            abacus.val[cell].load(value)
+        else:
+            print('please enter two arguments, first the cell number, second the value to load')
+
+    if args.push is not None:
+        if len(args.push) == 2:
+            cell = int(args.push[0])
+            force = int (args.push[1])
+            abacus.val[cell].push(force)
+        else:
+            print('please enter two arguments, first the cell number, second the value to push')
+    if args.pull is not None:
+        if len(args.pull) == 2:
+            cell = int(args.pull[0])
+            force = int (args.pull[1])
+            abacus.val[cell].pull(force)
+        else:
+            print('please enter two arguments, first the cell number, second the value to pull')
+
+
 
     abacus.prnt(tee=True)
     """

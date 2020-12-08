@@ -1,0 +1,9 @@
+Abacus is only memory. Processor emulation is seperated
+procesor send the abacus cells push and pull commands with force
+Cells can't manage carry and borrow themsleves
+they return to the processor three states
+    Middle - when the cell finish the command not a state not full or empty
+    End - when the cell finish the command at the expected end-state (full for push, empty for pull)
+    fail - The command didn't move even one beed since the cell was allready in an end-state
+Optionaly With end and the two others it also returns the remaining force.
+The procesor need to use the memory to remember the operands 
