@@ -69,9 +69,9 @@ if __name__ == "__main__":
     actions.add_argument('--add', help=abacus.add1.__doc__, type=int)
     actions.add_argument('--sub', help=abacus.sub1.__doc__, type=int)
     actions.add_argument('--multi', help=abacus.mult1.__doc__, type=int)
-    actions.add_argument('--load', help=Aba.Cell.load.__doc__)
-    actions.add_argument('--push', help=Aba.Cell.push.__doc__)
-    actions.add_argument('--pull', help=Aba.Cell.pull.__doc__)
+    actions.add_argument('--load', help=Aba.Cell.load.__doc__, nargs=2)
+    actions.add_argument('--push', help=Aba.Cell.push.__doc__, nargs=2)
+    actions.add_argument('--pull', help=Aba.Cell.pull.__doc__, nargs=2)
 
     args = parser.parse_args()
     if args.verbose:
@@ -92,17 +92,16 @@ if __name__ == "__main__":
         abacus.val[args.set].set()
 
     if args.load is not None:
-        call = args.load.split(',')
+        call = args.load
         if len(call) == 2:
             cell = int(call[0])
             value = int(call[1])
             abacus.val[cell].load(value)
         else:
-            print(len(args.load))
             print('please enter two arguments, first the cell number, second the value to load'
                   '\n Format: "Cell,Value" without a space.')
     if args.push is not None:
-        call = args.push.split(',')
+        call = args.push
         if len(call) == 2:
             cell = int(call[0])
             force = int(call[1])
@@ -111,7 +110,7 @@ if __name__ == "__main__":
             print('please enter two arguments, first the cell number, second the value to push'
                   '\n Format: "Cell,Value" without a space.')
     if args.pull is not None:
-        call = args.pull.split(',')
+        call = args.pull
         if len(call) == 2:
             cell = int(call[0])
             force = int(call[1])
