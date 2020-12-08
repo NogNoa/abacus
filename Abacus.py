@@ -1,10 +1,10 @@
 help_dscrpt = \
     """
-An interactive quad-seximal abacus for fun.
-The Abacus have 12 cells in 6 rows numbered 0 to 5.
-Each row has a lower cell with 5 beeds and a high cell with 3 beeds.
-The full cell is a distinct state, only when you add one to it does the next cell change 
-    and the first one empties.
+An interactive quad-seximal abacus for fun.\n
+The Abacus have 12 cells in 6 rows numbered 0 to 5.\n
+Each row has a lower cell with 5 beeds and a high cell with 3 beeds.\n
+When the cell is full this is a distinct state, only when you add one to it does the next cell change 
+    and the first one empties.\n
 This make the abacus base 24 by row.
 """
 
@@ -104,7 +104,7 @@ class Cell:
             clear_set the cell,  \
             and aplly the push_pull to itself again s.t force -= 1"""
             if self.id != 'c56':
-                abacus.val[self.pl + 1].push_pull(1, push)  # cell[-1] is top cell[0] is bottom
+                self.abacus[self.pl + 1].push_pull(1, push)  # cell[-1] is top cell[0] is bottom
             else:
                 self.mother.flow(over=push)
             self.set_clear(st=not push)

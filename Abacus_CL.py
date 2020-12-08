@@ -50,7 +50,6 @@ def base24_decimise(call: str):
         back += digit * 24 ** pl
     return back
 
-
 if __name__ == "__main__":
     file = 'abacus.csv'
     abacus = Aba.Abacus()
@@ -70,11 +69,11 @@ if __name__ == "__main__":
     actions.add_argument('--sub', help=abacus.sub1.__doc__, type=int)
     actions.add_argument('--multi', help=abacus.mult1.__doc__, type=int)
 
-    """
-    actions.add_argument('--load', help=Aba.Cell.load.__doc__, type=tuple)
-    actions.add_argument('--push', help=Aba.Cell.push.__doc__, type=tuple)
-    actions.add_argument('--pull', help=Aba.Cell.pull.__doc__, type=tuple)
-    """
+
+    actions.add_argument('--load', help=Aba.Cell.load.__doc__)
+    actions.add_argument('--push', help=Aba.Cell.push.__doc__)
+    actions.add_argument('--pull', help=Aba.Cell.pull.__doc__)
+
     args = parser.parse_args()
     if args.clear_full:
         abacus.clear()
@@ -90,29 +89,36 @@ if __name__ == "__main__":
         abacus.val[args.clear].clear()
     if args.set is not None:
         abacus.val[args.set].set()
-    """
+
     if args.load is not None:
-        if len(args.load) == 2:
-            cell = int(args.load[0])
-            value = int(args.load[1])
+        call = args.load.split(',')
+        if len(call) == 2:
+            cell = int(call[0])
+            value = int(call[1])
             abacus.val[cell].load(value)
         else:
-            print('please enter two arguments, first the cell number, second the value to load')
+            print(len(args.load))
+            print('please enter two arguments, first the cell number, second the value to load'
+                  '\n Format: "Cell,Value" without a space.')
     if args.push is not None:
-        if len(args.push) == 2:
-            cell = int(args.push[0])
-            force = int (args.push[1])
+        call = args.push.split(',')
+        if len(call) == 2:
+            cell = int(call[0])
+            force = int(call[1])
             abacus.val[cell].push(force)
         else:
-            print('please enter two arguments, first the cell number, second the value to push')
+            print('please enter two arguments, first the cell number, second the value to push'
+                  '\n Format: "Cell,Value" without a space.')
     if args.pull is not None:
-        if len(args.pull) == 2:
-            cell = int(args.pull[0])
-            force = int (args.pull[1])
+        call = args.pull.split(',')
+        if len(call) == 2:
+            cell = int(call[0])
+            force = int(call[1])
             abacus.val[cell].pull(force)
         else:
-            print('please enter two arguments, first the cell number, second the value to pull')
-    """
+            print('please enter two arguments, first the cell number, second the value to pull.'
+                  '\n Format: "Cell,Value" without a space.')
+
     if args.add is not None:
         abacus.add1(args.add)
     if args.sub is not None:
