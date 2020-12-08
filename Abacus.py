@@ -111,11 +111,11 @@ class Cell:
             force = self.val[push * -1].push_pull(force - 1, push)
 
     def push(self, force=1):
-        """Move beeds to the Right of the cell"""
+        """Move beeds in a given cell to the Right"""
         self.push_pull(force, push=True)
 
     def pull(self, force=1):
-        """Return beeds to the Left of the cell"""
+        """Return beeds in a given cell to the Left"""
         self.push_pull(force, push=False)
 
     def set_clear(self, st: bool):
@@ -123,15 +123,15 @@ class Cell:
             b.up = st
 
     def set(self):
-        """Move all beeds to the Right of the cell."""
+        """Move all beeds in a given cell to the Right"""
         self.set_clear(st=True)
 
     def clear(self):
-        """Return all beeds to the Left of the cell, reseting it to Zero."""
+        """Return all beeds in a given cell to the Left, reseting it to Zero."""
         self.set_clear(st=False)
 
     def load(self, const):
-        """Set the cell to a speicific number."""
+        """Set a given cell to a speicific number."""
         self.clear()
         self.push(const)
 
@@ -264,6 +264,7 @@ class Abacus:
             print('Moving down', self.expose(), sep='\n')
 
     def add1(self, call, cell_0=0):
+        """Adds a number to the abacus """
         if verbose:
             print(f'Adding {call} at row {int(cell_0 / 2)}')
         self.val[cell_0].push(call)
@@ -271,6 +272,7 @@ class Abacus:
             print(self.expose())
 
     def sub1(self, call, cell_0=0):
+        "Subtract a number from the abacus"
         if verbose:
             print(f'subtracting {call} at row {int(cell_0 / 2)}')
         self.val[cell_0].pull(call)
@@ -326,6 +328,7 @@ class Abacus:
             self.mult1(m)
 
     def mult1(self, multiplicand):
+        """multiply what's in the abacus by another number"""
         self.overflow = False
         lngth = self.magnitude()
         try:
