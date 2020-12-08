@@ -58,6 +58,7 @@ if __name__ == "__main__":
     except FileNotFoundError:
         abacus.clear()
     parser = argparse.ArgumentParser(description=Aba.help_dscrpt)
+    parser.add_argument('-v', '--verbose', help="Make me announce everything", action="store_true")
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument('--clear_full', help=abacus.clear.__doc__, action="store_true")
     actions.add_argument('--load_full', help=abacus.load.__doc__, type=int)
@@ -68,13 +69,13 @@ if __name__ == "__main__":
     actions.add_argument('--add', help=abacus.add1.__doc__, type=int)
     actions.add_argument('--sub', help=abacus.sub1.__doc__, type=int)
     actions.add_argument('--multi', help=abacus.mult1.__doc__, type=int)
-
-
     actions.add_argument('--load', help=Aba.Cell.load.__doc__)
     actions.add_argument('--push', help=Aba.Cell.push.__doc__)
     actions.add_argument('--pull', help=Aba.Cell.pull.__doc__)
 
     args = parser.parse_args()
+    if args.verbose:
+        verbose = True
     if args.clear_full:
         abacus.clear()
     if args.load_full is not None:
