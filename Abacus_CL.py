@@ -58,10 +58,8 @@ if __name__ == "__main__":
     except FileNotFoundError:
         abacus.clear()
     parser = argparse.ArgumentParser(description=Aba.help_dscrpt)
-    parser.add_argument('-v', '--verbose', help="Make me announce everything", action="store_true")
+    parser.add_argument('-v', '--verbose', help="Make me announce more stuff", action="store_true")
     actions = parser.add_mutually_exclusive_group()
-    actions.add_argument('--clear_full', help=abacus.clear.__doc__, action="store_true")
-    actions.add_argument('--load_full', help=abacus.load.__doc__, type=int)
     actions.add_argument('--up', help=abacus.right.__doc__, action="count")
     actions.add_argument('--down', help=abacus.left.__doc__, action="count")
     actions.add_argument('--clear', help=Aba.Cell.clear.__doc__, type=int)
@@ -69,13 +67,16 @@ if __name__ == "__main__":
     actions.add_argument('--add', help=abacus.add1.__doc__, type=int)
     actions.add_argument('--sub', help=abacus.sub1.__doc__, type=int)
     actions.add_argument('--multi', help=abacus.mult1.__doc__, type=int)
-    actions.add_argument('--load', help=Aba.Cell.load.__doc__, nargs=2)
-    actions.add_argument('--push', help=Aba.Cell.push.__doc__, nargs=2)
-    actions.add_argument('--pull', help=Aba.Cell.pull.__doc__, nargs=2)
+    actions.add_argument('--load', help=Aba.Cell.load.__doc__)
+    actions.add_argument('--push', help=Aba.Cell.push.__doc__)
+    actions.add_argument('--pull', help=Aba.Cell.pull.__doc__)
+    actions.add_argument('--clear_full', help=abacus.clear.__doc__, action="store_true")
+    actions.add_argument('--load_full', help=abacus.load.__doc__, type=int)
+
 
     args = parser.parse_args()
     if args.verbose:
-        verbose = True
+        Aba.verbose = True
     if args.clear_full:
         abacus.clear()
     if args.load_full is not None:
@@ -126,7 +127,7 @@ if __name__ == "__main__":
     if args.multi is not None:
         abacus.mult1(args.multi)
 
-    abacus.prnt(tee=True)
+    abacus.prnt(tee=not Aba.verbose)
     """
     num = table_num_listise()
     print(num)   

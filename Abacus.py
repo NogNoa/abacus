@@ -243,17 +243,20 @@ class Abacus:
     def right(self):
         """Moves all cells Up"""
         self.c00.clear()
-        # c56 is the one that's actually end up cleared, as the last nxt
+        self.c06.clear()
+        # c50 and c56 are the ones that's actually end up cleared, as the last nxt
         for c in self.val[:-2]:
             nxt = self.val[c.pl + 2]
             while nxt.numerise() != 0:
                 nxt.pull()
                 c.push()
+                print(self.expose)
         if verbose:
             print('Moving up', self.expose(), sep='\n')
 
     def left(self):
         """Moves all cells Down"""
+        self.c50.clear()
         self.c56.clear()
         for c in self.val[:1:-1]:
             nxt = self.val[c.pl - 2]
@@ -354,8 +357,10 @@ if __name__ == "__main__":
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
-    abacus.multi_multiplication(24, 7, 8)
+    # abacus.multi_multiplication(24, 7, 8)
     abacus.c00.load(4)
+    print(abacus.expose())
+    abacus.right()
     abacus.prnt(tee=True)
 
 """
