@@ -128,8 +128,12 @@ if __name__ == "__main__":
         abacus.mult1(args.multi)
 
     abacus.prnt(tee=not Aba.verbose)
+    if Aba.verbose:
+        print("FIN")
     """
     num = table_num_listise()
     print(num)   
     print(decimate(num))
     """
+
+"""Todo:base24 input."""

@@ -143,7 +143,7 @@ class Cell:
         return back
 
     def not_zero(self):
-        return self.val[0].up
+        return self.val[-2].up
 
 
 class Abacus:
@@ -250,7 +250,6 @@ class Abacus:
             while nxt.numerise() != 0:
                 nxt.pull()
                 c.push()
-                print(self.expose)
         if verbose:
             print('Moving up', self.expose(), sep='\n')
 
@@ -275,7 +274,7 @@ class Abacus:
             print(self.expose())
 
     def sub1(self, call, cell_0=0):
-        "Subtract a number from the abacus"
+        """Subtract a number from the abacus"""
         if verbose:
             print(f'subtracting {call} at row {int(cell_0 / 2)}')
         self.val[cell_0].pull(call)
@@ -317,7 +316,7 @@ class Abacus:
 
         # The main operation
         for count in range(lngth):
-            while self.c00.numerise() or self.c06.numerise():
+            while self.c00.not_zero() or self.c06.not_zero():
                 self.c00.pull()
                 self.add1(multiplicand, cell_0=min(lngth * 2, (6 - lngth_cand) * 2, 10))
             if count < min((6 - lngth_cand), 5):
@@ -344,7 +343,7 @@ class Abacus:
             return
         self.val[lngth * 2].pull(multiplicand)
         for count in range(lngth):
-            while self.c00.numerise() or self.c06.numerise():
+            while self.c00.not_zero() or self.c06.not_zero():
                 self.c00.pull()
                 self.add1(multiplicand, cell_0=lngth * 2)
             self.right()
@@ -357,11 +356,10 @@ if __name__ == "__main__":
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
-    # abacus.multi_multiplication(24, 7, 8)
-    abacus.c00.load(4)
-    print(abacus.expose())
-    abacus.right()
-    abacus.prnt(tee=True)
+    abacus.multi_multiplication(24, 7, 8)
+    abacus.prnt(tee=not verbose)
+    if verbose:
+        print("FIN")
 
 """
 TODO: cli
