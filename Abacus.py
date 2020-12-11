@@ -1,12 +1,17 @@
 help_dscrpt = \
     """
-An interactive quad-seximal abacus for fun.\n
-The Abacus have 12 cells in 6 rows numbered 0 to 5.\n
-Each row has a lower cell with 5 beeds and a high cell with 3 beeds.\n
+An interactive quad-seximal abacus for fun.\t\n
+The Abacus have 12 cells in 6 rows numbered 0 to 5.\t\n
+Each row has a lower cell with 5 beeds and a high cell with 3 beeds.\t\n
 When the cell is full this is a distinct state, only when you add one to it does the next cell change 
-    and the first one empties.\n
-This make the abacus base 24 by row.
-"""
+    and the first one empties.\t\n
+This make the abacus base 24 by row.\t\n
+\t\n
+Enter values as base 24 [0123456789abcdefghijklmn] \t\n
+If you want to use base 10 that's still an option! \t\n
+Enter row by color ['Red', 'Yellow', 'Green', 'Blue', 'Indigo', "Violet"]\t\n
+If both inputs are required always enter value before row
+    """
 
 verbose = False
 
@@ -130,9 +135,11 @@ class Cell:
         """Return all beeds in a given cell to the Left, reseting it to Zero."""
         self.set_clear(st=False)
 
-    def load(self, const):
+    def load(self, const, nxt=False):
         """Set a given cell to a speicific number."""
         self.clear()
+        if nxt:
+            self.abacus[self.pl + 1].clear()
         self.push(const)
 
     def numerise(self):
@@ -148,18 +155,18 @@ class Cell:
 
 class Abacus:
     def __init__(self):
-        self.c00 = Cell('big', 'c00', 'red', self)
-        self.c06 = Cell('small', 'c06', 'red', self)
-        self.c10 = Cell('big', 'c10', 'yellow', self)
-        self.c16 = Cell('small', 'c16', 'yellow', self)
-        self.c20 = Cell('big', 'c20', 'green', self)
-        self.c26 = Cell('small', 'c26', 'green', self)
-        self.c30 = Cell('big', 'c30', 'blue', self)
-        self.c36 = Cell('small', 'c36', 'blue', self)
-        self.c40 = Cell('big', 'c40', 'indigo', self)
-        self.c46 = Cell('small', 'c46', 'indigo', self)
-        self.c50 = Cell('big', 'c50', 'violet', self)
-        self.c56 = Cell('small', 'c56', 'violet', self)
+        self.c00 = Cell('big', 'c00', 'Red', self)
+        self.c06 = Cell('small', 'c06', 'Red', self)
+        self.c10 = Cell('big', 'c10', 'Yellow', self)
+        self.c16 = Cell('small', 'c16', 'Yellow', self)
+        self.c20 = Cell('big', 'c20', 'Green', self)
+        self.c26 = Cell('small', 'c26', 'Green', self)
+        self.c30 = Cell('big', 'c30', 'Blue', self)
+        self.c36 = Cell('small', 'c36', 'Blue', self)
+        self.c40 = Cell('big', 'c40', 'Indigo', self)
+        self.c46 = Cell('small', 'c46', 'Indigo', self)
+        self.c50 = Cell('big', 'c50', 'Violet', self)
+        self.c56 = Cell('small', 'c56', 'Violet', self)
         self.val = (self.c00, self.c06, self.c10, self.c16, self.c20, self.c26,
                     self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
         for c in self.val:
@@ -362,9 +369,10 @@ if __name__ == "__main__":
         print("FIN")
 
 """
-TODO: cli
+TODO: Division
+Done: cli
 more rebust solution for length_lier+length_cand = 5
-Done: replace length24
+replace length24
 how to treat the carry and borrow flags
 treat the clear issue
 trying to make a function that will actually be more localised to the one beed, 
