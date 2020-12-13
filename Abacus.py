@@ -153,6 +153,18 @@ class Cell:
         return self.val[-2].up
 
 
+def exchange(donor, acceptor):
+    while donor.not_zero():
+        donor.pull()
+        acceptor.push()
+
+
+def consume(hybris, nemesis):
+    while hybris.not_zero():
+        hybris.pull()
+        nemesis.pull()
+
+
 class Abacus:
     def __init__(self):
         self.c00 = Cell('big', 'c00', 'Red', self)
@@ -254,9 +266,7 @@ class Abacus:
         # c50 and c56 are the ones that's actually end up cleared, as the last nxt
         for c in self.val[:-2]:
             nxt = self.val[c.pl + 2]
-            while nxt.numerise() != 0:
-                nxt.pull()
-                c.push()
+            exchange(nxt, c)
         if verbose:
             print('Moving up', self.expose(), sep='\n')
 
@@ -266,25 +276,23 @@ class Abacus:
         self.c56.clear()
         for c in self.val[:1:-1]:
             nxt = self.val[c.pl - 2]
-            while nxt.numerise() != 0:
-                nxt.pull()
-                c.push()
+            exchange(nxt, c)
         if verbose:
             print('Moving down', self.expose(), sep='\n')
 
-    def add1(self, call, cell_0=0):
+    def add1(self, addend, cell_0=0):
         """Adds a number to the abacus """
         if verbose:
-            print(f'Adding {call} at row {int(cell_0 / 2)}')
-        self.val[cell_0].push(call)
+            print(f'Adding {addend} at row {int(cell_0 / 2)}')
+        self.val[cell_0].push(addend)
         if verbose:
             print(self.expose())
 
-    def sub1(self, call, cell_0=0):
+    def sub1(self, subtend, cell_0=0):
         """Subtract a number from the abacus"""
         if verbose:
-            print(f'subtracting {call} at row {int(cell_0 / 2)}')
-        self.val[cell_0].pull(call)
+            print(f'subtracting {subtend} at row {int(cell_0 / 2)}')
+        self.val[cell_0].pull(subtend)
         if verbose:
             print(self.expose())
 
@@ -306,26 +314,41 @@ class Abacus:
         if self.underflow:
             print("I got undrflowed\n")
 
+    def subfrom1(self, minuend):
+        if verbose:
+            print('subtracting current value from', minuend)
+        lngth_subt = self.magnitude()
+        minu_start = self.val[lngth_subt * 2]
+        minu_start.load(minuend)
+        for count in range(lngth_subt):
+            while self.c00.not_zero():
+                consume(self.c00, minu_start)
+            while self.c06.not_zero():
+                consume(self.c06, self.val[lngth_subt * 2 + 1])
+            self.right()
+        if verbose:
+            print(self.expose())
+
     def multiplication(self, multiplier, multiplicand):
         self.overflow = False
         # Mesuring the factors
         self.load(multiplicand)
         lngth_cand = self.magnitude()
         self.load(multiplier)
-        lngth = self.magnitude()
+        lngth_ier = self.magnitude()
 
         # High edge cases
-        if lngth_cand + lngth > 7:
+        if lngth_cand + lngth_ier > 7:
             print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
                   f'Try to have their order of magnitude sum as 7 or less.')
             self.clear()
             return
 
         # The main operation
-        for count in range(lngth):
+        for count in range(lngth_ier):
             while self.c00.not_zero() or self.c06.not_zero():
                 self.c00.pull()
-                self.add1(multiplicand, cell_0=min(lngth * 2, (6 - lngth_cand) * 2, 10))
+                self.add1(multiplicand, cell_0=min(lngth_ier * 2, (6 - lngth_cand) * 2, 10))
             if count < min((6 - lngth_cand), 5):
                 self.right()
         if self.overflow:
@@ -363,13 +386,15 @@ if __name__ == "__main__":
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
-    abacus.multi_multiplication(24, 7, 8)
+    abacus.load(24)
+    abacus.subfrom1(24 ** 2)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
 
 """
 TODO: Division
+managing verbose
 Done: cli
 more rebust solution for length_lier+length_cand = 5
 replace length24
