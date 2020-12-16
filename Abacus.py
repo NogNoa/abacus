@@ -315,6 +315,7 @@ class Abacus:
             print("I got undrflowed\n")
 
     def subfrom1(self, minuend):
+        """Subtract the current abacus from a number"""
         if verbose:
             print('subtracting current value from', minuend)
         lngth_subt = self.magnitude()

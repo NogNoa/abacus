@@ -56,12 +56,20 @@ def color_cellise(color: str):
     colori = ['red', 'yellow', 'green', 'blue', 'indigo', "violet"]
     return 2 * colori.index(color)
 
+
 def decide_base(call):
     if decimal:
         value = int(call)
     else:
         value = base24_decimise(call)
     return value
+
+
+def call_parse(call):
+    cell = color_cellise(call[1])
+    value = decide_base(call[0])
+    return value, cell
+
 
 if __name__ == "__main__":
     file = 'abacus.csv'
@@ -81,6 +89,7 @@ if __name__ == "__main__":
     actions.add_argument('--set', help=Aba.Cell.set.__doc__)
     actions.add_argument('--add', help=abacus.add1.__doc__, nargs=2)
     actions.add_argument('--sub', help=abacus.sub1.__doc__, nargs=2)
+    actions.add_argument('--sub_from', help=abacus.subfrom1.__doc__, nargs=2)
     actions.add_argument('--multi', help=abacus.mult1.__doc__, nargs=2)
     actions.add_argument('--load', help=Aba.Cell.load.__doc__, nargs=2)
     actions.add_argument('--push', help=Aba.Cell.push.__doc__, nargs=2)
@@ -114,30 +123,23 @@ if __name__ == "__main__":
         abacus.val[cell + 1].set()
 
     if args.load is not None:
-        call = args.load
-        cell = color_cellise(call[1])
-        value = decide_base(call[0])
+        value, cell = call_parse(args.load)
         abacus.val[cell].load(value, True)
     if args.push is not None:
-        call = args.push
-        cell = color_cellise(call[1])
-        force = base24_decimise(call[0])
+        force, cell = call_parse(args.push)
         abacus.val[cell].push(force)
     if args.pull is not None:
-        call = args.pull
-        cell = color_cellise(call[1])
-        force = base24_decimise(call[0])
+        force, cell = call_parse(args.pull)
         abacus.val[cell].pull(force)
 
     if args.add is not None:
-        value = decide_base(args.add)
-        abacus.add1(value)
+        abacus.add1(decide_base(args.add))
     if args.sub is not None:
-        value = decide_base(args.sub)
-        abacus.sub1(value)
+        abacus.sub1(decide_base(args.sub))
+    if args.subfrom is not None:
+        abacus.subfrom1(decide_base(args.subfrom))
     if args.multi is not None:
-        value = decide_base(args.multi)
-        abacus.mult1(value)
+        abacus.mult1(decide_base(args.multi))
 
     abacus.prnt(tee=not Aba.verbose)
     if Aba.verbose:
