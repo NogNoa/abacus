@@ -72,6 +72,7 @@ def call_parse(call):
     return value, cell
 
 
+
 if __name__ == "__main__":
     file = 'abacus.csv'
     abacus = Aba.Abacus()
@@ -109,10 +110,10 @@ if __name__ == "__main__":
         value = decide_base(args.load_full)
         abacus.load(value)
     if args.up:
-        for i in range(args.up):
+        for count in range(args.up):
             abacus.right()
     if args.down:
-        for i in range(args.down):
+        for count in range(args.down):
             abacus.left()
     if args.clear is not None:
         cell = color_cellise(args.clear)

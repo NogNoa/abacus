@@ -79,8 +79,6 @@ class Cell:
         self.abacus = []
         self.pl = 0
         self.mother = mother
-        self.overflow = False
-        self.underflow = False
 
         self.bottom = End(up=False)
         self.b1 = Beed(cid + '.b1')
@@ -136,7 +134,7 @@ class Cell:
 
     def set_clear(self, st: bool):
         for b in self.val[1:-1]:
-            b.up = st
+            b.up = st  # true->set false->clear
 
     def set(self):
         """Move all beeds in a given cell to the Right"""
@@ -248,14 +246,14 @@ class Abacus:
         else:
             return flow
 
-    def clear(self):
+    def clear(self, reverse=False):
         """Clear every Cell of the abacus"""
         self.overflow = False
         self.underflow = False
         for c in self.val:
-            c.clear()
+            c.set_clear(reverse)
 
-    # note no set, making a macro for this is superfluous.
+    # note, making a macro for set is superfluous. But it's implemented by Truing reverse.
 
     def load(self, call, cell_0=0):
         """Set the abacus to a specific number"""
@@ -284,7 +282,7 @@ class Abacus:
             print(f'Mesuring the base-24 order of magnitude of loaded value as {back}\n')
         return back
 
-    def right(self):
+    def right(self, verbose=verbose):
         """Moves all cells Up"""
         self.c00.clear()
         self.c06.clear()
@@ -349,7 +347,7 @@ class Abacus:
                 consume(self.c00, minu_start)
             while self.c06.not_zero():
                 consume(self.c06, self.val[lngth_subt * 2 + 1])
-            self.right()
+            self.right(verbose=False)
         self.underflow = self.chk_flow(over=False)
         if verbose:
             print(self.expose())
@@ -371,7 +369,7 @@ class Abacus:
         # The main operation
         for count in range(lngth_ier):
             while self.c00.not_zero() or self.c06.not_zero():
-                self.c00.pull()
+                self.sub1(1)  # to offer verbose option
                 self.add1(multiplicand, cell_0=min(lngth_ier * 2, (6 - lngth_cand) * 2, 10))
             if count < min((6 - lngth_cand), 5):
                 self.right()
@@ -402,14 +400,22 @@ class Abacus:
             self.right()
         self.overflow = self.chk_flow(over=True)
 
+    def div1(self, divisor):
+        if divisor == 0:
+            print("Abacus catch fire.")
+            self.clear(reverse=True)
+            if verbose:
+                print(self.expose())
+
 
 if __name__ == "__main__":
     verbose = True
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
-    abacus.load(3)
-    abacus.sub1(4)
+    abacus.load(24)
+    abacus.subfrom1(24 ** 2)
+    abacus.div1(0)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
