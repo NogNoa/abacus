@@ -66,8 +66,9 @@ def decide_base(call):
 
 
 def call_parse(call):
-    cell = color_cellise(call[1])
-    value = decide_base(call[0])
+    value, cell = call
+    cell = color_cellise(cell)
+    value = decide_base(value)
     return value, cell
 
 
@@ -87,10 +88,10 @@ if __name__ == "__main__":
     actions.add_argument('--down', help=abacus.left.__doc__, action="count")
     actions.add_argument('--clear', help=Aba.Cell.clear.__doc__)
     actions.add_argument('--set', help=Aba.Cell.set.__doc__)
-    actions.add_argument('--add', help=abacus.add1.__doc__, nargs=2)
-    actions.add_argument('--sub', help=abacus.sub1.__doc__, nargs=2)
-    actions.add_argument('--sub_from', help=abacus.subfrom1.__doc__, nargs=2)
-    actions.add_argument('--multi', help=abacus.mult1.__doc__, nargs=2)
+    actions.add_argument('--add', help=abacus.add1.__doc__)
+    actions.add_argument('--sub', help=abacus.sub1.__doc__)
+    actions.add_argument('--sub_from', help=abacus.subfrom1.__doc__)
+    actions.add_argument('--multi', help=abacus.mult1.__doc__)
     actions.add_argument('--load', help=Aba.Cell.load.__doc__, nargs=2)
     actions.add_argument('--push', help=Aba.Cell.push.__doc__, nargs=2)
     actions.add_argument('--pull', help=Aba.Cell.pull.__doc__, nargs=2)
@@ -131,13 +132,12 @@ if __name__ == "__main__":
     if args.pull is not None:
         force, cell = call_parse(args.pull)
         abacus.val[cell].pull(force)
-
     if args.add is not None:
         abacus.add1(decide_base(args.add))
     if args.sub is not None:
         abacus.sub1(decide_base(args.sub))
-    if args.subfrom is not None:
-        abacus.subfrom1(decide_base(args.subfrom))
+    if args.sub_from is not None:
+        abacus.subfrom1(decide_base(args.sub_from))
     if args.multi is not None:
         abacus.mult1(decide_base(args.multi))
 
@@ -150,5 +150,6 @@ if __name__ == "__main__":
     print(decimate(num))
     """
 
-"""DONE:base24 input.
+"""TODO: Input Error handling
+DONE:base24 input.
 Color to cell"""

@@ -79,6 +79,8 @@ class Cell:
         self.abacus = []
         self.pl = 0
         self.mother = mother
+        self.overflow = False
+        self.underflow = False
 
         self.bottom = End(up=False)
         self.b1 = Beed(cid + '.b1')
@@ -103,17 +105,26 @@ class Cell:
                   f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
             self.mother.flow(over=push)
             force = 0
+            # if the number is higher than what the abacus could hold in the first place, we set the respective flow
+            # flag, and empty the force so the operation will finish wherever control is returned to.
+
         force = self.val[push * -1].push_pull(force, push)
+        # We pass the operation to bottom of the cell if pull (0 * -1 = 0, first in cell) or to top if push
+        # (1 * -1 = -1, last in cell).
+        # For each beed moved force will go down by 1, and the new value will be returned here.
+
         while force > 0:
-            """ push_pull by 1 the next cell  \
-            clear_set the cell,  \
-            and aplly the push_pull to itself again s.t force -= 1"""
+            # If we got here it means the force was bigger than the number of beeds that were down.
             if self.id != 'c56':
-                self.abacus[self.pl + 1].push_pull(1, push)  # cell[-1] is top cell[0] is bottom
+                self.abacus[self.pl + 1].push_pull(1, push)
+                # For most cells we pass a carry of 1 to the next cell
             else:
                 self.mother.flow(over=push)
-            self.set_clear(st=not push)
+                # But if it is the last cell we have to flag the corresponding flow flag instead.
+            self.set_clear(st=not push)  # push-> set, pull-> clear
             force = self.val[push * -1].push_pull(force - 1, push)
+            # Then we set or clear the cell and pass a push or pull command to the ends as before.
+            # We substruct 1 force to pay for the set/clear. We continue the loop until force is zero.
 
     def push(self, force=1):
         """Move beeds in a given cell to the Right"""
@@ -224,6 +235,19 @@ class Abacus:
         else:
             self.underflow = True
 
+    def chk_flow(self, over):
+        if over:
+            flow = self.overflow
+            word = 'overflowed'
+        else:
+            flow = self.underflow
+            word = 'underflowed'
+        if flow:
+            print(f"I got {word}\n")
+            return False
+        else:
+            return flow
+
     def clear(self):
         """Clear every Cell of the abacus"""
         self.overflow = False
@@ -240,6 +264,7 @@ class Abacus:
         self.clear()
         # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
         self.val[cell_0].load(call)
+        self.overflow = self.chk_flow(over=True)
         if verbose:
             print(self.expose())
 
@@ -267,6 +292,7 @@ class Abacus:
         for c in self.val[:-2]:
             nxt = self.val[c.pl + 2]
             exchange(nxt, c)
+        self.overflow = self.chk_flow(over=True)
         if verbose:
             print('Moving up', self.expose(), sep='\n')
 
@@ -277,6 +303,7 @@ class Abacus:
         for c in self.val[:1:-1]:
             nxt = self.val[c.pl - 2]
             exchange(nxt, c)
+        self.underflow = self.chk_flow(over=False)
         if verbose:
             print('Moving down', self.expose(), sep='\n')
 
@@ -285,6 +312,7 @@ class Abacus:
         if verbose:
             print(f'Adding {addend} at row {int(cell_0 / 2)}')
         self.val[cell_0].push(addend)
+        self.overflow = self.chk_flow(over=True)
         if verbose:
             print(self.expose())
 
@@ -293,26 +321,21 @@ class Abacus:
         if verbose:
             print(f'subtracting {subtend} at row {int(cell_0 / 2)}')
         self.val[cell_0].pull(subtend)
+        self.underflow = self.chk_flow(over=False)
         if verbose:
             print(self.expose())
 
     def addition(self, augend, *addendi):
-        self.overflow = False
         if not augend is None:  # For useing former answer
             self.load(augend)
         for a in addendi:
             self.add1(a)
-        if self.overflow:
-            print("I got overflowed\n")
 
     def subtraction(self, minuend, *subtrendi):
-        self.underflow = False
         if not minuend is None:  # For useing former answer
             self.load(minuend)
         for s in subtrendi:
             self.sub1(s)
-        if self.underflow:
-            print("I got undrflowed\n")
 
     def subfrom1(self, minuend):
         """Subtract the current abacus from a number"""
@@ -327,11 +350,11 @@ class Abacus:
             while self.c06.not_zero():
                 consume(self.c06, self.val[lngth_subt * 2 + 1])
             self.right()
+        self.underflow = self.chk_flow(over=False)
         if verbose:
             print(self.expose())
 
     def multiplication(self, multiplier, multiplicand):
-        self.overflow = False
         # Mesuring the factors
         self.load(multiplicand)
         lngth_cand = self.magnitude()
@@ -352,8 +375,7 @@ class Abacus:
                 self.add1(multiplicand, cell_0=min(lngth_ier * 2, (6 - lngth_cand) * 2, 10))
             if count < min((6 - lngth_cand), 5):
                 self.right()
-        if self.overflow:
-            print("I got overflowed\n")
+        self.overflow = self.chk_flow(over=True)
 
     def multi_multiplication(self, multplicand, *multiplieri):
         self.multiplication(multiplieri[0], multplicand)
@@ -362,7 +384,6 @@ class Abacus:
 
     def mult1(self, multiplicand):
         """multiply what's in the abacus by another number"""
-        self.overflow = False
         lngth = self.magnitude()
         try:
             self.val[lngth * 2].push(multiplicand)
@@ -371,6 +392,7 @@ class Abacus:
         if self.overflow or self.c50.not_zero() or self.c56.not_zero():
             print(f'Sorry chemp, both previous answer and {multiplicand} were too big. '
                   f'Try to have their order of magnitude sum as 7 or less.')
+            self.overflow = False
             return
         self.val[lngth * 2].pull(multiplicand)
         for count in range(lngth):
@@ -378,8 +400,7 @@ class Abacus:
                 self.c00.pull()
                 self.add1(multiplicand, cell_0=lngth * 2)
             self.right()
-        if self.overflow:
-            print("I got overflowed\n")
+        self.overflow = self.chk_flow(over=True)
 
 
 if __name__ == "__main__":
@@ -387,16 +408,16 @@ if __name__ == "__main__":
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
-    abacus.load(24)
-    abacus.subfrom1(24 ** 2)
+    abacus.load(3)
+    abacus.sub1(4)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
 
 """
 TODO: Division
-managing verbose
-Done: cli
+Done: managing verbose
+cli
 more rebust solution for length_lier+length_cand = 5
 replace length24
 how to treat the carry and borrow flags
