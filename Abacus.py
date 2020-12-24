@@ -192,6 +192,7 @@ class Abacus:
                     self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
         for c in self.val:
             c.abacus, c.pl = initorder(c, self)
+        self.major = [c for c in self.val if c.size]
         self.overflow = False
         self.underflow = False
 
@@ -257,18 +258,16 @@ class Abacus:
                 print(f'Clearing all from row {int(start / 2)}')
             print(self.expose())
 
-
     # note, making a macro for set is superfluous. But it's implemented by Truing reverse.
 
     def load(self, call, start=0):
         """Set the abacus to a specific number"""
-        self.clear()
+        self.clear(verbose=False)
         # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
         self.val[start].load(call)
         self.overflow = self.chk_flow(over=True)
         if verbose:
-            print(f'Loading {call} at row {int(start / 2)}')
-            print(self.expose())
+            print(f'Loading {call} at row {int(start / 2)}', self.expose(), sep='\n')
 
     def magnitude(self):
         if self.overflow:
@@ -286,7 +285,7 @@ class Abacus:
             print(f'Mesuring the base-24 order of magnitude of loaded value as {back}\n')
         return back
 
-    def right(self, verbose=verbose):
+    def right(self):
         """Moves all cells Up"""
         self.c00.clear()
         self.c06.clear()
@@ -302,6 +301,7 @@ class Abacus:
         """Moves all cells Down"""
         self.c50.clear()
         self.c56.clear()
+        # Similarly to right, c00 and c06 end up cleared
         for c in self.val[:1:-1]:
             nxt = self.val[c.pl - 2]
             exchange(nxt, c)
@@ -323,7 +323,7 @@ class Abacus:
         if verbose:
             print(f'subtracting {subtend} at row {int(cell_0 / 2)}')
         self.val[cell_0].pull(subtend)
-        self.underflow = self.chk_flow(over=False)
+        #self.underflow = self.chk_flow(over=False)
         if verbose:
             print(self.expose())
 
@@ -351,7 +351,7 @@ class Abacus:
                 consume(self.c00, minu_start)
             while self.c06.not_zero():
                 consume(self.c06, self.val[lngth_subt * 2 + 1])
-            self.right(verbose=False)
+            self.right()
         self.underflow = self.chk_flow(over=False)
         if verbose:
             print(self.expose())
@@ -406,24 +406,24 @@ class Abacus:
 
     def div1(self, divisor):
         if divisor == 0:
-            print("Abacus catch fire.")
+            print("Abacus catches fire.")
             self.clear(reverse=True, verbose=False)
             if verbose:
                 print(self.expose())
         lngth_dend = self.magnitude() * 2
-        self.load(divisor, lngth_dend)
+        self.val[lngth_dend].load(divisor)
         lngth_sor = (self.magnitude() * 2) - lngth_dend
         self.clear(start=lngth_dend)
         for count in range(lngth_dend - lngth_sor):
-            pl = lngth_dend - lngth_sor - (count - 2)
+            self.left()
+            pl = lngth_dend - lngth_sor + 2
             while not self.underflow:
                 self.sub1(divisor, cell_0=pl)
-                self.add1(1, cell_0=11 - count)
+                self.add1(1)
             self.add1(divisor, cell_0=pl)
-
-
-
-
+            self.sub1(1)
+        print(f'Red row to {self.val[pl - 4].color} row are qutient, '
+              f'{self.val[pl - 2].color} row to Violet row are reminder')
 
 
 if __name__ == "__main__":
@@ -432,8 +432,8 @@ if __name__ == "__main__":
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
     abacus.load(24)
-    abacus.subfrom1(24 ** 2)
-    abacus.div1(0)
+    #abacus.subfrom1(24 ** 2)
+    abacus.div1(2)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
