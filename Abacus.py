@@ -246,24 +246,28 @@ class Abacus:
         else:
             return flow
 
-    def clear(self, reverse=False):
+    def clear(self, reverse=False, start=0, verbose=verbose):
         """Clear every Cell of the abacus"""
-        self.overflow = False
-        self.underflow = False
-        for c in self.val:
+        for c in self.val[start:]:
             c.set_clear(reverse)
+        if verbose:
+            if reverse:
+                print(f'Setting all from row {int(start / 2)}')
+            else:
+                print(f'Clearing all from row {int(start / 2)}')
+            print(self.expose())
+
 
     # note, making a macro for set is superfluous. But it's implemented by Truing reverse.
 
-    def load(self, call, cell_0=0):
+    def load(self, call, start=0):
         """Set the abacus to a specific number"""
-        if verbose:
-            print(f'Loading {call} at row {int(cell_0 / 2)}')
         self.clear()
         # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
-        self.val[cell_0].load(call)
+        self.val[start].load(call)
         self.overflow = self.chk_flow(over=True)
         if verbose:
+            print(f'Loading {call} at row {int(start / 2)}')
             print(self.expose())
 
     def magnitude(self):
@@ -403,9 +407,23 @@ class Abacus:
     def div1(self, divisor):
         if divisor == 0:
             print("Abacus catch fire.")
-            self.clear(reverse=True)
+            self.clear(reverse=True, verbose=False)
             if verbose:
                 print(self.expose())
+        lngth_dend = self.magnitude() * 2
+        self.load(divisor, lngth_dend)
+        lngth_sor = (self.magnitude() * 2) - lngth_dend
+        self.clear(start=lngth_dend)
+        for count in range(lngth_dend - lngth_sor):
+            pl = lngth_dend - lngth_sor - (count - 2)
+            while not self.underflow:
+                self.sub1(divisor, cell_0=pl)
+                self.add1(1, cell_0=11 - count)
+            self.add1(divisor, cell_0=pl)
+
+
+
+
 
 
 if __name__ == "__main__":
