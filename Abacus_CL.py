@@ -52,17 +52,15 @@ def base24_decimise(call: str):
 
 
 def color_cellise(color: str):
-    color = color.lower()
-    colori = ['red', 'yellow', 'green', 'blue', 'indigo', "violet"]
-    return 2 * colori.index(color)
+    colori = {c.color.lower(): c.pl for c in abacus.val[::2]}
+    return colori[color.lower()]
 
 
 def decide_base(call):
     if decimal:
-        value = int(call)
+        return int(call)
     else:
-        value = base24_decimise(call)
-    return value
+        return base24_decimise(call)
 
 
 def call_parse(call):
@@ -70,7 +68,6 @@ def call_parse(call):
     cell = color_cellise(cell)
     value = decide_base(value)
     return value, cell
-
 
 
 if __name__ == "__main__":
@@ -90,9 +87,10 @@ if __name__ == "__main__":
     actions.add_argument('--clear', help=Aba.Cell.clear.__doc__)
     actions.add_argument('--set', help=Aba.Cell.set.__doc__)
     actions.add_argument('--add', help=abacus.add1.__doc__)
-    actions.add_argument('--sub', help=abacus.sub1.__doc__)
-    actions.add_argument('--sub_from', help=abacus.subfrom1.__doc__)
-    actions.add_argument('--multi', help=abacus.mult1.__doc__)
+    actions.add_argument('--sub', '--subtract', help=abacus.sub1.__doc__)
+    actions.add_argument('--sub_from', '--subtract_from', help=abacus.subfrom1.__doc__)
+    actions.add_argument('--multi', '--multiply', help=abacus.mult1.__doc__)
+    actions.add_argument('--div', '--divide', help=abacus.div1.__doc__)
     actions.add_argument('--load', help=Aba.Cell.load.__doc__, nargs=2)
     actions.add_argument('--push', help=Aba.Cell.push.__doc__, nargs=2)
     actions.add_argument('--pull', help=Aba.Cell.pull.__doc__, nargs=2)
@@ -141,6 +139,8 @@ if __name__ == "__main__":
         abacus.subfrom1(decide_base(args.sub_from))
     if args.multi is not None:
         abacus.mult1(decide_base(args.multi))
+    if args.div is not None:
+        abacus.div1(decide_base(args.div))
 
     abacus.prnt(tee=not Aba.verbose)
     if Aba.verbose:

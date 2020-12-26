@@ -192,7 +192,7 @@ class Abacus:
                     self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
         for c in self.val:
             c.abacus, c.pl = initorder(c, self)
-        self.major = [c for c in self.val if c.size]
+        self.major = [c for c in self.val[::2]]
         self.overflow = False
         self.underflow = False
 
@@ -405,6 +405,7 @@ class Abacus:
         self.overflow = self.chk_flow(over=True)
 
     def div1(self, divisor):
+        """divide what's in the abacus by another number"""
         if divisor == 0:
             print("Abacus catches fire.")
             self.clear(reverse=True, verbose=False)
