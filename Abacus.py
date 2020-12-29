@@ -446,8 +446,9 @@ if __name__ == "__main__":
         print("FIN")
 
 """
-TODO: fix flow
+TODO: 
 standardise and managing verbose
+fix flow
 Done: Div1
 cli
 more rebust solution for length_lier+length_cand = 5

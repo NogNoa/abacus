@@ -46,19 +46,31 @@ def base24_decimise(call: str):
     base = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] + list(ascii_lowercase[:14])
     back = 0
     for pl, digit in enumerate(call[::-1]):
-        digit = base.index(digit)
+        try:
+            digit = base.index(digit)
+        except ValueError:
+            print(f"Oops, \"{call}\" is not a base24 number")
+            exit(2)
         back += digit * 24 ** pl
     return back
 
 
 def color_cellise(color: str):
     colori = {c.color.lower(): c.pl for c in abacus.val[::2]}
-    return colori[color.lower()]
+    try:
+        return colori[color.lower()]
+    except KeyError:
+        print(f"Oops, \"{color}\" is not a color in this abacus")
+        exit(3)
 
 
 def decide_base(call):
     if decimal:
-        return int(call)
+        try:
+            return int(call)
+        except ValueError:
+            print(f"Oops, \"{call}\" is not a decimal number")
+            exit(1)
     else:
         return base24_decimise(call)
 
@@ -85,6 +97,7 @@ if __name__ == "__main__":
     actions.add_argument('--up', help=abacus.right.__doc__, action="count")
     actions.add_argument('--down', help=abacus.left.__doc__, action="count")
     actions.add_argument('--clear', help=Aba.Cell.clear.__doc__)
+    actions.add_argument('--clear_full', help=abacus.clear.__doc__, action="store_true")
     actions.add_argument('--set', help=Aba.Cell.set.__doc__)
     actions.add_argument('--add', help=abacus.add1.__doc__)
     actions.add_argument('--sub', '--subtract', help=abacus.sub1.__doc__)
@@ -92,10 +105,11 @@ if __name__ == "__main__":
     actions.add_argument('--multi', '--multiply', help=abacus.mult1.__doc__)
     actions.add_argument('--div', '--divide', help=abacus.div1.__doc__)
     actions.add_argument('--load', help=Aba.Cell.load.__doc__, nargs=2)
+    actions.add_argument('--load_full', help=abacus.load.__doc__)
     actions.add_argument('--push', help=Aba.Cell.push.__doc__, nargs=2)
     actions.add_argument('--pull', help=Aba.Cell.pull.__doc__, nargs=2)
-    actions.add_argument('--clear_full', help=abacus.clear.__doc__, action="store_true")
-    actions.add_argument('--load_full', help=abacus.load.__doc__)
+
+
 
     args = parser.parse_args()
     if args.verbose:
@@ -151,6 +165,6 @@ if __name__ == "__main__":
     print(decimate(num))
     """
 
-"""TODO: Input Error handling
-DONE:base24 input.
+"""DONE: Input Error handling
+base24 input.
 Color to cell"""
