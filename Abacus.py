@@ -1,14 +1,14 @@
 help_dscrpt = \
     """
 An interactive quad-seximal abacus for fun.\t\n
-The Abacus have 12 cells in 6 rows numbered 0 to 5.\t\n
+The Abacus have 12 cells in 6 rows.\t\n
 Each row has a lower cell with 5 beeds and a high cell with 3 beeds.\t\n
 When the cell is full this is a distinct state, only when you add one to it does the next cell change 
     and the first one empties.\t\n
 This make the abacus base 24 by row.\t\n
 \t\n
 Enter values as base 24 [0123456789abcdefghijklmn] \t\n
-If you want to use base 10 that's still an option! \t\n
+If you want to use base 10, that's still an option! \t\n
 Enter row by color ['Red', 'Yellow', 'Green', 'Blue', 'Indigo', "Violet"]\t\n
 If both inputs are required always enter value before row
     """
@@ -324,7 +324,7 @@ class Abacus:
         if verbose:
             print(f'subtracting {subtend} at row {int(cell_0 / 2)}')
         self.val[cell_0].pull(subtend)
-        #self.underflow = self.chk_flow(over=False)
+        #  self.underflow = self.chk_flow(over=False)
         if verbose:
             print(self.expose())
 
@@ -415,7 +415,8 @@ class Abacus:
             self.clear(reverse=True, verbose=False)
             if verbose:
                 print(self.expose())
-            # we don't want the self description of clear, but we want to print self.expose() wheter or not verbose is on.
+            # we don't want the self description of clear,
+            # but we want to print self.expose() wheter or not verbose is on.
             return
         lngth_dend = self.magnitude() * 2
         self.val[lngth_dend].load(divisor)
@@ -439,7 +440,7 @@ if __name__ == "__main__":
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
     abacus.load(24)
-    #abacus.subfrom1(24 ** 2)
+    # abacus.subfrom1(24 ** 2)
     abacus.div1(0)
     abacus.prnt(tee=not verbose)
     if verbose:
