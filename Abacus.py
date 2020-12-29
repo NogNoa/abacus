@@ -243,9 +243,6 @@ class Abacus:
             word = 'underflowed'
         if flow:
             print(f"I got {word}\n")
-            return False
-        else:
-            return flow
 
     def clear(self, reverse=False, start=0, verbose=verbose):
         """Clear every Cell of the abacus"""
@@ -262,10 +259,11 @@ class Abacus:
 
     def load(self, call, start=0):
         """Set the abacus to a specific number"""
+        self.overflow = False
         self.clear(verbose=False)
         # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
         self.val[start].load(call)
-        self.overflow = self.chk_flow(over=True)
+        self.chk_flow(over=True)
         if verbose:
             print(f'Loading {call} at row {int(start / 2)}', self.expose(), sep='\n')
 
@@ -287,34 +285,37 @@ class Abacus:
 
     def right(self):
         """Moves all cells Up"""
+        self.overflow = False
         self.c00.clear()
         self.c06.clear()
         # c50 and c56 are the ones that's actually end up cleared, as the last nxt
         for c in self.val[:-2]:
             nxt = self.val[c.pl + 2]
             exchange(nxt, c)
-        self.overflow = self.chk_flow(over=True)
+        self.chk_flow(over=True)
         if verbose:
             print('Moving up', self.expose(), sep='\n')
 
     def left(self):
         """Moves all cells Down"""
+        self.underflow = False
         self.c50.clear()
         self.c56.clear()
         # Similarly to right, c00 and c06 end up cleared
         for c in self.val[:1:-1]:
             nxt = self.val[c.pl - 2]
             exchange(nxt, c)
-        self.underflow = self.chk_flow(over=False)
+        self.chk_flow(over=False)
         if verbose:
             print('Moving down', self.expose(), sep='\n')
 
     def add1(self, addend, cell_0=0):
         """Adds a number to the abacus """
+        self.overflow = False
         if verbose:
             print(f'Adding {addend} at row {int(cell_0 / 2)}')
         self.val[cell_0].push(addend)
-        self.overflow = self.chk_flow(over=True)
+        self.chk_flow(over=True)
         if verbose:
             print(self.expose())
 
@@ -341,6 +342,7 @@ class Abacus:
 
     def subfrom1(self, minuend):
         """Subtract the current abacus from a number"""
+        self.underflow = False
         if verbose:
             print('subtracting current value from', minuend)
         lngth_subt = self.magnitude()
@@ -352,12 +354,13 @@ class Abacus:
             while self.c06.not_zero():
                 consume(self.c06, self.val[lngth_subt * 2 + 1])
             self.right()
-        self.underflow = self.chk_flow(over=False)
+        self.chk_flow(over=False)
         if verbose:
             print(self.expose())
 
     def multiplication(self, multiplier, multiplicand):
         # Mesuring the factors
+        self.overflow = False
         self.load(multiplicand)
         lngth_cand = self.magnitude()
         self.load(multiplier)
@@ -377,7 +380,7 @@ class Abacus:
                 self.add1(multiplicand, cell_0=min(lngth_ier * 2, (6 - lngth_cand) * 2, 10))
             if count < min((6 - lngth_cand), 5):
                 self.right()
-        self.overflow = self.chk_flow(over=True)
+        self.chk_flow(over=True)
 
     def multi_multiplication(self, multplicand, *multiplieri):
         self.multiplication(multiplieri[0], multplicand)
@@ -386,6 +389,7 @@ class Abacus:
 
     def mult1(self, multiplicand):
         """multiply what's in the abacus by another number"""
+        self.overflow = False
         lngth = self.magnitude()
         try:
             self.val[lngth * 2].push(multiplicand)
@@ -402,7 +406,7 @@ class Abacus:
                 self.c00.pull()
                 self.add1(multiplicand, cell_0=lngth * 2)
             self.right()
-        self.overflow = self.chk_flow(over=True)
+        self.chk_flow(over=True)
 
     def div1(self, divisor):
         """divide what's in the abacus by another number"""
@@ -411,20 +415,22 @@ class Abacus:
             self.clear(reverse=True, verbose=False)
             if verbose:
                 print(self.expose())
+            # we don't want the self description of clear, but we want to print self.expose() wheter or not verbose is on.
+            return
         lngth_dend = self.magnitude() * 2
         self.val[lngth_dend].load(divisor)
         lngth_sor = (self.magnitude() * 2) - lngth_dend
         self.clear(start=lngth_dend)
+        pl = lngth_dend - lngth_sor + 2
         for count in range(lngth_dend - lngth_sor):
             self.left()
-            pl = lngth_dend - lngth_sor + 2
             while not self.underflow:
                 self.sub1(divisor, cell_0=pl)
                 self.add1(1)
             self.add1(divisor, cell_0=pl)
             self.sub1(1)
-        print(f'Red row to {self.val[pl - 4].color} row are qutient, '
-              f'{self.val[pl - 2].color} row to Violet row are reminder')
+        print(f'Red row to {self.val[pl - 2].color} row are qutient, '
+              f'{self.val[pl].color} row to Violet row are reminder')
 
 
 if __name__ == "__main__":
@@ -434,14 +440,15 @@ if __name__ == "__main__":
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
     abacus.load(24)
     #abacus.subfrom1(24 ** 2)
-    abacus.div1(2)
+    abacus.div1(0)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
 
 """
-TODO: Division
-Done: managing verbose
+TODO: fix flow
+standardise and managing verbose
+Done: Div1
 cli
 more rebust solution for length_lier+length_cand = 5
 replace length24
