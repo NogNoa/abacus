@@ -103,13 +103,14 @@ class Cell:
                   f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
             self.mother.flow(over=push)
             force = 0
-            # if the number is higher than what the abacus could hold in the first place, we set the respective flow
-            # flag, and empty the force so the operation will finish wherever control is returned to.
+            # if the number is higher than what the abacus could hold in the first place,
+            # we set the respective flow flag, and empty the force so the operation will finish
+            # wherever control is returned to.
 
         force = self.val[push * -1].push_pull(force, push)
         # We pass the operation to bottom of the cell if pull (0 * -1 = 0, first in cell) or to top if push
-        # (1 * -1 = -1, last in cell).
-        # For each beed moved force will go down by 1, and the new value will be returned here.
+        # (1 * -1 = -1, last in cell). For each beed moved force will go down by 1, and the new value
+        # will be returned here.
 
         while force > 0:
             # If we got here it means the force was bigger than the number of beeds that were down.
@@ -319,11 +320,11 @@ class Abacus:
         if verbose:
             print(self.expose())
 
-    def sub1(self, subtend, cell_0=0):
+    def sub1(self, subtrahend, cell_0=0):
         """Subtract a number from the abacus"""
         if verbose:
-            print(f'subtracting {subtend} at row {int(cell_0 / 2)}')
-        self.val[cell_0].pull(subtend)
+            print(f'subtracting {subtrahend} at row {int(cell_0 / 2)}')
+        self.val[cell_0].pull(subtrahend)
         #  self.underflow = self.chk_flow(over=False)
         if verbose:
             print(self.expose())
@@ -334,10 +335,10 @@ class Abacus:
         for a in addendi:
             self.add1(a)
 
-    def subtraction(self, minuend, *subtrendi):
+    def subtraction(self, minuend, *subtrahendi):
         if not minuend is None:  # For useing former answer
             self.load(minuend)
-        for s in subtrendi:
+        for s in subtrahendi:
             self.sub1(s)
 
     def subfrom1(self, minuend):
@@ -449,8 +450,8 @@ if __name__ == "__main__":
 """
 TODO: 
 standardise and managing verbose
+Done:
 fix flow
-Done: Div1
 cli
 more rebust solution for length_lier+length_cand = 5
 replace length24
