@@ -123,7 +123,7 @@ class Rod:
         """Return all beeds in a given rod to the Left, reseting it to Zero."""
         self.set_clear(st=False)
 
-    def load(self, const, nxt=False):
+    def load(self, const):
         """Set a given rod to a speicific number."""
         self.clear()
         self.push(const)
@@ -281,7 +281,7 @@ class Abacus:
     def load(self, call, start=0):
         """Set the abacus to a specific number"""
         self.overflow = False
-        self.clear(verbose=False)
+        self.clear(verbose=False, start=start)
         # clears lngth-1 rods, starting from the one after rod_0. rod_0 will already be cleared by load()
         self.push(self.val[start], call)
         self.chk_flow(over=True)
@@ -440,7 +440,7 @@ class Abacus:
             # but we want to print self.expose() wheter or not verbose is on.
             return
         lngth_dend = self.magnitude() * 2
-        self.load(self.val[lngth_dend], divisor)
+        self.load(divisor, start=lngth_dend)
         lngth_sor = (self.magnitude() * 2) - lngth_dend
         self.clear(start=lngth_dend)
         pl = lngth_dend - lngth_sor + 2
@@ -462,7 +462,7 @@ if __name__ == "__main__":
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
     abacus.load(24)
     # abacus.subfrom1(24 ** 2)
-    # abacus.div1(0)
+    abacus.div1(2)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
