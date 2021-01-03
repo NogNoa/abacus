@@ -55,7 +55,7 @@ def base24_decimise(call: str):
     return back
 
 
-def color_cellise(color: str):
+def color_rodise(color: str):
     colori = {c.color.lower(): c.pl for c in abacus.val[::2]}
     try:
         return colori[color.lower()]
@@ -76,10 +76,10 @@ def decide_base(call):
 
 
 def call_parse(call):
-    value, cell = call
-    cell = color_cellise(cell)
+    value, rod = call
+    rod = color_rodise(rod)
     value = decide_base(value)
-    return value, cell
+    return value, rod
 
 
 if __name__ == "__main__":
@@ -96,18 +96,18 @@ if __name__ == "__main__":
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument('--up', help=abacus.right.__doc__, action="count")
     actions.add_argument('--down', help=abacus.left.__doc__, action="count")
-    actions.add_argument('--clear', help=Aba.Cell.clear.__doc__)
+    actions.add_argument('--clear', help=Aba.Rod.clear.__doc__)
     actions.add_argument('--clear_full', help=abacus.clear.__doc__, action="store_true")
-    actions.add_argument('--set', help=Aba.Cell.set.__doc__)
+    actions.add_argument('--set', help=Aba.Rod.set.__doc__)
     actions.add_argument('--add', help=abacus.add1.__doc__)
     actions.add_argument('--sub', '--subtract', help=abacus.sub1.__doc__)
     actions.add_argument('--sub_from', '--subtract_from', help=abacus.subfrom1.__doc__)
     actions.add_argument('--multi', '--multiply', help=abacus.mult1.__doc__)
     actions.add_argument('--div', '--divide', help=abacus.div1.__doc__)
-    actions.add_argument('--load', help=Aba.Cell.load.__doc__, nargs=2)
+    actions.add_argument('--load', help=Aba.Rod.load.__doc__, nargs=2)
     actions.add_argument('--load_full', help=abacus.load.__doc__)
-    actions.add_argument('--push', help=Aba.Cell.push.__doc__, nargs=2)
-    actions.add_argument('--pull', help=Aba.Cell.pull.__doc__, nargs=2)
+    actions.add_argument('--push', help=Aba.Rod.push.__doc__, nargs=2)
+    actions.add_argument('--pull', help=Aba.Rod.pull.__doc__, nargs=2)
 
 
 
@@ -128,23 +128,23 @@ if __name__ == "__main__":
         for count in range(args.down):
             abacus.left()
     if args.clear is not None:
-        cell = color_cellise(args.clear)
-        abacus.val[cell].clear()
-        abacus.val[cell + 1].clear()
+        rod = color_rodise(args.clear)
+        abacus.val[rod].clear()
+        abacus.val[rod + 1].clear()
     if args.set is not None:
-        cell = color_cellise(args.set)
-        abacus.val[cell].set()
-        abacus.val[cell + 1].set()
+        rod = color_rodise(args.set)
+        abacus.val[rod].set()
+        abacus.val[rod + 1].set()
 
     if args.load is not None:
-        value, cell = call_parse(args.load)
-        abacus.val[cell].load(value, True)
+        value, rod = call_parse(args.load)
+        abacus.val[rod].load(value, True)
     if args.push is not None:
-        force, cell = call_parse(args.push)
-        abacus.val[cell].push(force)
+        force, rod = call_parse(args.push)
+        abacus.val[rod].push(force)
     if args.pull is not None:
-        force, cell = call_parse(args.pull)
-        abacus.val[cell].pull(force)
+        force, rod = call_parse(args.pull)
+        abacus.val[rod].pull(force)
     if args.add is not None:
         abacus.add1(decide_base(args.add))
     if args.sub is not None:
@@ -167,4 +167,4 @@ if __name__ == "__main__":
 
 """DONE: Input Error handling
 base24 input.
-Color to cell"""
+Color to rod"""
