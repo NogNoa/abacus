@@ -127,9 +127,8 @@ class Cell:
     def load(self, const, nxt=False):
         """Set a given cell to a speicific number."""
         self.clear()
-        if nxt:
-            self.abacus[self.pl + 1].clear()
-        self.push_pull(const, push=True)
+        force = self.push(const)
+        return force
 
     def numerise(self):
         back = 0
@@ -280,7 +279,7 @@ class Abacus:
         self.overflow = False
         self.clear(verbose=False)
         # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
-        self.val[start].load(call)
+        self.push(self.val[start], call)
         self.chk_flow(over=True)
         if verbose:
             print(f'Loading {call} at row {int(start / 2)}', self.expose(), sep='\n')
@@ -365,7 +364,7 @@ class Abacus:
             print('subtracting current value from', minuend)
         lngth_subt = self.magnitude()
         minu_start = self.val[lngth_subt * 2]
-        minu_start.load(minuend)
+        self.load(minu_start, minuend)
         for count in range(lngth_subt):
             while self.c00.not_zero():
                 consume(self.c00, minu_start)
@@ -437,7 +436,7 @@ class Abacus:
             # but we want to print self.expose() wheter or not verbose is on.
             return
         lngth_dend = self.magnitude() * 2
-        self.val[lngth_dend].load(divisor)
+        self.load(self.val[lngth_dend], divisor)
         lngth_sor = (self.magnitude() * 2) - lngth_dend
         self.clear(start=lngth_dend)
         pl = lngth_dend - lngth_sor + 2
