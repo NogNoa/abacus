@@ -98,32 +98,11 @@ class Cell:
         return [(i.expose(), i.id) for i in self.val]
 
     def push_pull(self, force, push):
-        if force >= 24 ** 6:
-            print(f'\nVery funny. The input {force} is too big for my brain. '
-                  f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
-            self.mother.flow(over=push)
-            force = 0
-            # if the number is higher than what the abacus could hold in the first place,
-            # we set the respective flow flag, and empty the force so the operation will finish
-            # wherever control is returned to.
-
         force = self.val[push * -1].push_pull(force, push)
         # We pass the operation to bottom of the cell if pull (0 * -1 = 0, first in cell) or to top if push
         # (1 * -1 = -1, last in cell). For each beed moved force will go down by 1, and the new value
         # will be returned here.
-
-        while force > 0:
-            # If we got here it means the force was bigger than the number of beeds that were down.
-            if self.id != 'c56':
-                self.abacus[self.pl + 1].push_pull(1, push)
-                # For most cells we pass a carry of 1 to the next cell
-            else:
-                self.mother.flow(over=push)
-                # But if it is the last cell we have to flag the corresponding flow flag instead.
-            self.set_clear(st=not push)  # push-> set, pull-> clear
-            force = self.val[push * -1].push_pull(force - 1, push)
-            # Then we set or clear the cell and pass a push or pull command to the ends as before.
-            # We substruct 1 force to pay for the set/clear. We continue the loop until force is zero.
+        return force
 
     def push(self, force=1):
         """Move beeds in a given cell to the Right"""
@@ -150,7 +129,7 @@ class Cell:
         self.clear()
         if nxt:
             self.abacus[self.pl + 1].clear()
-        self.push(const)
+        self.push_pull(const, push=True)
 
     def numerise(self):
         back = 0
@@ -161,6 +140,9 @@ class Cell:
 
     def not_zero(self):
         return self.val[-2].up
+
+    def not_full(self):
+        return not self.val[1].up
 
 
 def exchange(donor, acceptor):
@@ -245,6 +227,41 @@ class Abacus:
         if flow:
             print(f"I got {word}\n")
 
+    def push_pull(self, cell: Cell, force: int, push: bool):
+        if force >= 24 ** 6:
+            print(f'\nVery funny. The input {force} is too big for my brain. '
+                  f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
+            self.flow(over=push)
+            force = 0
+            # if the number is higher than what the abacus could hold in the first place,
+            # we set the respective flow flag, and empty the force so the operation will finish
+            # wherever control is returned to.
+        force = cell.push_pull(force, push)
+        while force > 0:
+            if push and cell.not_full():
+                print('Error! I tried to carry while cell is not full')
+            elif (not push) and cell.not_zero():
+                print('Error! I tried to borrow while cell is not empty')
+            # If we got here it means the force was bigger than the number of beeds that were down.
+            if cell.id != 'c56':
+                self.val[cell.pl + 1].push_pull(1, push)
+                # For most cells we pass a carry of 1 to the next cell
+            else:
+                self.flow(over=push)
+                # But if it is the last cell we have to flag the corresponding flow flag instead.
+            cell.set_clear(st=not push)  # push-> set, pull-> clear
+            force = self.val[push * -1].push_pull(force - 1, push)
+            # Then we set or clear the cell and pass a push or pull command to the ends as before.
+            # We substruct 1 force to pay for the set/clear. We continue the loop until force is zero.
+
+    def push(self, cell: Cell, force=1):
+        """Move beeds in a given cell to the Right"""
+        self.push_pull(cell, force, push=True,)
+
+    def pull(self, cell: Cell, force=1):
+        """Return beeds in a given cell to the Left"""
+        self.push_pull(cell, force, push=False)
+
     def clear(self, reverse=False, start=0, verbose=verbose):
         """Clear every Cell of the abacus"""
         for c in self.val[start:]:
@@ -315,7 +332,7 @@ class Abacus:
         self.overflow = False
         if verbose:
             print(f'Adding {addend} at row {int(cell_0 / 2)}')
-        self.val[cell_0].push(addend)
+        self.push(self.val[cell_0], addend)
         self.chk_flow(over=True)
         if verbose:
             print(self.expose())
@@ -324,7 +341,7 @@ class Abacus:
         """Subtract a number from the abacus"""
         if verbose:
             print(f'subtracting {subtrahend} at row {int(cell_0 / 2)}')
-        self.val[cell_0].pull(subtrahend)
+        self.pull(self.val[cell_0], subtrahend)
         #  self.underflow = self.chk_flow(over=False)
         if verbose:
             print(self.expose())
@@ -393,7 +410,7 @@ class Abacus:
         self.overflow = False
         lngth = self.magnitude()
         try:
-            self.val[lngth * 2].push(multiplicand)
+            self.push(self.val[lngth * 2], multiplicand)
         except IndexError:
             self.flow(over=True)
         if self.overflow or self.c50.not_zero() or self.c56.not_zero():
@@ -401,10 +418,10 @@ class Abacus:
                   f'Try to have their order of magnitude sum as 7 or less.')
             self.overflow = False
             return
-        self.val[lngth * 2].pull(multiplicand)
+        self.pull(self.val[lngth * 2], multiplicand)
         for count in range(lngth):
             while self.c00.not_zero() or self.c06.not_zero():
-                self.c00.pull()
+                self.pull(self.c00, 1)
                 self.add1(multiplicand, cell_0=lngth * 2)
             self.right()
         self.chk_flow(over=True)
@@ -442,7 +459,7 @@ if __name__ == "__main__":
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
     abacus.load(24)
     # abacus.subfrom1(24 ** 2)
-    abacus.div1(0)
+    # abacus.div1(0)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
