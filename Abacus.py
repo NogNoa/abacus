@@ -336,17 +336,18 @@ class Abacus:
         if verbose:
             print(f'Adding {addend} at row {int(rod_0 / 2)}')
         self.push(self.val[rod_0], addend)
-        self.chk_flow(over=True)
         if verbose:
+            self.chk_flow(over=True)
             print(self.expose())
 
     def sub1(self, subtrahend, rod_0=0):
         """Subtract a number from the abacus"""
+        self.underflow = False
         if verbose:
             print(f'subtracting {subtrahend} at row {int(rod_0 / 2)}')
         self.pull(self.val[rod_0], subtrahend)
-        self.chk_flow(over=False)
         if verbose:
+            self.chk_flow(over=False)
             print(self.expose())
 
     def addition(self, augend, *addendi):
@@ -375,13 +376,12 @@ class Abacus:
             while self.c06.not_zero():
                 consume(self.c06, self.val[lngth_subt * 2 + 1])
             self.right()
-        self.chk_flow(over=False)
         if verbose:
+            self.chk_flow(over=False)
             print(self.expose())
 
     def multiplication(self, multiplier, multiplicand):
         # Mesuring the factors
-        self.overflow = False
         self.load(multiplicand)
         lngth_cand = self.magnitude()
         self.load(multiplier)
@@ -401,7 +401,6 @@ class Abacus:
                 self.add1(multiplicand, rod_0=min(lngth_ier * 2, (6 - lngth_cand) * 2, 10))
             if count < min((6 - lngth_cand), 5):
                 self.right()
-        self.chk_flow(over=True)
 
     def multi_multiplication(self, multplicand, *multiplieri):
         self.multiplication(multiplieri[0], multplicand)
@@ -410,7 +409,6 @@ class Abacus:
 
     def mult1(self, multiplicand):
         """multiply what's in the abacus by another number"""
-        self.overflow = False
         lngth = self.magnitude()
         try:
             self.push(self.val[lngth * 2], multiplicand)
@@ -427,7 +425,6 @@ class Abacus:
                 self.pull(self.c00, 1)
                 self.add1(multiplicand, rod_0=lngth * 2)
             self.right()
-        self.chk_flow(over=True)
 
     def div1(self, divisor):
         """divide what's in the abacus by another number"""
@@ -440,7 +437,11 @@ class Abacus:
             # but we want to print self.expose() wheter or not verbose is on.
             return
         lngth_dend = self.magnitude() * 2
-        self.load(divisor, start=lngth_dend)
+        try:
+            self.load(divisor, start=lngth_dend)
+        except IndexError:
+            print('Sorry. You need to leave enough room for both dividend and divisor')
+            return
         lngth_sor = (self.magnitude() * 2) - lngth_dend
         self.clear(start=lngth_dend)
         pl = lngth_dend - lngth_sor + 2
@@ -449,7 +450,7 @@ class Abacus:
             while not self.underflow:
                 self.sub1(divisor, rod_0=pl)
                 self.add1(1)
-            self.push(self.val[pl], divisor)
+            self.add1(divisor, pl)
             self.sub1(1)
         print(f'Red row to {self.val[pl - 2].color} row are qutient, '
               f'{self.val[pl].color} row to Violet row are reminder')

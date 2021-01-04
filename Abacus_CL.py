@@ -41,6 +41,20 @@ def decimate(call: list):
     return back
 
 
+def icositetrise(call: list):
+    # input: number list
+    base = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] + list(ascii_lowercase[:14])
+    back = ''
+    for pl, num in enumerate(call):
+        if not pl % 2:
+            dec = num
+        else:
+            dec += num * 6
+            char = base[dec]
+            back = char + back
+    return back
+
+
 def base24_decimise(call: str):
     call = call.lower()
     base = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] + list(ascii_lowercase[:14])
@@ -104,10 +118,11 @@ if __name__ == "__main__":
     actions.add_argument('--sub_from', '--subtract_from', help=abacus.subfrom1.__doc__)
     actions.add_argument('--multi', '--multiply', help=abacus.mult1.__doc__)
     actions.add_argument('--div', '--divide', help=abacus.div1.__doc__)
-    actions.add_argument('--load', help=Aba.Rod.load.__doc__, nargs=2)
+    actions.add_argument('--load', help=abacus.load.__doc__, nargs=2)
     actions.add_argument('--load_full', help=abacus.load.__doc__)
     actions.add_argument('--push', help=Aba.Rod.push.__doc__, nargs=2)
     actions.add_argument('--pull', help=Aba.Rod.pull.__doc__, nargs=2)
+    actions.add_argument('--ico', '--icositetrise', help=icositetrise.__doc__, action="store_true")
 
     args = parser.parse_args()
     if args.verbose:
@@ -153,16 +168,13 @@ if __name__ == "__main__":
         abacus.mult1(decide_base(args.multi))
     if args.div is not None:
         abacus.div1(decide_base(args.div))
+    if args.ico:
+        numi = table_num_listise()
+        print(icositetrise(numi))
 
     abacus.prnt(tee=not Aba.verbose)
     if Aba.verbose:
         print("FIN")
-    """
-    num = table_num_listise()
-    print(num)   
-    print(decimate(num))
-    """
-
 """DONE: Input Error handling
 base24 input.
 Color to rod"""
