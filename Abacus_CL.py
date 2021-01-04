@@ -109,8 +109,6 @@ if __name__ == "__main__":
     actions.add_argument('--push', help=Aba.Rod.push.__doc__, nargs=2)
     actions.add_argument('--pull', help=Aba.Rod.pull.__doc__, nargs=2)
 
-
-
     args = parser.parse_args()
     if args.verbose:
         Aba.verbose = True
@@ -138,13 +136,13 @@ if __name__ == "__main__":
 
     if args.load is not None:
         value, rod = call_parse(args.load)
-        abacus.val[rod].load(value, True)
+        abacus.load(value, rod)
     if args.push is not None:
         force, rod = call_parse(args.push)
-        abacus.val[rod].push(force)
+        abacus.push(abacus.val[rod], force)
     if args.pull is not None:
         force, rod = call_parse(args.pull)
-        abacus.val[rod].pull(force)
+        abacus.pull(abacus.val[rod], force)
     if args.add is not None:
         abacus.add1(decide_base(args.add))
     if args.sub is not None:

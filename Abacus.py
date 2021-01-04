@@ -345,7 +345,7 @@ class Abacus:
         if verbose:
             print(f'subtracting {subtrahend} at row {int(rod_0 / 2)}')
         self.pull(self.val[rod_0], subtrahend)
-        #  self.underflow = self.chk_flow(over=False)
+        self.chk_flow(over=False)
         if verbose:
             print(self.expose())
 
@@ -449,7 +449,7 @@ class Abacus:
             while not self.underflow:
                 self.sub1(divisor, rod_0=pl)
                 self.add1(1)
-            self.add1(divisor, rod_0=pl)
+            self.push(self.val[pl], divisor)
             self.sub1(1)
         print(f'Red row to {self.val[pl - 2].color} row are qutient, '
               f'{self.val[pl].color} row to Violet row are reminder')
@@ -462,7 +462,7 @@ if __name__ == "__main__":
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
     abacus.load(24)
     # abacus.subfrom1(24 ** 2)
-    abacus.div1(2)
+    abacus.div1(5)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
