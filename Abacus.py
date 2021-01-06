@@ -334,7 +334,7 @@ class Abacus:
         """Adds a number to the abacus """
         self.overflow = False
         if verbose:
-            print(f'Adding {addend} at row {int(rod_0 / 2)}')
+            print(f'Adding {addend} at row {rod_0 // 2}')
         self.push(self.val[rod_0], addend)
         if verbose:
             self.chk_flow(over=True)
@@ -344,7 +344,7 @@ class Abacus:
         """Subtract a number from the abacus"""
         self.underflow = False
         if verbose:
-            print(f'subtracting {subtrahend} at row {int(rod_0 / 2)}')
+            print(f'subtracting {subtrahend} at row {rod_0 // 2}')
         self.pull(self.val[rod_0], subtrahend)
         if verbose:
             self.chk_flow(over=False)
@@ -445,7 +445,7 @@ class Abacus:
         lngth_sor = (self.magnitude() * 2) - lngth_dend
         self.clear(start=lngth_dend)
         pl = lngth_dend - lngth_sor + 2
-        for count in range(lngth_dend - lngth_sor):
+        for count in range(pl // 2):
             self.left()
             while not self.underflow:
                 self.sub1(divisor, rod_0=pl)
@@ -461,9 +461,9 @@ if __name__ == "__main__":
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
-    abacus.load(24)
+    abacus.load(6)
     # abacus.subfrom1(24 ** 2)
-    abacus.div1(5)
+    abacus.div1(2)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
