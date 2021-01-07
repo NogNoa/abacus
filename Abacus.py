@@ -22,6 +22,10 @@ def initorder(obj, mother):
     return mother, pl
 
 
+def colorise(rod: int):
+    return abacus.val[rod].color
+
+
 class Beed:
     def __init__(self, bid):
         self.up = False
@@ -271,9 +275,9 @@ class Abacus:
             c.set_clear(reverse)
         if verbose:
             if reverse:
-                print(f'Setting all from row {int(start / 2)}')
+                print(f'Setting all from the {colorise(start)} row')
             else:
-                print(f'Clearing all from row {int(start / 2)}')
+                print(f'Clearing all from the {colorise(start)} row')
             print(self.expose())
 
     # note, making a macro for set is superfluous. But it's implemented by Truing reverse.
@@ -286,7 +290,7 @@ class Abacus:
         self.push(self.val[start], call)
         self.chk_flow(over=True)
         if verbose:
-            print(f'Loading {call} at row {int(start / 2)}', self.expose(), sep='\n')
+            print(f'Loading {call} at the {colorise(start)} row', self.expose(), sep='\n')
 
     def magnitude(self):
         if self.overflow:
@@ -334,7 +338,7 @@ class Abacus:
         """Adds a number to the abacus """
         self.overflow = False
         if verbose:
-            print(f'Adding {addend} at row {rod_0 // 2}')
+            print(f'Adding {addend} at the {colorise(rod_0)} row')
         self.push(self.val[rod_0], addend)
         if verbose:
             self.chk_flow(over=True)
@@ -344,7 +348,7 @@ class Abacus:
         """Subtract a number from the abacus"""
         self.underflow = False
         if verbose:
-            print(f'subtracting {subtrahend} at row {rod_0 // 2}')
+            print(f'subtracting {subtrahend} at the {colorise(rod_0)} row')
         self.pull(self.val[rod_0], subtrahend)
         if verbose:
             self.chk_flow(over=False)
@@ -446,14 +450,15 @@ class Abacus:
         self.clear(start=lngth_dend)
         pl = lngth_dend - lngth_sor + 2
         for count in range(pl // 2):
+            # pl happen to correspond to number of iterations.
             self.left()
             while not self.underflow:
                 self.sub1(divisor, rod_0=pl)
                 self.add1(1)
             self.add1(divisor, pl)
             self.sub1(1)
-        print(f'Red row to {self.val[pl - 2].color} row are qutient, '
-              f'{self.val[pl].color} row to Violet row are reminder')
+        print(f'Red row to {colorise(pl - 2)} row are qutient, '
+              f'{colorise(pl)} row to Violet row are reminder')
 
 
 if __name__ == "__main__":

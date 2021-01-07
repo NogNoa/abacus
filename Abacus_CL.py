@@ -118,7 +118,7 @@ if __name__ == "__main__":
     actions.add_argument('--sub_from', '--subtract_from', help=abacus.subfrom1.__doc__)
     actions.add_argument('--multi', '--multiply', help=abacus.mult1.__doc__)
     actions.add_argument('--div', '--divide', help=abacus.div1.__doc__)
-    actions.add_argument('--load', help=abacus.load.__doc__, nargs=2)
+    actions.add_argument('--load', help=Aba.Rod.load.__doc__, nargs=2)
     actions.add_argument('--load_full', help=abacus.load.__doc__)
     actions.add_argument('--push', help=Aba.Rod.push.__doc__, nargs=2)
     actions.add_argument('--pull', help=Aba.Rod.pull.__doc__, nargs=2)
@@ -175,6 +175,8 @@ if __name__ == "__main__":
     abacus.prnt(tee=not Aba.verbose)
     if Aba.verbose:
         print("FIN")
-"""DONE: Input Error handling
+
+"""TODO: print and input as quad-seximal 
+DONE: Input Error handling
 base24 input.
 Color to rod"""
