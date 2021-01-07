@@ -166,18 +166,18 @@ def consume(hybris, nemesis):
 
 class Abacus:
     def __init__(self):
-        self.c00 = Rod('big', 'c00', 'Red', )
-        self.c06 = Rod('small', 'c06', 'Red', )
-        self.c10 = Rod('big', 'c10', 'Yellow', )
-        self.c16 = Rod('small', 'c16', 'Yellow', )
-        self.c20 = Rod('big', 'c20', 'Green', )
-        self.c26 = Rod('small', 'c26', 'Green', )
-        self.c30 = Rod('big', 'c30', 'Blue', )
-        self.c36 = Rod('small', 'c36', 'Blue', )
-        self.c40 = Rod('big', 'c40', 'Indigo', )
-        self.c46 = Rod('small', 'c46', 'Indigo', )
-        self.c50 = Rod('big', 'c50', 'Violet', )
-        self.c56 = Rod('small', 'c56', 'Violet', )
+        self.c00 = Rod('big', 'c00', 'Red',)
+        self.c06 = Rod('small', 'c06', 'Red',)
+        self.c10 = Rod('big', 'c10', 'Yellow',)
+        self.c16 = Rod('small', 'c16', 'Yellow',)
+        self.c20 = Rod('big', 'c20', 'Green',)
+        self.c26 = Rod('small', 'c26', 'Green',)
+        self.c30 = Rod('big', 'c30', 'Blue',)
+        self.c36 = Rod('small', 'c36', 'Blue',)
+        self.c40 = Rod('big', 'c40', 'Indigo',)
+        self.c46 = Rod('small', 'c46', 'Indigo',)
+        self.c50 = Rod('big', 'c50', 'Violet',)
+        self.c56 = Rod('small', 'c56', 'Violet',)
         self.val = (self.c00, self.c06, self.c10, self.c16, self.c20, self.c26,
                     self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
         for c in self.val:
@@ -263,7 +263,7 @@ class Abacus:
 
     def push(self, rod: Rod, force=1):
         """Move beeds in a given rod to the Right"""
-        self.push_pull(rod, force, push=True, )
+        self.push_pull(rod, force, push=True,)
 
     def pull(self, rod: Rod, force=1):
         """Return beeds in a given rod to the Left"""
