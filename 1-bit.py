@@ -1,5 +1,6 @@
 data = [0, 0]
-program = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)  # length 4x4
+# we assume data IS cleared at the beginning or no deterministic program will be possible
+prog = (1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1)  # length 4x4
 PC = 0
 
 
@@ -17,13 +18,13 @@ def ifeq0(call, instruct):
         PC += 1
 
 
-while PC < 5:
+while PC < 4:
     PC4 = PC * 4
-    if program[PC4]:
-        nand(call=PC4 + 1, operand=PC4 + 2, back=PC4 + 3)
+    if prog[PC4]:
+        nand(call=prog[PC4 + 1], operand=prog[PC4 + 2], back=prog[PC4 + 3])
     else:
-        ifeq0(call=PC4 + 1, instruct=PC4 + 2 + 2 * (PC4 + 3))
+        ifeq0(call=prog[PC4 + 1], instruct=PC4 + 2 + 2 * (PC4 + 3))
 print(data)
 
-# 5 is fine, in hardware it whold notice a roll over, that's why I can't allow -1 to happen, and so incrementing
+# 4 is fine, in hardware it whold notice a roll over, that's why I can't allow -1 to happen, and so incrementing
 # the PC appears twice when it could otherwisw have appeared once.
