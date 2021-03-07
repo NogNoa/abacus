@@ -15,7 +15,8 @@ If both inputs are required always enter value before row
 
 verbose = False
 
-drc = lambda x: - 1 + (2 * x) #  True : +1; False : -1
+
+def drc(x): return - 1 + (2 * x)  # True : +1; False : -1
 
 
 def initorder(obj, mother):
@@ -45,7 +46,7 @@ class Beed:
         if force < 1:
             return force
         rod, pl = self.rod, self.pl
-        dr = drc(push)  
+        dr = drc(push)
         if self.up != rod[pl + dr].up:
             self.up = not self.up
             force -= 1
@@ -56,9 +57,7 @@ class Beed:
 class End:
     def __init__(self, up):
         self.up = up
-        self.id = 'end'
-        self.rod = []
-        self.pl = 0
+        self.id = self.expose()
 
     def expose(self):
         if self.up:
@@ -67,12 +66,8 @@ class End:
             return 'Bottom'
 
     def push_pull(self, force: int, push: bool):
-        if force < 1:
-            return force
         if push == self.up:
-            # only does work in the right direction, when reaching the other end it returns to the rod
-            rod, pl = self.rod, self.pl
-            force = rod[pl - drc(push)].push_pull(force, push)
+            raise IndexError
         return force
 
 
@@ -102,9 +97,9 @@ class Rod:
         return [(i.expose(), i.id) for i in self.val]
 
     def push_pull(self, force, push):
-        force = self.val[push * -1].push_pull(force, push)
-        # We pass the operation to bottom of the rod if pull (0 * -1 = 0, first in rod) or to top if push
-        # (1 * -1 = -1, last in rod). For each beed moved force will go down by 1, and the new value
+        force = self.val[push * -1 - drc(push)].push_pull(force, push)
+        # We pass the operation to bottom of the rod if pull (0 * -1 --1 = 1, first in rod) or to top if push
+        # (1 * -1 - 1 = -2, last in rod). For each beed moved force will go down by 1, and the new value
         # will be returned here.
         return force
 
@@ -167,18 +162,18 @@ def consume(hybris, nemesis):
 
 class Abacus:
     def __init__(self):
-        self.c00 = Rod('big', 'c00', 'Red',)
-        self.c06 = Rod('small', 'c06', 'Red',)
-        self.c10 = Rod('big', 'c10', 'Yellow',)
-        self.c16 = Rod('small', 'c16', 'Yellow',)
-        self.c20 = Rod('big', 'c20', 'Green',)
-        self.c26 = Rod('small', 'c26', 'Green',)
-        self.c30 = Rod('big', 'c30', 'Blue',)
-        self.c36 = Rod('small', 'c36', 'Blue',)
-        self.c40 = Rod('big', 'c40', 'Indigo',)
-        self.c46 = Rod('small', 'c46', 'Indigo',)
-        self.c50 = Rod('big', 'c50', 'Violet',)
-        self.c56 = Rod('small', 'c56', 'Violet',)
+        self.c00 = Rod('big', 'c00', 'Red', )
+        self.c06 = Rod('small', 'c06', 'Red', )
+        self.c10 = Rod('big', 'c10', 'Yellow', )
+        self.c16 = Rod('small', 'c16', 'Yellow', )
+        self.c20 = Rod('big', 'c20', 'Green', )
+        self.c26 = Rod('small', 'c26', 'Green', )
+        self.c30 = Rod('big', 'c30', 'Blue', )
+        self.c36 = Rod('small', 'c36', 'Blue', )
+        self.c40 = Rod('big', 'c40', 'Indigo', )
+        self.c46 = Rod('small', 'c46', 'Indigo', )
+        self.c50 = Rod('big', 'c50', 'Violet', )
+        self.c56 = Rod('small', 'c56', 'Violet', )
         self.val = (self.c00, self.c06, self.c10, self.c16, self.c20, self.c26,
                     self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
         for c in self.val:
@@ -264,7 +259,7 @@ class Abacus:
 
     def push(self, rod: Rod, force=1):
         """Move beeds in a given rod to the Right"""
-        self.push_pull(rod, force, push=True,)
+        self.push_pull(rod, force, push=True, )
 
     def pull(self, rod: Rod, force=1):
         """Return beeds in a given rod to the Left"""
