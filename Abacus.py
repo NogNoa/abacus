@@ -15,6 +15,8 @@ If both inputs are required always enter value before row
 
 verbose = False
 
+drc = lambda x: - 1 + (2 * x) #  True : +1; False : -1
+
 
 def initorder(obj, mother):
     mother = mother.val
@@ -43,7 +45,7 @@ class Beed:
         if force < 1:
             return force
         rod, pl = self.rod, self.pl
-        dr = - 1 + (2 * push)  # direction push = +1 pull = -1
+        dr = drc(push)  
         if self.up != rod[pl + dr].up:
             self.up = not self.up
             force -= 1
@@ -70,8 +72,7 @@ class End:
         if push == self.up:
             # only does work in the right direction, when reaching the other end it returns to the rod
             rod, pl = self.rod, self.pl
-            dr = - 1 + (2 * push)  # direction push = +1 pull = -1
-            force = rod[pl - dr].push_pull(force, push)
+            force = rod[pl - drc(push)].push_pull(force, push)
         return force
 
 
