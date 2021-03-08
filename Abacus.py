@@ -36,11 +36,14 @@ class Beed:
         self.rod = []
         self.pl = 0
 
-    def expose(self):
+    def __str__(self):
         if self.up:
             return 'Up'
         else:
             return 'Down'
+
+    def __repr__(self):
+        return self.id
 
     def push_pull(self, force: int, push: bool):
         if force < 1:
@@ -55,15 +58,17 @@ class Beed:
 
 
 class End:
-    def __init__(self, up):
+    def __init__(self, up, cid):
         self.up = up
-        self.id = self.expose()
+        self.id = cid + "." + self.__str__()
 
-    def expose(self):
+    def __str__(self):
         if self.up:
             return 'Top'
         else:
             return 'Bottom'
+
+    __repr__ = __str__
 
     def push_pull(self, force: int, push: bool):
         if push == self.up:
@@ -79,7 +84,7 @@ class Rod:
         self.abacus = []
         self.pl = 0
 
-        self.bottom = End(up=False)
+        self.bottom = End(up=False, cid=cid)
         self.b1 = Beed(cid + '.b1')
         self.b2 = Beed(cid + '.b2')
         self.b3 = Beed(cid + '.b3')
@@ -88,13 +93,34 @@ class Rod:
             self.b4 = Beed(cid + '.b4')
             self.b5 = Beed(cid + '.b5')
             self.val.extend([self.b4, self.b5])
-        self.top = End(up=True)
+        self.top = End(up=True, cid=cid)
         self.val.append(self.top)
         for b in self.val:
             b.rod, b.pl = initorder(b, self)
 
     def expose(self):
-        return [(i.expose(), i.id) for i in self.val]
+        back = ''
+        up = False
+        for b in self.val:
+            if type(b) == End:
+                if not b.up:
+                    back += '||- '
+                else:
+                    if not up:
+                        back += '--- ' * 3
+                    back += '-|| '
+            elif b.up == up:  # type(b) == beed
+                back += '-O- '
+            else:  # b.up != up:
+                back += '--- ' * 3 + '-O- '
+                up = True
+        return back
+
+    def __str__(self):
+        return self.id
+
+    def __repr__(self):
+        return [(i.__str__(), i.id) for i in self.val]
 
     def push_pull(self, force, push):
         force = self.val[push * -1 - drc(push)].push_pull(force, push)
@@ -182,23 +208,13 @@ class Abacus:
         self.overflow = False
         self.underflow = False
 
+    def __repr__(self):
+        return [i.__str__() for i in self.val]
+
     def expose(self):
         back = ''
         for c in self.val:
-            up = False
-            for b in c.val:
-                if type(b) == End:
-                    if not b.up:
-                        back += '||- '
-                    else:
-                        if not up:
-                            back += '--- ' * 3
-                        back += '-|| '
-                elif b.up == up:  # type(b) == beed
-                    back += '-O- '
-                else:  # b.up != up:
-                    back += '--- ' * 3 + '-O- '
-                    up = True
+            back += c.expose()
             if self.val.index(c) % 2:
                 back += c.color + '\n'
         return back
