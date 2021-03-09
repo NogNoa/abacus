@@ -1,16 +1,16 @@
 help_dscrpt = \
     """
 An interactive quad-seximal abacus for fun.\t\n
-The Abacus have 12 rods in 6 rows.\t\n
-Each row has a lower rod with 5 beeds and a high rod with 3 beeds.\t\n
-When the rod is full this is a distinct state, only when you add one to it does the next rod change 
+The Abacus have 12 cells in 6 rods.\t\n
+Each rod has a lower cell with 5 beeds and a high cell with 3 beeds.\t\n
+When the cell is full this is a distinct state, only when you add one to it does the next cell change 
     and the first one empties.\t\n
-This make the abacus base 24 by row.\t\n
+This make the abacus base 24 by rod.\t\n
 \t\n
 Enter values as base 24 [0123456789abcdefghijklmn] \t\n
 If you want to use base 10, that's still an option! \t\n
-Enter row by color ['Red', 'Yellow', 'Green', 'Blue', 'Indigo', "Violet"]\t\n
-If both inputs are required always enter value before row
+Enter rod by color ['Red', 'Yellow', 'Green', 'Blue', 'Indigo', "Violet"]\t\n
+If both inputs are required always enter value before rod
     """
 
 verbose = False
@@ -25,15 +25,15 @@ def initorder(obj, mother):
     return mother, pl
 
 
-def colorise(rod: int):
-    return abacus.val[rod].color
+def colorise(cell: int):
+    return abacus.val[cell].color
 
 
 class Beed:
     def __init__(self, bid):
         self.up = False
         self.id = bid
-        self.rod = []
+        self.cell = []
         self.pl = 0
 
     def __str__(self):
@@ -48,12 +48,12 @@ class Beed:
     def push_pull(self, force: int, push: bool):
         if force < 1:
             return force
-        rod, pl = self.rod, self.pl
+        cell, pl = self.cell, self.pl
         dr = drc(push)
-        if self.up != rod[pl + dr].up:
+        if self.up != cell[pl + dr].up:
             self.up = not self.up
             force -= 1
-        force = rod[pl - dr].push_pull(force, push)
+        force = cell[pl - dr].push_pull(force, push)
         return force
 
 
@@ -72,11 +72,12 @@ class End:
 
     def push_pull(self, force: int, push: bool):
         if push == self.up:
+            print('Error! While moving beeds on a cell I got to the wrong end.')
             raise IndexError
         return force
 
 
-class Rod:
+class Cell:
     def __init__(self, size, cid, color):
         self.id = cid
         self.size = (size == 'big')
@@ -96,7 +97,7 @@ class Rod:
         self.top = End(up=True, cid=cid)
         self.val.append(self.top)
         for b in self.val:
-            b.rod, b.pl = initorder(b, self)
+            b.cell, b.pl = initorder(b, self)
 
     def expose(self):
         back = ''
@@ -124,17 +125,17 @@ class Rod:
 
     def push_pull(self, force, push):
         force = self.val[push * -1 - drc(push)].push_pull(force, push)
-        # We pass the operation to bottom of the rod if pull (0 * -1 --1 = 1, first in rod) or to top if push
-        # (1 * -1 - 1 = -2, last in rod). For each beed moved force will go down by 1, and the new value
+        # We pass the operation to bottom of the cell if pull (0 * -1 --1 = 1, first in cell) or to top if push
+        # (1 * -1 - 1 = -2, last in cell). For each beed moved force will go down by 1, and the new value
         # will be returned here.
         return force
 
     def push(self, force=1):
-        """Move beeds in a given rod to the Right"""
+        """Move beeds in a given cell to the Right"""
         self.push_pull(force, push=True)
 
     def pull(self, force=1):
-        """Return beeds in a given rod to the Left"""
+        """Return beeds in a given cell to the Left"""
         self.push_pull(force, push=False)
 
     def set_clear(self, st: bool):
@@ -142,15 +143,15 @@ class Rod:
             b.up = st  # true->set false->clear
 
     def set(self):
-        """Move all beeds in a given rod to the Right"""
+        """Move all beeds in a given cell to the Right"""
         self.set_clear(st=True)
 
     def clear(self):
-        """Return all beeds in a given rod to the Left, reseting it to Zero."""
+        """Return all beeds in a given cell to the Left, reseting it to Zero."""
         self.set_clear(st=False)
 
     def load(self, const):
-        """Set a given rod to a speicific number."""
+        """Set a given cell to a speicific number."""
         self.clear()
         self.push(const)
 
@@ -188,18 +189,18 @@ def consume(hybris, nemesis):
 
 class Abacus:
     def __init__(self):
-        self.c00 = Rod('big', 'c00', 'Red', )
-        self.c06 = Rod('small', 'c06', 'Red', )
-        self.c10 = Rod('big', 'c10', 'Yellow', )
-        self.c16 = Rod('small', 'c16', 'Yellow', )
-        self.c20 = Rod('big', 'c20', 'Green', )
-        self.c26 = Rod('small', 'c26', 'Green', )
-        self.c30 = Rod('big', 'c30', 'Blue', )
-        self.c36 = Rod('small', 'c36', 'Blue', )
-        self.c40 = Rod('big', 'c40', 'Indigo', )
-        self.c46 = Rod('small', 'c46', 'Indigo', )
-        self.c50 = Rod('big', 'c50', 'Violet', )
-        self.c56 = Rod('small', 'c56', 'Violet', )
+        self.c00 = Cell('big', 'c00', 'Red', )
+        self.c06 = Cell('small', 'c06', 'Red', )
+        self.c10 = Cell('big', 'c10', 'Yellow', )
+        self.c16 = Cell('small', 'c16', 'Yellow', )
+        self.c20 = Cell('big', 'c20', 'Green', )
+        self.c26 = Cell('small', 'c26', 'Green', )
+        self.c30 = Cell('big', 'c30', 'Blue', )
+        self.c36 = Cell('small', 'c36', 'Blue', )
+        self.c40 = Cell('big', 'c40', 'Indigo', )
+        self.c46 = Cell('small', 'c46', 'Indigo', )
+        self.c50 = Cell('big', 'c50', 'Violet', )
+        self.c56 = Cell('small', 'c56', 'Violet', )
         self.val = (self.c00, self.c06, self.c10, self.c16, self.c20, self.c26,
                     self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
         for c in self.val:
@@ -246,50 +247,50 @@ class Abacus:
         if flow:
             print(f"I got {word}\n")
 
-    def push_pull(self, rod: Rod, force: int, push: bool):
+    def push_pull(self, cell: Cell, force: int, push: bool):
         if force >= 24 ** 6:
             print(f'\nVery funny. The input {force} is too big for my brain. '
                   f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
-            self.flow(over=push)
+            self.flow(over=push)  # push -> overflow; pull -> underflow
             force = 0
             # if the number is higher than what the abacus could hold in the first place,
             # we set the respective flow flag, and empty the force so the operation will finish
             # wherever control is returned to.
-        force = rod.push_pull(force, push)
+        force = cell.push_pull(force, push)
         while force > 0:
-            if push and rod.not_full():
-                print('Error! I tried to carry while rod is not full')
-            elif (not push) and rod.not_zero():
-                print('Error! I tried to borrow while rod is not empty')
+            if push and cell.not_full():
+                print('Error! I tried to carry while cell is not full')
+            elif (not push) and cell.not_zero():
+                print('Error! I tried to borrod while cell is not empty')
             # If we got here it means the force was bigger than the number of beeds that were down.
-            if rod.id != 'c56':
-                self.push_pull(self.val[rod.pl + 1], 1, push)
-                # For most rods we pass a carry of 1 to the next rod
+            if cell.id != 'c56':
+                self.push_pull(self.val[cell.pl + 1], 1, push)
+                # For most cells we pass a carry of 1 to the next cell
             else:
                 self.flow(over=push)
-                # But if it is the last rod we have to flag the corresponding flow flag instead.
-            rod.set_clear(st=not push)  # push-> set, pull-> clear
-            force = rod.push_pull(force - 1, push)
-            # Then we set or clear the rod and pass a push or pull command to the ends as before.
+                # But if it is the last cell we have to flag the corresponding flow flag instead.
+            cell.set_clear(st=not push)  # push-> set, pull-> clear
+            force = cell.push_pull(force - 1, push)
+            # Then we set or clear the cell and pass a push or pull command to the ends as before.
             # We substruct 1 force to pay for the set/clear. We continue the loop until force is zero.
 
-    def push(self, rod: Rod, force=1):
-        """Move beeds in a given rod to the Right"""
-        self.push_pull(rod, force, push=True, )
+    def push(self, cell: Cell, force=1):
+        """Move beeds in a given cell to the Right"""
+        self.push_pull(cell, force, push=True, )
 
-    def pull(self, rod: Rod, force=1):
-        """Return beeds in a given rod to the Left"""
-        self.push_pull(rod, force, push=False)
+    def pull(self, cell: Cell, force=1):
+        """Return beeds in a given cell to the Left"""
+        self.push_pull(cell, force, push=False)
 
     def clear(self, reverse=False, start=0, verbose=verbose):
-        """Clear every Rod of the abacus"""
+        """Clear every Cell of the abacus"""
         for c in self.val[start:]:
             c.set_clear(reverse)
         if verbose:
             if reverse:
-                print(f'Setting all from the {colorise(start)} row')
+                print(f'Setting all from the {colorise(start)} rod')
             else:
-                print(f'Clearing all from the {colorise(start)} row')
+                print(f'Clearing all from the {colorise(start)} rod')
             print(self.expose())
 
     # note, making a macro for set is superfluous. But it's implemented by Truing reverse.
@@ -298,11 +299,11 @@ class Abacus:
         """Set the abacus to a specific number"""
         self.overflow = False
         self.clear(verbose=False, start=start)
-        # clears lngth-1 rods, starting from the one after rod_0. rod_0 will already be cleared by load()
+        # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
         self.push(self.val[start], call)
         self.chk_flow(over=True)
         if verbose:
-            print(f'Loading {call} at the {colorise(start)} row', self.expose(), sep='\n')
+            print(f'Loading {call} at the {colorise(start)} rod', self.expose(), sep='\n')
 
     def magnitude(self):
         if self.overflow:
@@ -321,7 +322,7 @@ class Abacus:
         return back
 
     def right(self):
-        """Moves all rods Up"""
+        """Moves all cells Up"""
         self.overflow = False
         self.c00.clear()
         self.c06.clear()
@@ -334,7 +335,7 @@ class Abacus:
             print('Moving up', self.expose(), sep='\n')
 
     def left(self):
-        """Moves all rods Down"""
+        """Moves all cells Down"""
         self.underflow = False
         self.c50.clear()
         self.c56.clear()
@@ -346,22 +347,22 @@ class Abacus:
         if verbose:
             print('Moving down', self.expose(), sep='\n')
 
-    def add1(self, addend, rod_0=0):
+    def add1(self, addend, cell_0=0):
         """Adds a number to the abacus """
         self.overflow = False
         if verbose:
-            print(f'Adding {addend} at the {colorise(rod_0)} row')
-        self.push(self.val[rod_0], addend)
+            print(f'Adding {addend} at the {colorise(cell_0)} rod')
+        self.push(self.val[cell_0], addend)
         if verbose:
             self.chk_flow(over=True)
             print(self.expose())
 
-    def sub1(self, subtrahend, rod_0=0):
+    def sub1(self, subtrahend, cell_0=0):
         """Subtract a number from the abacus"""
         self.underflow = False
         if verbose:
-            print(f'subtracting {subtrahend} at the {colorise(rod_0)} row')
-        self.pull(self.val[rod_0], subtrahend)
+            print(f'subtracting {subtrahend} at the {colorise(cell_0)} rod')
+        self.pull(self.val[cell_0], subtrahend)
         if verbose:
             self.chk_flow(over=False)
             print(self.expose())
@@ -414,7 +415,7 @@ class Abacus:
         for count in range(lngth_ier):
             while self.c00.not_zero() or self.c06.not_zero():
                 self.sub1(1)  # to offer verbose option
-                self.add1(multiplicand, rod_0=min(lngth_ier * 2, (6 - lngth_cand) * 2, 10))
+                self.add1(multiplicand, cell_0=min(lngth_ier * 2, (6 - lngth_cand) * 2, 10))
             if count < min((6 - lngth_cand), 5):
                 self.right()
 
@@ -439,7 +440,7 @@ class Abacus:
         for count in range(lngth):
             while self.c00.not_zero() or self.c06.not_zero():
                 self.pull(self.c00, 1)
-                self.add1(multiplicand, rod_0=lngth * 2)
+                self.add1(multiplicand, cell_0=lngth * 2)
             self.right()
 
     def div1(self, divisor):
@@ -465,12 +466,12 @@ class Abacus:
             # pl happen to correspond to number of iterations.
             self.left()
             while not self.underflow:
-                self.sub1(divisor, rod_0=pl)
+                self.sub1(divisor, cell_0=pl)
                 self.add1(1)
             self.add1(divisor, pl)
             self.sub1(1)
-        print(f'Red row to {colorise(pl - 2)} row are qutient, '
-              f'{colorise(pl)} row to Violet row are reminder')
+        print(f'Red rod to {colorise(pl - 2)} rod are qutient, '
+              f'{colorise(pl)} rod to Violet rod are reminder')
 
 
 if __name__ == "__main__":
@@ -493,15 +494,15 @@ fix flow
 cli
 more rebust solution for length_lier+length_cand = 5
 replace length24
-how to treat the carry and borrow flags
+how to treat the carry and borrod flags
 treat the clear issue
 trying to make a function that will actually be more localised to the one beed, 
 at the price of running more of them, it will also be more ready to add carry.
 will probably want to seperate push and pull anyway"""
 
 """
-row to write to = lngth + length_cand - 2 (starting at 0)
-too big row = 5
+rod to write to = lngth + length_cand - 2 (starting at 0)
+too big rod = 5
 too big lngth = 7 - length_cand
 for 0 5
 for 1 4

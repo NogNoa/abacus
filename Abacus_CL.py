@@ -35,9 +35,9 @@ def decimate(call: list):
     # input: number list
     back = 0
     for pl, num in enumerate(call):
-        row = pl // 2
+        rod = pl // 2
         high = pl % 2
-        back += num * 24 ** row * 6 ** high
+        back += num * 24 ** rod * 6 ** high
     return back
 
 
@@ -69,7 +69,7 @@ def base24_decimise(call: str):
     return back
 
 
-def color_rodise(color: str):
+def color_cellise(color: str):
     colori = {c.color.lower(): c.pl for c in abacus.val[::2]}
     try:
         return colori[color.lower()]
@@ -90,10 +90,10 @@ def decide_base(call):
 
 
 def call_parse(call):
-    value, rod = call
-    rod = color_rodise(rod)
+    value, cell = call
+    cell = color_cellise(cell)
     value = decide_base(value)
-    return value, rod
+    return value, cell
 
 
 if __name__ == "__main__":
@@ -110,18 +110,18 @@ if __name__ == "__main__":
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument('--up', help=abacus.right.__doc__, action="count")
     actions.add_argument('--down', help=abacus.left.__doc__, action="count")
-    actions.add_argument('--clear', help=Aba.Rod.clear.__doc__)
+    actions.add_argument('--clear', help=Aba.Cell.clear.__doc__)
     actions.add_argument('--clear_full', help=abacus.clear.__doc__, action="store_true")
-    actions.add_argument('--set', help=Aba.Rod.set.__doc__)
+    actions.add_argument('--set', help=Aba.Cell.set.__doc__)
     actions.add_argument('--add', help=abacus.add1.__doc__)
     actions.add_argument('--sub', '--subtract', help=abacus.sub1.__doc__)
     actions.add_argument('--sub_from', '--subtract_from', help=abacus.subfrom1.__doc__)
     actions.add_argument('--multi', '--multiply', help=abacus.mult1.__doc__)
     actions.add_argument('--div', '--divide', help=abacus.div1.__doc__)
-    actions.add_argument('--load', help=Aba.Rod.load.__doc__, nargs=2)
+    actions.add_argument('--load', help=Aba.Cell.load.__doc__, nargs=2)
     actions.add_argument('--load_full', help=abacus.load.__doc__)
-    actions.add_argument('--push', help=Aba.Rod.push.__doc__, nargs=2)
-    actions.add_argument('--pull', help=Aba.Rod.pull.__doc__, nargs=2)
+    actions.add_argument('--push', help=Aba.Cell.push.__doc__, nargs=2)
+    actions.add_argument('--pull', help=Aba.Cell.pull.__doc__, nargs=2)
     actions.add_argument('--ico', '--icositetrise', help=icositetrise.__doc__, action="store_true")
 
     args = parser.parse_args()
@@ -141,23 +141,23 @@ if __name__ == "__main__":
         for count in range(args.down):
             abacus.left()
     if args.clear is not None:
-        rod = color_rodise(args.clear)
-        abacus.val[rod].clear()
-        abacus.val[rod + 1].clear()
+        cell = color_cellise(args.clear)
+        abacus.val[cell].clear()
+        abacus.val[cell + 1].clear()
     if args.set is not None:
-        rod = color_rodise(args.set)
-        abacus.val[rod].set()
-        abacus.val[rod + 1].set()
+        cell = color_cellise(args.set)
+        abacus.val[cell].set()
+        abacus.val[cell + 1].set()
 
     if args.load is not None:
-        value, rod = call_parse(args.load)
-        abacus.load(value, rod)
+        value, cell = call_parse(args.load)
+        abacus.load(value, cell)
     if args.push is not None:
-        force, rod = call_parse(args.push)
-        abacus.push(abacus.val[rod], force)
+        force, cell = call_parse(args.push)
+        abacus.push(abacus.val[cell], force)
     if args.pull is not None:
-        force, rod = call_parse(args.pull)
-        abacus.pull(abacus.val[rod], force)
+        force, cell = call_parse(args.pull)
+        abacus.pull(abacus.val[cell], force)
     if args.add is not None:
         abacus.add1(decide_base(args.add))
     if args.sub is not None:
@@ -179,4 +179,4 @@ if __name__ == "__main__":
 """TODO: print and input as quad-seximal 
 DONE: Input Error handling
 base24 input.
-Color to rod"""
+Color to cell"""
