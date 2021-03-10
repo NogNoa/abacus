@@ -187,6 +187,20 @@ def consume(hybris, nemesis):
         nemesis.pull()
 
 
+class Rod:
+    def __init__(self, pl, color, abacus):
+        self.pl = pl
+        self.id = 'r' + str(pl)
+        self.color = color
+        self.abacus = []
+
+        self.earth = Cell('big', f'c{pl}0', color)  # lower cell
+        self.sky = Cell('small', f'c{pl}6', color)  # upper cell
+        self.val = (self.earth, self.sky)
+        for c in self.val:
+            c.abacus, c.pl = initorder(c, abacus)
+
+
 class Abacus:
     def __init__(self):
         self.c00 = Cell('big', 'c00', 'Red', )
@@ -205,7 +219,7 @@ class Abacus:
                     self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
         for c in self.val:
             c.abacus, c.pl = initorder(c, self)
-        self.major = [c for c in self.val[::2]]
+        self.earth = [c for c in self.val[::2]]  # lower deck
         self.overflow = False
         self.underflow = False
 
@@ -261,7 +275,7 @@ class Abacus:
             if push and cell.not_full():
                 print('Error! I tried to carry while cell is not full')
             elif (not push) and cell.not_zero():
-                print('Error! I tried to borrod while cell is not empty')
+                print('Error! I tried to borrow while cell is not empty')
             # If we got here it means the force was bigger than the number of beeds that were down.
             if cell.id != 'c56':
                 self.push_pull(self.val[cell.pl + 1], 1, push)
@@ -494,7 +508,7 @@ fix flow
 cli
 more rebust solution for length_lier+length_cand = 5
 replace length24
-how to treat the carry and borrod flags
+how to treat the carry and borrow flags
 treat the clear issue
 trying to make a function that will actually be more localised to the one beed, 
 at the price of running more of them, it will also be more ready to add carry.
