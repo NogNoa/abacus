@@ -1,16 +1,15 @@
 help_dscrpt = \
     """
-An interactive quad-seximal abacus for fun.\t\n
-The Abacus have 12 cells in 6 rods.\t\n
-Each rod has a lower cell with 5 beeds and a high cell with 3 beeds.\t\n
+An interactive quad-seximal abacus for fun. 
+The Abacus have 12 cells in 6 rods. 
+Each rod has a lower cell with 5 beeds and a high cell with 3 beeds. 
 When the cell is full this is a distinct state, only when you add one to it does the next cell change 
-    and the first one empties.\t\n
-This make the abacus base 24 by rod.\t\n
-\t\n
-Enter values as base 24 [0123456789abcdefghijklmn] \t\n
-If you want to use base 10, that's still an option! \t\n
-Enter rod by color ['Red', 'Yellow', 'Green', 'Blue', 'Indigo', "Violet"]\t\n
-If both inputs are required always enter value before rod
+    and the first one empties. 
+This make the abacus base 24 by rod. 
+Enter values as base 24 [0123456789abcdefghijklmn]. 
+If you want to use base 10, that's still an option! 
+Enter rod by color ['Red', 'Yellow', 'Green', 'Blue', 'Indigo', "Violet"]. 
+If both inputs are required always enter value before rod. 
     """
 
 verbose = False
@@ -29,12 +28,12 @@ def colorise(cell: int):
     return abacus.val[cell].color
 
 
-class Beed:
-    def __init__(self, bid):
+class Bead:
+    def __init__(self, pl, cid):
         self.up = False
-        self.id = bid
+        self.pl = pl
+        self.id = cid + '.b' + str(pl)
         self.cell = []
-        self.pl = 0
 
     def __str__(self):
         if self.up:
@@ -60,7 +59,7 @@ class Beed:
 class End:
     def __init__(self, up, cid):
         self.up = up
-        self.id = cid + "." + self.__str__()
+        self.id = cid + ".e" + str(up * 6)  # .e0 or .e6
 
     def __str__(self):
         if self.up:
@@ -68,7 +67,8 @@ class End:
         else:
             return 'Bottom'
 
-    __repr__ = __str__
+    def __repr__(self):
+        return self.id
 
     def push_pull(self, force: int, push: bool):
         if push == self.up:
@@ -78,26 +78,27 @@ class End:
 
 
 class Cell:
-    def __init__(self, deck, cid, color):
-        self.id = cid
+    def __init__(self, deck, pl, color, rid):
+        self.id = rid + '.c' + str(pl * 6)  # .c0 or .c6
         self.size = (deck == 'earth')
         self.color = color
         self.abacus = []
-        self.pl = 0
+        self.pl = pl
 
-        self.bottom = End(up=False, cid=cid)
-        self.b1 = Beed(cid + '.b1')
-        self.b2 = Beed(cid + '.b2')
-        self.b3 = Beed(cid + '.b3')
+        self.bottom = End(up=False, cid=self.id)  # self.bottom.pl = 0
+        self.b1 = Bead(1, self.id)
+        self.b2 = Bead(2, self.id)
+        self.b3 = Bead(3, self.id)
         self.val = [self.bottom, self.b1, self.b2, self.b3]
         if self.size:
-            self.b4 = Beed(cid + '.b4')
-            self.b5 = Beed(cid + '.b5')
-            self.val.extend([self.b4, self.b5])
-        self.top = End(up=True, cid=cid)
+            self.b4 = Bead(4, self.id)
+            self.b5 = Bead(5, self.id)
+            self.val.extend((self.b4, self.b5))
+        self.top = End(up=True, cid=self.id)  # self.top.pl = 6
         self.val.append(self.top)
+        self.e0, self.e6 = self.bottom, self.top
         for b in self.val:
-            b.cell, b.pl = initorder(b, self)
+            b.cell, _ = initorder(b, self)
 
     def expose(self):
         back = ''
@@ -194,9 +195,10 @@ class Rod:
         self.color = color
         self.abacus = []
 
-        self.earth = Cell('earth', f'c{pl}0', color)  # lower cell
-        self.sky = Cell('sky', f'c{pl}6', color)  # upper cell
+        self.earth = Cell('earth', 0, color, self.id)  # lower cell
+        self.sky = Cell('sky', 1, color, self.id)  # upper cell
         self.val = (self.earth, self.sky)
+        self.c0, self.c6 = self.earth, self.sky
 
 
 class Abacus:
