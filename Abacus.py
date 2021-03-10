@@ -78,9 +78,9 @@ class End:
 
 
 class Cell:
-    def __init__(self, size, cid, color):
+    def __init__(self, deck, cid, color):
         self.id = cid
-        self.size = (size == 'big')
+        self.size = (deck == 'earth')
         self.color = color
         self.abacus = []
         self.pl = 0
@@ -188,40 +188,35 @@ def consume(hybris, nemesis):
 
 
 class Rod:
-    def __init__(self, pl, color, abacus):
+    def __init__(self, pl, color):
         self.pl = pl
         self.id = 'r' + str(pl)
         self.color = color
         self.abacus = []
 
-        self.earth = Cell('big', f'c{pl}0', color)  # lower cell
-        self.sky = Cell('small', f'c{pl}6', color)  # upper cell
+        self.earth = Cell('earth', f'c{pl}0', color)  # lower cell
+        self.sky = Cell('sky', f'c{pl}6', color)  # upper cell
         self.val = (self.earth, self.sky)
-        for c in self.val:
-            c.abacus, c.pl = initorder(c, abacus)
 
 
 class Abacus:
     def __init__(self):
-        self.c00 = Cell('big', 'c00', 'Red', )
-        self.c06 = Cell('small', 'c06', 'Red', )
-        self.c10 = Cell('big', 'c10', 'Yellow', )
-        self.c16 = Cell('small', 'c16', 'Yellow', )
-        self.c20 = Cell('big', 'c20', 'Green', )
-        self.c26 = Cell('small', 'c26', 'Green', )
-        self.c30 = Cell('big', 'c30', 'Blue', )
-        self.c36 = Cell('small', 'c36', 'Blue', )
-        self.c40 = Cell('big', 'c40', 'Indigo', )
-        self.c46 = Cell('small', 'c46', 'Indigo', )
-        self.c50 = Cell('big', 'c50', 'Violet', )
-        self.c56 = Cell('small', 'c56', 'Violet', )
-        self.val = (self.c00, self.c06, self.c10, self.c16, self.c20, self.c26,
-                    self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
-        for c in self.val:
-            c.abacus, c.pl = initorder(c, self)
-        self.earth = [c for c in self.val[::2]]  # lower deck
+        self.r0 = Rod(0, 'Red')
+        self.r1 = Rod(1, 'Yellow')
+        self.r2 = Rod(2, 'Green')
+        self.r3 = Rod(3, 'Blue')
+        self.r4 = Rod(4, 'Indigo')
+        self.r5 = Rod(5, 'Violet')
+        self.rodi = (self.r0, self.r1, self.r2, self.r3, self.r4, self.r5,)
+        self.val = []
+        for r in self.rodi:
+            self.val.extend((r.earth, r.sky))
+        self.val = tuple(self.val)
+        self.earth = [r.earth for r in self.rodi]
         self.overflow = False
         self.underflow = False
+        for c in self.val:
+            c.abacus, c.pl = initorder(c, self)
 
     def __repr__(self):
         return [i.__str__() for i in self.val]
@@ -338,8 +333,8 @@ class Abacus:
     def right(self):
         """Moves all cells Up"""
         self.overflow = False
-        self.c00.clear()
-        self.c06.clear()
+        self.r0.earth.clear()
+        self.r0.sky.clear()
         # c50 and c56 are the ones that's actually end up cleared, as the last nxt
         for c in self.val[:-2]:
             nxt = self.val[c.pl + 2]
@@ -351,8 +346,8 @@ class Abacus:
     def left(self):
         """Moves all cells Down"""
         self.underflow = False
-        self.c50.clear()
-        self.c56.clear()
+        self.r5.earth.clear()
+        self.r5.sky.clear()
         # Similarly to right, c00 and c06 end up cleared
         for c in self.val[:1:-1]:
             nxt = self.val[c.pl - 2]
@@ -402,10 +397,10 @@ class Abacus:
         minu_start = self.val[lngth_subt * 2]
         self.load(minu_start, minuend)
         for count in range(lngth_subt):
-            while self.c00.not_zero():
-                consume(self.c00, minu_start)
-            while self.c06.not_zero():
-                consume(self.c06, self.val[lngth_subt * 2 + 1])
+            while self.r0.earth.not_zero():
+                consume(self.r0.earth, minu_start)
+            while self.r0.sky.not_zero():
+                consume(self.r0.sky, self.val[lngth_subt * 2 + 1])
             self.right()
         if verbose:
             self.chk_flow(over=False)
@@ -427,7 +422,7 @@ class Abacus:
 
         # The main operation
         for count in range(lngth_ier):
-            while self.c00.not_zero() or self.c06.not_zero():
+            while self.r0.earth.not_zero() or self.r0.sky.not_zero():
                 self.sub1(1)  # to offer verbose option
                 self.add1(multiplicand, cell_0=min(lngth_ier * 2, (6 - lngth_cand) * 2, 10))
             if count < min((6 - lngth_cand), 5):
@@ -445,15 +440,15 @@ class Abacus:
             self.push(self.val[lngth * 2], multiplicand)
         except IndexError:
             self.flow(over=True)
-        if self.overflow or self.c50.not_zero() or self.c56.not_zero():
+        if self.overflow or self.r5.earth.not_zero() or self.r5.sky.not_zero():
             print(f'Sorry chemp, both previous answer and {multiplicand} were too big. '
                   f'Try to have their order of magnitude sum as 7 or less.')
             self.overflow = False
             return
         self.pull(self.val[lngth * 2], multiplicand)
         for count in range(lngth):
-            while self.c00.not_zero() or self.c06.not_zero():
-                self.pull(self.c00, 1)
+            while self.r0.earth.not_zero() or self.r0.sky.not_zero():
+                self.pull(self.r0.earth, 1)
                 self.add1(multiplicand, cell_0=lngth * 2)
             self.right()
 
