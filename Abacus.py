@@ -18,12 +18,6 @@ verbose = False
 def drc(x): return - 1 + (2 * x)  # True : +1; False : -1
 
 
-def initorder(obj, mother):
-    mother = mother.val
-    pl = mother.index(obj)
-    return mother, pl
-
-
 def colorise(cell: int):
     return abacus.val[cell].color
 
@@ -43,6 +37,9 @@ class Bead:
 
     def __repr__(self):
         return self.id
+
+    def __int__(self):
+        return int(self.up)
 
     def push_pull(self, force: int, push: bool):
         if force < 1:
@@ -70,6 +67,9 @@ class End:
     def __repr__(self):
         return self.id
 
+    def __int__(self):
+        return 0
+
     def push_pull(self, force: int, push: bool):
         if push == self.up:
             print('Error! While moving beeds on a cell I got to the wrong end.')
@@ -78,12 +78,12 @@ class End:
 
 
 class Cell:
-    def __init__(self, deck, pl, color, rid):
+    def __init__(self, deck, pl, rid):
         self.id = rid + '.c' + str(pl * 6)  # .c0 or .c6
         self.size = (deck == 'earth')
-        self.color = color
         self.abacus = []
         self.pl = pl
+        self.deck = deck
 
         self.bottom = End(up=False, cid=self.id)  # self.bottom.pl = 0
         self.b1 = Bead(1, self.id)
@@ -98,7 +98,7 @@ class Cell:
         self.val.append(self.top)
         self.e0, self.e6 = self.bottom, self.top
         for b in self.val:
-            b.cell, _ = initorder(b, self)
+            b.cell = self.val
 
     def expose(self):
         back = ''
@@ -109,9 +109,10 @@ class Cell:
                     back += '||- '
                 else:
                     if not up:
-                        back += '--- ' * 3
+                        back += '--- '
+                        back += '--- ' * 2 * self.size
                     back += '-|| '
-            elif b.up == up:  # type(b) == beed
+            elif b.up == up:  # type(b) == bead
                 back += '-O- '
             else:  # b.up != up:
                 back += '--- ' * 3 + '-O- '
@@ -119,15 +120,18 @@ class Cell:
         return back
 
     def __str__(self):
-        return self.id
+        return self.id[3] + '.' + self.deck
 
     def __repr__(self):
-        return [(i.__str__(), i.id) for i in self.val]
+        return str([(str(b), repr(b)) for b in self.val])
+
+    def __int__(self):
+        return sum(int(b) for b in self.val)
 
     def push_pull(self, force, push):
         force = self.val[push * -1 - drc(push)].push_pull(force, push)
         # We pass the operation to bottom of the cell if pull (0 * -1 --1 = 1, first in cell) or to top if push
-        # (1 * -1 - 1 = -2, last in cell). For each beed moved force will go down by 1, and the new value
+        # (1 * -1 - 1 = -2, last in cell). For each bead moved force will go down by 1, and the new value
         # will be returned here.
         return force
 
@@ -195,10 +199,27 @@ class Rod:
         self.color = color
         self.abacus = []
 
-        self.earth = Cell('earth', 0, color, self.id)  # lower cell
-        self.sky = Cell('sky', 1, color, self.id)  # upper cell
+        self.earth = Cell('earth', 0, self.id)  # lower cell
+        self.sky = Cell('sky', 1, self.id)  # upper cell
         self.val = (self.earth, self.sky)
         self.c0, self.c6 = self.earth, self.sky
+
+    def __str__(self):
+        return self.id
+
+    def __repr__(self):
+        return str([(int(c), str(c)) for c in self.val])
+
+    def __int__(self):
+        return int(self.earth) + int(self.sky) * 6
+
+    def quad_sex(self):
+        return str(int(self.sky)) + str(int(self.earth))
+
+    def expose(self):
+        back = self.earth.expose() + self.sky.expose()
+        back += self.color + '\n'
+        return back
 
 
 class Abacus:
@@ -209,26 +230,27 @@ class Abacus:
         self.r3 = Rod(3, 'Blue')
         self.r4 = Rod(4, 'Indigo')
         self.r5 = Rod(5, 'Violet')
-        self.rodi = (self.r0, self.r1, self.r2, self.r3, self.r4, self.r5,)
-        self.val = []
-        for r in self.rodi:
-            self.val.extend((r.earth, r.sky))
-        self.val = tuple(self.val)
-        self.earth = [r.earth for r in self.rodi]
+        self.val = (self.r0, self.r1, self.r2, self.r3, self.r4, self.r5,)
+        self.earth = [r.earth for r in self.val]
+        self.sky = [r.sky for r in self.val]
         self.overflow = False
         self.underflow = False
         for c in self.val:
-            c.abacus, c.pl = initorder(c, self)
+            c.abacus = self.val
 
     def __repr__(self):
-        return [i.__str__() for i in self.val]
+        return str([(r.quad_sex(), str(r)) for r in self.val])
+
+    def __int__(self):
+        return sum(int(r) * 24 ** r.pl for r in self.val)
+
+    def quad_sex(self):
+        return ':'.join(r.quad_sex() for r in self.val)
 
     def expose(self):
         back = ''
-        for c in self.val:
-            back += c.expose()
-            if self.val.index(c) % 2:
-                back += c.color + '\n'
+        for r in self.val:
+            back += r.expose()
         return back
 
     def prnt(self, table='abacus.csv', tee=False):
@@ -273,7 +295,7 @@ class Abacus:
                 print('Error! I tried to carry while cell is not full')
             elif (not push) and cell.not_zero():
                 print('Error! I tried to borrow while cell is not empty')
-            # If we got here it means the force was bigger than the number of beeds that were down.
+            # If we got here it means the force was bigger than the number of beads that were down.
             if cell.id != 'c56':
                 self.push_pull(self.val[cell.pl + 1], 1, push)
                 # For most cells we pass a carry of 1 to the next cell
@@ -283,7 +305,7 @@ class Abacus:
             cell.set_clear(st=not push)  # push-> set, pull-> clear
             force = cell.push_pull(force - 1, push)
             # Then we set or clear the cell and pass a push or pull command to the ends as before.
-            # We substruct 1 force to pay for the set/clear. We continue the loop until force is zero.
+            # We subtract 1 force to pay for the set/clear. We continue the loop until force is zero.
 
     def push(self, cell: Cell, force=1):
         """Move beeds in a given cell to the Right"""
@@ -310,7 +332,7 @@ class Abacus:
         """Set the abacus to a specific number"""
         self.overflow = False
         self.clear(verbose=False, start=start)
-        # clears lngth-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
+        # clears length-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
         self.push(self.val[start], call)
         self.chk_flow(over=True)
         if verbose:
@@ -379,13 +401,13 @@ class Abacus:
             print(self.expose())
 
     def addition(self, augend, *addendi):
-        if not augend is None:  # For useing former answer
+        if not augend is None:  # For using former answer
             self.load(augend)
         for a in addendi:
             self.add1(a)
 
     def subtraction(self, minuend, *subtrahendi):
-        if not minuend is None:  # For useing former answer
+        if not minuend is None:  # For using former answer
             self.load(minuend)
         for s in subtrahendi:
             self.sub1(s)
@@ -409,7 +431,7 @@ class Abacus:
             print(self.expose())
 
     def multiplication(self, multiplier, multiplicand):
-        # Mesuring the factors
+        # Measuring the factors
         self.load(multiplicand)
         lngth_cand = self.magnitude()
         self.load(multiplier)
@@ -462,7 +484,7 @@ class Abacus:
             if verbose:
                 print(self.expose())
             # we don't want the self description of clear,
-            # but we want to print self.expose() wheter or not verbose is on.
+            # but we want to print self.expose() whether or not verbose is on.
             return
         lngth_dend = self.magnitude() * 2
         try:

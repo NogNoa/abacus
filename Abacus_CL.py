@@ -44,7 +44,7 @@ def decimate(call: list):
 def icositetrise(call: list):
     # input: number list
     base = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] + list(ascii_lowercase[:14])
-    back = ''
+    back, dec = '', 0
     for pl, num in enumerate(call):
         if not pl % 2:
             dec = num
