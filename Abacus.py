@@ -18,8 +18,20 @@ verbose = False
 def drc(x): return - 1 + (2 * x)  # True : +1; False : -1
 
 
-def colorise(cell: int):
-    return abacus.val[cell].color
+def colorise(rod: int):
+    return abacus.val[rod].color
+
+
+def exchange(donor, acceptor):
+    while donor.not_zero():
+        donor.pull()
+        acceptor.push()
+
+
+def consume(hybris, nemesis):
+    while hybris.not_zero():
+        hybris.pull()
+        nemesis.pull()
 
 
 class Bead:
@@ -180,18 +192,6 @@ class Cell:
             return self.not_zero()
 
 
-def exchange(donor, acceptor):
-    while donor.not_zero():
-        donor.pull()
-        acceptor.push()
-
-
-def consume(hybris, nemesis):
-    while hybris.not_zero():
-        hybris.pull()
-        nemesis.pull()
-
-
 class Rod:
     def __init__(self, pl, color):
         self.pl = pl
@@ -214,12 +214,17 @@ class Rod:
         return int(self.earth) + int(self.sky) * 6
 
     def quad_sex(self):
+        """Has nothing to do with foursomes"""
         return str(int(self.sky)) + str(int(self.earth))
 
     def expose(self):
         back = self.earth.expose() + self.sky.expose()
         back += self.color + '\n'
         return back
+
+    def set_clear(self, st=False, start=0, verbose=verbose):
+        self.earth.set_clear(st)
+        self.sky.set_clear(st)
 
 
 class Abacus:
@@ -315,18 +320,22 @@ class Abacus:
         """Return beeds in a given cell to the Left"""
         self.push_pull(cell, force, push=False)
 
-    def clear(self, reverse=False, start=0, verbose=verbose):
+    def clear(self, st=False, start=0, verbose=verbose, fromhigh=False):
         """Clear every Cell of the abacus"""
-        for c in self.val[start:]:
-            c.set_clear(reverse)
+        if fromhigh:
+            #  To start from the upper deck of a rod
+            self.val[start].sky.set_clear(st)
+            start += 1
+        for r in self.val[start:]:
+            r.set_clear(st)
         if verbose:
-            if reverse:
+            if st:
                 print(f'Setting all from the {colorise(start)} rod')
             else:
                 print(f'Clearing all from the {colorise(start)} rod')
             print(self.expose())
 
-    # note, making a macro for set is superfluous. But it's implemented by Truing reverse.
+    # note, making a macro for set is superfluous. But it's implemented by Truing st.
 
     def load(self, call, start=0):
         """Set the abacus to a specific number"""
@@ -480,7 +489,7 @@ class Abacus:
         """divide what's in the abacus by another number"""
         if divisor == 0:
             print("Abacus catches fire.")
-            self.clear(reverse=True, verbose=False)
+            self.clear(st=True, verbose=False)
             if verbose:
                 print(self.expose())
             # we don't want the self description of clear,
@@ -521,6 +530,8 @@ if __name__ == "__main__":
 
 """
 TODO: 
+num_read dec -> quad-sex
+What to do with flow and its check. perheps exception
 standardise and managing verbose
 Done:
 fix flow
