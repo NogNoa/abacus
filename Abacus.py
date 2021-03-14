@@ -127,7 +127,7 @@ class Cell:
             elif b.up == up:  # type(b) == bead
                 back += '-O- '
             else:  # b.up != up:
-                back += '--- ' * 3 + '-O- '
+                back += '--- ' + '--- ' * 2 * self.size + '-O- '
                 up = True
         return back
 
@@ -222,9 +222,39 @@ class Rod:
         back += self.color + '\n'
         return back
 
-    def set_clear(self, st=False, start=0, verbose=verbose):
+    def set_clear(self, st=False):
         self.earth.set_clear(st)
         self.sky.set_clear(st)
+
+    def push_pull(self, force: int, push: bool):
+        force = self.earth.push_pull(force, push)
+        if force > 0:
+            sky_done = self.sky.push_pull(1, push)
+            self.earth.set_clear(st=not push)
+            if sky_done:
+                self.sky.set_clear(st=not push)
+                # we are returning the force as is, the rest of carry/borrow
+                # as well as subtracting 1 from force is handled by abacus.
+            else:
+                force = self.push_pull(force - 1, push)
+        return force
+
+    def push_pull2(self, cell: Cell, force: int, push: bool):
+        sky_done = False
+        while (not sky_done) and force > 0:
+            if push and cell.not_full():
+                print('Error! I tried to carry while cell is not full')
+            elif (not push) and cell.not_zero():
+                print('Error! I tried to borrow while cell is not empty')
+            # If we got here it means the force was bigger than the number of beads that were down.
+            force = cell.push_pull(force, push)
+            if cell.size:  # earth->True sky->False
+                self.push_pull2(self.sky, 1, push)
+            else:
+                sky_done = True
+            cell.set_clear(st=not push)
+            force -= 1
+        return force
 
 
 class Abacus:
@@ -285,7 +315,7 @@ class Abacus:
         if flow:
             print(f"I got {word}\n")
 
-    def push_pull(self, cell: Cell, force: int, push: bool):
+    def push_pull(self, rod: Rod, force: int, push: bool):
         if force >= 24 ** 6:
             print(f'\nVery funny. The input {force} is too big for my brain. '
                   f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
@@ -294,31 +324,33 @@ class Abacus:
             # if the number is higher than what the abacus could hold in the first place,
             # we set the respective flow flag, and empty the force so the operation will finish
             # wherever control is returned to.
-        force = cell.push_pull(force, push)
+        force = rod.push_pull(force, push)
         while force > 0:
+            """
             if push and cell.not_full():
                 print('Error! I tried to carry while cell is not full')
             elif (not push) and cell.not_zero():
                 print('Error! I tried to borrow while cell is not empty')
             # If we got here it means the force was bigger than the number of beads that were down.
-            if cell.id != 'c56':
-                self.push_pull(self.val[cell.pl + 1], 1, push)
+            """
+            if rod.id != 'r5':
+                self.push_pull(self.val[rod.pl + 1], 1, push)
                 # For most cells we pass a carry of 1 to the next cell
             else:
                 self.flow(over=push)
                 # But if it is the last cell we have to flag the corresponding flow flag instead.
-            cell.set_clear(st=not push)  # push-> set, pull-> clear
-            force = cell.push_pull(force - 1, push)
+            rod.set_clear(st=not push)  # push-> set, pull-> clear
+            force = rod.push_pull(force - 1, push)
             # Then we set or clear the cell and pass a push or pull command to the ends as before.
             # We subtract 1 force to pay for the set/clear. We continue the loop until force is zero.
 
-    def push(self, cell: Cell, force=1):
+    def push(self, rod: Rod, force=1):
         """Move beeds in a given cell to the Right"""
-        self.push_pull(cell, force, push=True, )
+        self.push_pull(rod, force, push=True, )
 
-    def pull(self, cell: Cell, force=1):
+    def pull(self, rod: Rod, force=1):
         """Return beeds in a given cell to the Left"""
-        self.push_pull(cell, force, push=False)
+        self.push_pull(rod, force, push=False)
 
     def clear(self, st=False, start=0, verbose=verbose, fromhigh=False):
         """Clear every Cell of the abacus"""
@@ -481,7 +513,7 @@ class Abacus:
         self.pull(self.val[lngth * 2], multiplicand)
         for count in range(lngth):
             while self.r0.earth.not_zero() or self.r0.sky.not_zero():
-                self.pull(self.r0.earth, 1)
+                self.pull(self.r0, 1)
                 self.add1(multiplicand, cell_0=lngth * 2)
             self.right()
 
@@ -520,10 +552,10 @@ if __name__ == "__main__":
     verbose = True
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
-    # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1]
-    abacus.load(6)
+    # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1])
+    abacus.load(12 * 24 ** 3)
     # abacus.subfrom1(24 ** 2)
-    abacus.div1(2)
+    # abacus.div1(2)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
