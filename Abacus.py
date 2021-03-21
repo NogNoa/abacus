@@ -228,7 +228,7 @@ class Rod:
 
     def push_pull(self, force: int, push: bool):
         force = self.earth.push_pull(force, push)
-        if force > 0:
+        if force:
             sky_done = self.sky.push_pull(1, push)
             self.earth.set_clear(st=not push)
             if sky_done:
@@ -241,7 +241,7 @@ class Rod:
 
     def push_pull2(self, cell: Cell, force: int, push: bool):
         sky_done = False
-        while (not sky_done) and force > 0:
+        while (not sky_done) and force:
             if push and cell.not_full():
                 print('Error! I tried to carry while cell is not full')
             elif (not push) and cell.not_zero():
@@ -325,7 +325,7 @@ class Abacus:
             # we set the respective flow flag, and empty the force so the operation will finish
             # wherever control is returned to.
         force = rod.push_pull(force, push)
-        while force > 0:
+        while force:
             """
             if push and cell.not_full():
                 print('Error! I tried to carry while cell is not full')
@@ -564,7 +564,8 @@ if __name__ == "__main__":
 TODO: 
 num_read dec -> quad-sex
 What to do with flow and its check. perheps exception
-standardise and managing verbose
+standardise and managing verbose, perheps make printing and loging into it's own module. or at least make a function for
+    verbose.
 Done:
 fix flow
 cli
