@@ -29,7 +29,7 @@ class Beed:
         self.rod = []
         self.pl = 0
 
-    def expose(self):
+    def __str__(self):
         if self.up:
             return 'Up'
         else:
@@ -54,7 +54,7 @@ class End:
         self.rod = []
         self.pl = 0
 
-    def expose(self):
+    def __str__(self):
         if self.up:
             return 'Top'
         else:
@@ -93,13 +93,16 @@ class Rod:
         for b in self.val:
             b.rod, b.pl = initorder(b, self)
 
+    def __str__(self):
+        return str(self.expose())
+
     def expose(self):
-        return [(i.expose(), i.id) for i in self.val]
+        return [(str(i), i.id) for i in self.val]
 
     def push_pull(self, force, push):
         force = self.val[push * -1].push_pull(force, push)
         # We pass the operation to bottom of the rod if pull (0 * -1 = 0, first in rod) or to top if push
-        # (1 * -1 = -1, last in rod). For each beed moved force will go down by 1, and the new value
+        # (1 * -1 = -1, last in rod). For each bead moved force will go down by 1, and the new value
         # will be returned here.
         return force
 
@@ -194,7 +197,7 @@ class Abacus:
                         if not up:
                             back += '--- ' * 3
                         back += '-|| '
-                elif b.up == up:  # type(b) == beed
+                elif b.up == up:  # type(b) == bead
                     back += '-O- '
                 else:  # b.up != up:
                     back += '--- ' * 3 + '-O- '
@@ -245,7 +248,7 @@ class Abacus:
                 print('Error! I tried to carry while rod is not full')
             elif (not push) and rod.not_zero():
                 print('Error! I tried to borrow while rod is not empty')
-            # If we got here it means the force was bigger than the number of beeds that were down.
+            # If we got here it means the force was bigger than the number of beads that were down.
             if rod.id != 'c56':
                 self.push_pull(self.val[rod.pl + 1], 1, push)
                 # For most rods we pass a carry of 1 to the next rod
@@ -255,7 +258,7 @@ class Abacus:
             rod.set_clear(st=not push)  # push-> set, pull-> clear
             force = rod.push_pull(force - 1, push)
             # Then we set or clear the rod and pass a push or pull command to the ends as before.
-            # We substruct 1 force to pay for the set/clear. We continue the loop until force is zero.
+            # We subtract 1 force to pay for the set/clear. We continue the loop until force is zero.
 
     def push(self, rod: Rod, force=1):
         """Move beeds in a given rod to the Right"""
@@ -282,7 +285,7 @@ class Abacus:
         """Set the abacus to a specific number"""
         self.overflow = False
         self.clear(verbose=False, start=start)
-        # clears lngth-1 rods, starting from the one after rod_0. rod_0 will already be cleared by load()
+        # clears length-1 rods, starting from the one after rod_0. rod_0 will already be cleared by load()
         self.push(self.val[start], call)
         self.chk_flow(over=True)
         if verbose:
@@ -351,13 +354,13 @@ class Abacus:
             print(self.expose())
 
     def addition(self, augend, *addendi):
-        if not augend is None:  # For useing former answer
+        if augend is not None:  # For using former answer
             self.load(augend)
         for a in addendi:
             self.add1(a)
 
     def subtraction(self, minuend, *subtrahendi):
-        if not minuend is None:  # For useing former answer
+        if minuend is not None:  # For using former answer
             self.load(minuend)
         for s in subtrahendi:
             self.sub1(s)
@@ -381,7 +384,7 @@ class Abacus:
             print(self.expose())
 
     def multiplication(self, multiplier, multiplicand):
-        # Mesuring the factors
+        # Measuring the factors
         self.load(multiplicand)
         lngth_cand = self.magnitude()
         self.load(multiplier)
@@ -434,7 +437,7 @@ class Abacus:
             if verbose:
                 print(self.expose())
             # we don't want the self description of clear,
-            # but we want to print self.expose() wheter or not verbose is on.
+            # but we want to print self.expose() whether or not verbose is on.
             return
         lngth_dend = self.magnitude() * 2
         try:
