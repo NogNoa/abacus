@@ -124,9 +124,11 @@ class Cell:
                         back += '--- '
                         back += '--- ' * 2 * self.size
                     back += '-|| '
-            elif b.up == up:  # type(b) == bead
+            elif b.up == up:  
+                assert(type(b) == Bead)
                 back += '-O- '
-            else:  # b.up != up:
+            else:
+                assert(b.up != up)
                 back += '--- ' + '--- ' * 2 * self.size + '-O- '
                 up = True
         return back
@@ -560,12 +562,16 @@ if __name__ == "__main__":
     if verbose:
         print("FIN")
 
+
+# TODO: num_read dec -> quad-sex
+#       What to do with flow and its check. mayhaps exception
+#       standardise and managing verbose, perhaps make printing and logging into it's own module.
+#       or at least make a function for verbose.
+#       add rod to hierarchy
+#       add operator built-in functions (__add__ etc)
+#       separate Abacus to one additional level of abstraction. The highest- Human/Operator/User.
+#
 """
-TODO: 
-num_read dec -> quad-sex
-What to do with flow and its check. perheps exception
-standardise and managing verbose, perheps make printing and loging into it's own module. or at least make a function for
-    verbose.
 Done:
 fix flow
 cli

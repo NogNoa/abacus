@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import Abacus as Aba
 import argparse
 from string import ascii_lowercase
@@ -104,7 +106,7 @@ if __name__ == "__main__":
         abacus.num_read(table_num_listise(file))
     except FileNotFoundError:
         abacus.clear()
-    parser = argparse.ArgumentParser(description=Aba.help_dscrpt)
+    parser = argparse.ArgumentParser(description=Aba.help_dscrpt, , formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-v', '--verbose', help="Make me announce more stuff", action="store_true")
     parser.add_argument('-d', '--decimal', help="This means you wish to enter in base10 instead", action="store_true")
     actions = parser.add_mutually_exclusive_group()
