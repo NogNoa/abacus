@@ -116,7 +116,7 @@ class Cell:
         back = ''
         up = False
         for b in self.val:
-            if type(b) == End:
+            if isinstance(b, End):
                 if not b.up:
                     back += '||- '
                 else:
@@ -125,10 +125,10 @@ class Cell:
                         back += '--- ' * 2 * self.size
                     back += '-|| '
             elif b.up == up:  
-                assert(type(b) == Bead)
+                assert isinstance(b, Bead)
                 back += '-O- '
             else:
-                assert(b.up != up)
+                assert b.up != up
                 back += '--- ' + '--- ' * 2 * self.size + '-O- '
                 up = True
         return back
@@ -444,13 +444,13 @@ class Abacus:
             print(self.expose())
 
     def addition(self, augend, *addendi):
-        if not augend is None:  # For using former answer
+        if augend is not None:  # For using former answer
             self.load(augend)
         for a in addendi:
             self.add1(a)
 
     def subtraction(self, minuend, *subtrahendi):
-        if not minuend is None:  # For using former answer
+        if minuend is not None:  # For using former answer
             self.load(minuend)
         for s in subtrahendi:
             self.sub1(s)
