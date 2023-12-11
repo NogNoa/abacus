@@ -258,6 +258,13 @@ class Rod:
             force -= 1
         return force
 
+    def clear(self):
+        self.earth.clear()
+        self.sky.clear()
+
+    def not_zero(self):
+        return self.earth.not_zero() and self.sky.not_zero()
+
 
 class Abacus:
     def __init__(self):
@@ -400,8 +407,7 @@ class Abacus:
     def right(self):
         """Moves all cells Up"""
         self.overflow = False
-        self.r0.earth.clear()
-        self.r0.sky.clear()
+        self.r0.clear()
         # c50 and c56 are the ones that's actually end up cleared, as the last nxt
         for c in self.val[:-2]:
             nxt = self.val[c.pl + 2]
@@ -413,8 +419,7 @@ class Abacus:
     def left(self):
         """Moves all cells Down"""
         self.underflow = False
-        self.r5.earth.clear()
-        self.r5.sky.clear()
+        self.r5.clear()
         # Similarly to right, c00 and c06 end up cleared
         for c in self.val[:1:-1]:
             nxt = self.val[c.pl - 2]
