@@ -18,7 +18,7 @@ verbose = False
 def drc(x): return - 1 + (2 * x)  # True : +1; False : -1
 
 
-def colorise(rod: int):
+def colorise(rod: int) -> str:
     return abacus.val[rod].color
 
 
@@ -35,7 +35,7 @@ def consume(hybris, nemesis):
 
 
 class Bead:
-    def __init__(self, pl, cid):
+    def __init__(self, pl, cid: str):
         self.up = False
         self.pl = pl
         self.id = cid + '.b' + str(pl)
@@ -53,7 +53,7 @@ class Bead:
     def __int__(self):
         return int(self.up)
 
-    def push_pull(self, force: int, push: bool):
+    def push_pull(self, force: int, push: bool) -> int:
         if force < 1:
             return force
         cell, pl = self.cell, self.pl
@@ -66,7 +66,7 @@ class Bead:
 
 
 class End:
-    def __init__(self, up, cid):
+    def __init__(self, up: bool, cid):
         self.up = up
         self.id = cid + ".e" + str(up * 6)  # .e0 or .e6
 
@@ -82,7 +82,7 @@ class End:
     def __int__(self):
         return 0
 
-    def push_pull(self, force: int, push: bool):
+    def push_pull(self, force: int, push: bool) -> int:
         if push == self.up:
             print('Error! While moving beeds on a cell I got to the wrong end.')
             raise IndexError
@@ -142,7 +142,7 @@ class Cell:
     def __int__(self):
         return sum(int(b) for b in self.val)
 
-    def push_pull(self, force, push):
+    def push_pull(self, force: int, push: bool) -> int:
         force = self.val[push * -1 - drc(push)].push_pull(force, push)
         # We pass the operation to bottom of the cell if pull (0 * -1 --1 = 1, first in cell) or to top if push
         # (1 * -1 - 1 = -2, last in cell). For each bead moved force will go down by 1, and the new value
@@ -169,25 +169,18 @@ class Cell:
         """Return all beeds in a given cell to the Left, reseting it to Zero."""
         self.set_clear(st=False)
 
-    def load(self, const):
+    def load(self, const: int):
         """Set a given cell to a speicific number."""
         self.clear()
         self.push(const)
 
-    def numerise(self):
-        back = 0
-        for b in self.val[1:-1]:
-            if b.up:
-                back += 1
-        return back
-
-    def not_zero(self):
+    def not_zero(self) -> bool:
         return self.val[-2].up
 
-    def not_full(self):
+    def not_full(self) -> bool:
         return not self.val[1].up
 
-    def not_zero_full(self, push: bool):
+    def not_zero_full(self, push: bool) -> bool:
         if push:
             return self.not_full()
         else:
@@ -195,7 +188,7 @@ class Cell:
 
 
 class Rod:
-    def __init__(self, pl, color):
+    def __init__(self, pl, color: str):
         self.pl = pl
         self.id = 'r' + str(pl)
         self.color = color
@@ -291,7 +284,7 @@ class Abacus:
     def quad_sex(self):
         return ':'.join(r.quad_sex() for r in self.val)
 
-    def expose(self):
+    def expose(self) -> str:
         back = ''
         for r in self.val:
             back += r.expose()
@@ -304,17 +297,17 @@ class Abacus:
         back = back.replace(' ', ',')
         open(table, 'w+').write(back)
 
-    def num_read(self, call: list) -> None:
+    def num_read(self, call: list):
         for pl, num in enumerate(call):
             self.val[pl].load(num)
 
-    def flow(self, over):
+    def flow(self, over: bool):
         if over:
             self.overflow = True
         else:
             self.underflow = True
 
-    def chk_flow(self, over):
+    def chk_flow(self, over: bool):
         if over:
             flow = self.overflow
             word = 'overflowed'
@@ -378,7 +371,7 @@ class Abacus:
 
     # note, making a macro for set is superfluous. But it's implemented by Truing st.
 
-    def load(self, call, start=0):
+    def load(self, call: int, start=0):
         """Set the abacus to a specific number"""
         self.overflow = False
         self.clear(verbose=False, start=start)
@@ -388,7 +381,7 @@ class Abacus:
         if verbose:
             print(f'Loading {call} at the {colorise(start)} rod', self.expose(), sep='\n')
 
-    def magnitude(self):
+    def magnitude(self) -> int:
         if self.overflow:
             return 7
         if self.underflow:
@@ -428,7 +421,7 @@ class Abacus:
         if verbose:
             print('Moving down', self.expose(), sep='\n')
 
-    def add1(self, addend, cell_0=0):
+    def add1(self, addend: int, cell_0=0):
         """Adds a number to the abacus """
         self.overflow = False
         if verbose:
@@ -438,7 +431,7 @@ class Abacus:
             self.chk_flow(over=True)
             print(self.expose())
 
-    def sub1(self, subtrahend, cell_0=0):
+    def sub1(self, subtrahend: int, cell_0=0):
         """Subtract a number from the abacus"""
         self.underflow = False
         if verbose:
@@ -448,19 +441,19 @@ class Abacus:
             self.chk_flow(over=False)
             print(self.expose())
 
-    def addition(self, augend, *addendi):
+    def addition(self, augend: int, *addendi: int):
         if augend is not None:  # For using former answer
             self.load(augend)
         for a in addendi:
             self.add1(a)
 
-    def subtraction(self, minuend, *subtrahendi):
+    def subtraction(self, minuend: int, *subtrahendi: int):
         if minuend is not None:  # For using former answer
             self.load(minuend)
         for s in subtrahendi:
             self.sub1(s)
 
-    def subfrom1(self, minuend):
+    def subfrom1(self, minuend: int):
         """Subtract the current abacus from a number"""
         self.underflow = False
         if verbose:
@@ -478,7 +471,7 @@ class Abacus:
             self.chk_flow(over=False)
             print(self.expose())
 
-    def multiplication(self, multiplier, multiplicand):
+    def multiplication(self, multiplier: int, multiplicand: int):
         # Measuring the factors
         self.load(multiplicand)
         lngth_cand = self.magnitude()
@@ -500,12 +493,12 @@ class Abacus:
             if count < min((6 - lngth_cand), 5):
                 self.right()
 
-    def multi_multiplication(self, multplicand, *multiplieri):
+    def multi_multiplication(self, multplicand: int, *multiplieri: int):
         self.multiplication(multiplieri[0], multplicand)
         for m in multiplieri[1:]:
             self.mult1(m)
 
-    def mult1(self, multiplicand):
+    def mult1(self, multiplicand: int):
         """multiply what's in the abacus by another number"""
         lngth = self.magnitude()
         try:
@@ -524,7 +517,7 @@ class Abacus:
                 self.add1(multiplicand, cell_0=lngth * 2)
             self.right()
 
-    def div1(self, divisor):
+    def div1(self, divisor: int):
         """divide what's in the abacus by another number"""
         if divisor == 0:
             print("Abacus catches fire.")
