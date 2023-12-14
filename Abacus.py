@@ -16,18 +16,18 @@ If both inputs are required always enter value before row
 verbose = False
 
 
-def initorder(obj, mother):
+def initorder(obj, mother) -> tuple[list, int]:
     mother = mother.val
     pl = mother.index(obj)
     return mother, pl
 
 
-def colorise(rod: int):
+def colorise(rod: int) -> str:
     return abacus.val[rod].color
 
 
 class Beed:
-    def __init__(self, bid):
+    def __init__(self, bid: str):
         self.up = False
         self.id = bid
         self.rod = []
@@ -39,7 +39,7 @@ class Beed:
         else:
             return 'Down'
 
-    def push_pull(self, force: int, push: bool):
+    def push_pull(self, force: int, push: bool) -> int:
         if force < 1:
             return force
         rod, pl = self.rod, self.pl
@@ -52,7 +52,7 @@ class Beed:
 
 
 class End:
-    def __init__(self, up):
+    def __init__(self, up: bool):
         self.up = up
         self.id = 'end'
         self.rod = []
@@ -64,7 +64,7 @@ class End:
         else:
             return 'Bottom'
 
-    def push_pull(self, force: int, push: bool):
+    def push_pull(self, force: int, push: bool) -> int:
         if force < 1:
             return force
         if push == self.up:
@@ -76,7 +76,7 @@ class End:
 
 
 class Rod:
-    def __init__(self, size, cid, color):
+    def __init__(self, size: str, cid: str, color: str):
         self.id = cid
         self.size = (size == 'big')
         self.color = color
@@ -100,10 +100,17 @@ class Rod:
     def __str__(self):
         return str(self.expose())
 
-    def expose(self):
+    def __int__(self):
+        back = 0
+        for b in self.val[1:-1]:
+            if b.up:
+                back += 1
+        return back
+
+    def expose(self) -> list[tuple[str, str]]:
         return [(str(i), i.id) for i in self.val]
 
-    def push_pull(self, force, push):
+    def push_pull(self, force: int, push: bool) -> int:
         force = self.val[push * -1].push_pull(force, push)
         # We pass the operation to bottom of the rod if pull (0 * -1 = 0, first in rod) or to top if push
         # (1 * -1 = -1, last in rod). For each bead moved force will go down by 1, and the new value
@@ -130,25 +137,18 @@ class Rod:
         """Return all beeds in a given rod to the Left, reseting it to Zero."""
         self.set_clear(st=False)
 
-    def load(self, const):
+    def load(self, const: int):
         """Set a given rod to a speicific number."""
         self.clear()
         self.push(const)
 
-    def numerise(self):
-        back = 0
-        for b in self.val[1:-1]:
-            if b.up:
-                back += 1
-        return back
-
-    def not_zero(self):
+    def not_zero(self) -> bool:
         return self.val[-2].up
 
-    def not_full(self):
+    def not_full(self) -> bool:
         return not self.val[1].up
 
-    def not_zero_full(self, push: bool):
+    def not_zero_full(self, push: bool) -> bool:
         if push:
             return self.not_full()
         else:
@@ -185,11 +185,11 @@ class Abacus:
                     self.c30, self.c36, self.c40, self.c46, self.c50, self.c56)
         for c in self.val:
             c.abacus, c.pl = initorder(c, self)
-        self.major = [c for c in self.val[::2]]
+        self.major: list[Rod] = [c for c in self.val[::2]]
         self.overflow = False
         self.underflow = False
 
-    def expose(self):
+    def expose(self) -> str:
         back = ''
         for c in self.val:
             up = False
@@ -217,17 +217,17 @@ class Abacus:
         back = back.replace(' ', ',')
         open(table, 'w+').write(back)
 
-    def num_read(self, call: list) -> None:
+    def num_read(self, call: list):
         for pl, num in enumerate(call):
             self.val[pl].load(num)
 
-    def flow(self, over):
+    def flow(self, over: bool):
         if over:
             self.overflow = True
         else:
             self.underflow = True
 
-    def chk_flow(self, over):
+    def chk_flow(self, over: bool):
         if over:
             flow = self.overflow
             word = 'overflowed'
@@ -285,7 +285,7 @@ class Abacus:
 
     # note, making a macro for set is superfluous. But it's implemented by Truing reverse.
 
-    def load(self, call, start=0):
+    def load(self, call: int, start=0):
         """Set the abacus to a specific number"""
         self.overflow = False
         self.clear(verbose=False, start=start)
@@ -295,7 +295,7 @@ class Abacus:
         if verbose:
             print(f'Loading {call} at the {colorise(start)} row', self.expose(), sep='\n')
 
-    def magnitude(self):
+    def magnitude(self) -> int:
         if self.overflow:
             return 7
         if self.underflow:
@@ -337,7 +337,7 @@ class Abacus:
         if verbose:
             print('Moving down', self.expose(), sep='\n')
 
-    def add1(self, addend, rod_0=0):
+    def add1(self, addend: int, rod_0=0):
         """Adds a number to the abacus """
         self.overflow = False
         if verbose:
@@ -347,7 +347,7 @@ class Abacus:
             self.chk_flow(over=True)
             print(self.expose())
 
-    def sub1(self, subtrahend, rod_0=0):
+    def sub1(self, subtrahend: int, rod_0=0):
         """Subtract a number from the abacus"""
         self.underflow = False
         if verbose:
@@ -357,19 +357,19 @@ class Abacus:
             self.chk_flow(over=False)
             print(self.expose())
 
-    def addition(self, augend, *addendi):
+    def addition(self, augend: int, *addendi: int):
         if augend is not None:  # For using former answer
             self.load(augend)
         for a in addendi:
             self.add1(a)
 
-    def subtraction(self, minuend, *subtrahendi):
+    def subtraction(self, minuend: int, *subtrahendi: int):
         if minuend is not None:  # For using former answer
             self.load(minuend)
         for s in subtrahendi:
             self.sub1(s)
 
-    def subfrom1(self, minuend):
+    def subfrom1(self, minuend: int):
         """Subtract the current abacus from a number"""
         self.underflow = False
         if verbose:
@@ -387,7 +387,7 @@ class Abacus:
             self.chk_flow(over=False)
             print(self.expose())
 
-    def multiplication(self, multiplier, multiplicand):
+    def multiplication(self, multiplier: int, multiplicand: int):
         # Measuring the factors
         self.load(multiplicand)
         lngth_cand = self.magnitude()
@@ -409,12 +409,12 @@ class Abacus:
             if count < min((6 - lngth_cand), 5):
                 self.right()
 
-    def multi_multiplication(self, multplicand, *multiplieri):
+    def multi_multiplication(self, multplicand: int, *multiplieri: int):
         self.multiplication(multiplieri[0], multplicand)
         for m in multiplieri[1:]:
             self.mult1(m)
 
-    def mult1(self, multiplicand):
+    def mult1(self, multiplicand: int):
         """multiply what's in the abacus by another number"""
         lngth = self.magnitude()
         try:
@@ -433,7 +433,7 @@ class Abacus:
                 self.add1(multiplicand, rod_0=lngth * 2)
             self.right()
 
-    def div1(self, divisor):
+    def div1(self, divisor: int):
         """divide what's in the abacus by another number"""
         if divisor == 0:
             print("Abacus catches fire.")
