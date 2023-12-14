@@ -35,7 +35,7 @@ def consume(hybris, nemesis):
 
 
 class Bead:
-    def __init__(self, pl, cid: str):
+    def __init__(self, pl: int, cid: str):
         self.up = False
         self.pl = pl
         self.id = cid + '.b' + str(pl)
@@ -66,7 +66,7 @@ class Bead:
 
 
 class End:
-    def __init__(self, up: bool, cid):
+    def __init__(self, up: bool, cid: str):
         self.up = up
         self.id = cid + ".e" + str(up * 6)  # .e0 or .e6
 
@@ -90,7 +90,7 @@ class End:
 
 
 class Cell:
-    def __init__(self, deck, pl, rid):
+    def __init__(self, deck: str, pl: int, rid: str):
         self.id = rid + '.c' + str(pl * 6)  # .c0 or .c6
         self.size = (deck == 'earth')
         self.abacus = []
@@ -188,7 +188,7 @@ class Cell:
 
 
 class Rod:
-    def __init__(self, pl, color: str):
+    def __init__(self, pl: int, color: str):
         self.pl = pl
         self.id = 'r' + str(pl)
         self.color = color
@@ -208,11 +208,11 @@ class Rod:
     def __int__(self):
         return int(self.earth) + int(self.sky) * 6
 
-    def quad_sex(self):
+    def quad_sex(self) -> str:
         """Has nothing to do with foursomes"""
         return str(int(self.sky)) + str(int(self.earth))
 
-    def expose(self):
+    def expose(self) -> str:
         back = self.earth.expose() + self.sky.expose()
         back += self.color + '\n'
         return back
@@ -221,7 +221,7 @@ class Rod:
         self.earth.set_clear(st)
         self.sky.set_clear(st)
 
-    def push_pull(self, force: int, push: bool):
+    def push_pull(self, force: int, push: bool) -> int:
         force = self.earth.push_pull(force, push)
         if force:
             sky_done = self.sky.push_pull(1, push)
@@ -234,7 +234,7 @@ class Rod:
                 force = self.push_pull(force - 1, push)
         return force
 
-    def push_pull2(self, cell: Cell, force: int, push: bool):
+    def push_pull2(self, cell: Cell, force: int, push: bool) -> int:
         sky_done = False
         while (not sky_done) and force:
             if push and cell.not_full():
@@ -255,7 +255,7 @@ class Rod:
         self.earth.clear()
         self.sky.clear()
 
-    def not_zero(self):
+    def not_zero(self) -> bool:
         return self.earth.not_zero() and self.sky.not_zero()
 
 
@@ -281,7 +281,7 @@ class Abacus:
     def __int__(self):
         return sum(int(r) * 24 ** r.pl for r in self.val)
 
-    def quad_sex(self):
+    def quad_sex(self) -> str:
         return ':'.join(r.quad_sex() for r in self.val)
 
     def expose(self) -> str:
