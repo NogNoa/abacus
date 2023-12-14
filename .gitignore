@@ -4,3 +4,4 @@ venv/
 abacus.csv
 __pycache__/
 legacy/
+.vscode/

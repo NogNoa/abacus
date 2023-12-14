@@ -256,7 +256,11 @@ class Rod:
         self.sky.clear()
 
     def not_zero(self) -> bool:
-        return self.earth.not_zero() and self.sky.not_zero()
+        return self.earth.not_zero() or self.sky.not_zero()
+    
+    def load(self, const: int):
+        self.clear()
+        self.push_pull(const, True)
 
 
 class Abacus:
@@ -462,7 +466,7 @@ class Abacus:
             print('subtracting current value from', minuend)
         lngth_subt = self.magnitude()
         minu_start = self.val[lngth_subt]
-        self.load(minu_start, minuend)
+        minu_start.load(minuend)
         for count in range(lngth_subt):
             while self.r0.not_zero():
                 consume(self.r0, minu_start)
