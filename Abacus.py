@@ -268,12 +268,10 @@ class Abacus:
         self.r4 = Rod(4, 'Indigo')
         self.r5 = Rod(5, 'Violet')
         self.val = (self.r0, self.r1, self.r2, self.r3, self.r4, self.r5,)
-        self.earth = [r.earth for r in self.val]
-        self.sky = [r.sky for r in self.val]
         self.overflow = False
         self.underflow = False
-        for c in self.val:
-            c.abacus = self.val
+        for r in self.val:
+            r.abacus = self.val
 
     def __repr__(self):
         return str([(r.quad_sex(), str(r)) for r in self.val])
@@ -357,7 +355,7 @@ class Abacus:
     def clear(self, st=False, start=0, verbose=verbose, fromhigh=False):
         """Clear every Cell of the abacus"""
         if fromhigh:
-            #  To start from the upper deck of a rod
+            #  To start from the upper cell of a rod
             self.val[start].sky.set_clear(st)
             start += 1
         for r in self.val[start:]:
@@ -388,7 +386,7 @@ class Abacus:
             return -1
         back = 6
         for i in range(6):
-            icositetrigit = self.val[-2 * i - 1].not_zero() or self.val[-2 * i - 2].not_zero()  # base 24 digit
+            icositetrigit = self.val[i - 1].not_zero() #  base 24 digit
             if not icositetrigit:
                 back -= 1
             else:
@@ -397,46 +395,50 @@ class Abacus:
             print(f'Mesuring the base-24 order of magnitude of loaded value as {back}\n')
         return back
 
-    def right(self):
-        """Moves all cells Up"""
+    def right(self) -> int:
+        """Moves all rods right"""
         self.overflow = False
+        back = int(self.r0)
         self.r0.clear()
-        # c50 and c56 are the ones that's actually end up cleared, as the last nxt
-        for c in self.val[:-2]:
-            nxt = self.val[c.pl + 2]
-            exchange(nxt, c)
+        # r5 is the one that's actually end up cleared, as the last nxt
+        for r in self.val[:-2]:
+            nxt = self.val[r.pl + 1]
+            exchange(nxt, r)
         self.chk_flow(over=True)
         if verbose:
             print('Moving up', self.expose(), sep='\n')
+        return back
 
-    def left(self):
-        """Moves all cells Down"""
+    def left(self) -> int:
+        """Moves all rod left"""
         self.underflow = False
+        back = int(self.r5)
         self.r5.clear()
-        # Similarly to right, c00 and c06 end up cleared
-        for c in self.val[:1:-1]:
-            nxt = self.val[c.pl - 2]
-            exchange(nxt, c)
+        # Similarly to right, c0 end up cleared
+        for r in self.val[:1:-1]:
+            nxt = self.val[r.pl - 1]
+            exchange(nxt, r)
         self.chk_flow(over=False)
         if verbose:
             print('Moving down', self.expose(), sep='\n')
+        return back
 
-    def add1(self, addend: int, cell_0=0):
+    def add1(self, addend: int, rod_0=0):
         """Adds a number to the abacus """
         self.overflow = False
         if verbose:
-            print(f'Adding {addend} at the {colorise(cell_0)} rod')
-        self.push(self.val[cell_0], addend)
+            print(f'Adding {addend} at the {colorise(rod_0)} rod')
+        self.push(self.val[rod_0], addend)
         if verbose:
             self.chk_flow(over=True)
             print(self.expose())
 
-    def sub1(self, subtrahend: int, cell_0=0):
+    def sub1(self, subtrahend: int, rod_0=0):
         """Subtract a number from the abacus"""
         self.underflow = False
         if verbose:
-            print(f'subtracting {subtrahend} at the {colorise(cell_0)} rod')
-        self.pull(self.val[cell_0], subtrahend)
+            print(f'subtracting {subtrahend} at the {colorise(rod_0)} rod')
+        self.pull(self.val[rod_0], subtrahend)
         if verbose:
             self.chk_flow(over=False)
             print(self.expose())
@@ -459,13 +461,11 @@ class Abacus:
         if verbose:
             print('subtracting current value from', minuend)
         lngth_subt = self.magnitude()
-        minu_start = self.val[lngth_subt * 2]
+        minu_start = self.val[lngth_subt]
         self.load(minu_start, minuend)
         for count in range(lngth_subt):
-            while self.r0.earth.not_zero():
-                consume(self.r0.earth, minu_start)
-            while self.r0.sky.not_zero():
-                consume(self.r0.sky, self.val[lngth_subt * 2 + 1])
+            while self.r0.not_zero():
+                consume(self.r0, minu_start)
             self.right()
         if verbose:
             self.chk_flow(over=False)
@@ -487,9 +487,9 @@ class Abacus:
 
         # The main operation
         for count in range(lngth_ier):
-            while self.r0.earth.not_zero() or self.r0.sky.not_zero():
+            while self.r0.not_zero():
                 self.sub1(1)  # to offer verbose option
-                self.add1(multiplicand, cell_0=min(lngth_ier * 2, (6 - lngth_cand) * 2, 10))
+                self.add1(multiplicand, rod_0=min(lngth_ier, 6 - lngth_cand, 5))
             if count < min((6 - lngth_cand), 5):
                 self.right()
 
@@ -502,19 +502,19 @@ class Abacus:
         """multiply what's in the abacus by another number"""
         lngth = self.magnitude()
         try:
-            self.push(self.val[lngth * 2], multiplicand)
+            self.push(self.val[lngth], multiplicand)
         except IndexError:
             self.flow(over=True)
-        if self.overflow or self.r5.earth.not_zero() or self.r5.sky.not_zero():
+        if self.overflow or self.r5.not_zero():
             print(f'Sorry chemp, both previous answer and {multiplicand} were too big. '
                   f'Try to have their order of magnitude sum as 7 or less.')
             self.overflow = False
             return
-        self.pull(self.val[lngth * 2], multiplicand)
+        self.pull(self.val[lngth], multiplicand)
         for count in range(lngth):
-            while self.r0.earth.not_zero() or self.r0.sky.not_zero():
+            while self.r0.not_zero():
                 self.pull(self.r0, 1)
-                self.add1(multiplicand, cell_0=lngth * 2)
+                self.add1(multiplicand, rod_0=lngth)
             self.right()
 
     def div1(self, divisor: int):
@@ -527,24 +527,24 @@ class Abacus:
             # we don't want the self description of clear,
             # but we want to print self.expose() whether or not verbose is on.
             return
-        lngth_dend = self.magnitude() * 2
+        lngth_dend = self.magnitude()
         try:
             self.load(divisor, start=lngth_dend)
         except IndexError:
             print('Sorry. You need to leave enough room for both dividend and divisor')
             return
-        lngth_sor = (self.magnitude() * 2) - lngth_dend
+        lngth_sor = (self.magnitude()) - lngth_dend
         self.clear(start=lngth_dend)
-        pl = lngth_dend - lngth_sor + 2
-        for count in range(pl // 2):
+        pl = lngth_dend - lngth_sor + 1
+        for count in range(pl):
             # pl happen to correspond to number of iterations.
             self.left()
             while not self.underflow:
-                self.sub1(divisor, cell_0=pl)
+                self.sub1(divisor, rod_0=pl)
                 self.add1(1)
             self.add1(divisor, pl)
             self.sub1(1)
-        print(f'Red rod to {colorise(pl - 2)} rod are qutient, '
+        print(f'Red rod to {colorise(pl - 1)} rod are qutient, '
               f'{colorise(pl)} rod to Violet rod are reminder')
 
 
