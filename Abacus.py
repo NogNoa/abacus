@@ -39,7 +39,6 @@ class Bead:
         self.up = False
         self.pl = pl
         self.id = cid + '.b' + str(pl)
-        self.cell = []
 
     def __str__(self):
         if self.up:
@@ -56,13 +55,11 @@ class Bead:
     def push_pull(self, force: int, push: bool) -> int:
         if force < 1:
             return force
-        cell, pl = self.cell, self.pl
-        dr = drc(push)
-        if self.up != cell[pl + dr].up:
-            self.up = not self.up
-            force -= 1
-        force = cell[pl - dr].push_pull(force, push)
-        return force
+        if push == self.up:
+            return force
+        else:
+            self.up = push
+            return force - 1
 
 
 class End:
@@ -82,10 +79,9 @@ class End:
     def __int__(self):
         return 0
 
-    def push_pull(self, force: int, push: bool) -> int:
-        if push == self.up:
-            print('Error! While moving beeds on a cell I got to the wrong end.')
-            raise IndexError
+    # noinspection PyUnusedLocal
+    @staticmethod
+    def push_pull(force: int, push: bool) -> int:
         return force
 
 
@@ -108,8 +104,6 @@ class Cell:
         self.top = End(up=True, cid=self.id)  # self.top.pl = 6
         self.val.append(self.top)
         self.e0, self.e6 = self.bottom, self.top
-        for b in self.val:
-            b.cell = self.val
 
     def expose(self):
         back = ''
@@ -123,7 +117,7 @@ class Cell:
                         back += '--- '
                         back += '--- ' * 2 * self.size
                     back += '-|| '
-            elif b.up == up:  
+            elif b.up == up:
                 assert isinstance(b, Bead)
                 back += '-O- '
             else:
@@ -142,7 +136,12 @@ class Cell:
         return sum(int(b) for b in self.val)
 
     def push_pull(self, force: int, push: bool) -> int:
-        force = self.val[push * -1 - drc(push)].push_pull(force, push)
+        for b in self.val[::-drc(push)]:
+            if not force:
+                break
+            force = b.push_pull(force, push)
+        # force = self.val[push * -1 - drc(push)].push_pull(force, push)
+        # push * -1 - drc(push) == {0,1} * -1 - drc({0,1}) = {0,-1} - {-1,1) = {1,-2}
         # We pass the operation to bottom of the cell if pull (0 * -1 --1 = 1, first in cell) or to top if push
         # (1 * -1 - 1 = -2, last in cell). For each bead moved force will go down by 1, and the new value
         # will be returned here.
@@ -261,7 +260,7 @@ class Rod:
 
     def not_zero(self) -> bool:
         return self.earth.not_zero() or self.sky.not_zero()
-    
+
     def load(self, const: int):
         self.clear()
         self.push_pull(const, True)
@@ -374,10 +373,10 @@ class Abacus:
             print(self.expose())
 
     def set(self, start=0, verbose=verbose, fromhigh=False):
-        self. set_clear(True, start, verbose, fromhigh)
+        self.set_clear(True, start, verbose, fromhigh)
 
     def clear(self, start=0, verbose=verbose, fromhigh=False):
-        self. set_clear(False, start, verbose, fromhigh)
+        self.set_clear(False, start, verbose, fromhigh)
 
     def load(self, call: int, start=0):
         """Set the abacus to a specific number"""
@@ -396,7 +395,7 @@ class Abacus:
             return -1
         back = 6
         for i in range(6):
-            icositetrigit = self.val[i - 1].not_zero()  #  base 24 digit
+            icositetrigit = self.val[i - 1].not_zero()  # base 24 digit
             if not icositetrigit:
                 back -= 1
             else:
@@ -569,7 +568,6 @@ if __name__ == "__main__":
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
-
 
 # TODO: num_read dec -> quad-sex
 #       What to do with flow and its check. mayhaps exception
