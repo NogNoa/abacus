@@ -251,6 +251,12 @@ class Rod:
             force -= 1
         return force
 
+    def push(self, force: int):
+        return self.push_pull(force, True)
+
+    def pull(self, force: int):
+        return self.push_pull(force, False)
+
     def clear(self):
         self.earth.clear()
         self.sky.clear()
@@ -356,7 +362,7 @@ class Abacus:
         """Return beeds in a given cell to the Left"""
         self.push_pull(rod, force, push=False)
 
-    def clear(self, st=False, start=0, verbose=verbose, fromhigh=False):
+    def set_clear(self, st=False, start=0, verbose=verbose, fromhigh=False):
         """Clear every Cell of the abacus"""
         if fromhigh:
             #  To start from the upper cell of a rod
@@ -371,7 +377,11 @@ class Abacus:
                 print(f'Clearing all from the {colorise(start)} rod')
             print(self.expose())
 
-    # note, making a macro for set is superfluous. But it's implemented by Truing st.
+    def set(self, start=0, verbose=verbose, fromhigh=False):
+        self. set_clear(True, start, verbose, fromhigh)
+
+    def clear(self, start=0, verbose=verbose, fromhigh=False):
+        self. set_clear(False, start, verbose, fromhigh)
 
     def load(self, call: int, start=0):
         """Set the abacus to a specific number"""
@@ -390,7 +400,7 @@ class Abacus:
             return -1
         back = 6
         for i in range(6):
-            icositetrigit = self.val[i - 1].not_zero() #  base 24 digit
+            icositetrigit = self.val[i - 1].not_zero()  #  base 24 digit
             if not icositetrigit:
                 back -= 1
             else:
@@ -525,7 +535,7 @@ class Abacus:
         """divide what's in the abacus by another number"""
         if divisor == 0:
             print("Abacus catches fire.")
-            self.clear(st=True, verbose=False)
+            self.clear(verbose=False)
             if verbose:
                 print(self.expose())
             # we don't want the self description of clear,
