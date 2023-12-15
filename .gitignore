@@ -1,8 +1,7 @@
 # Default ignored files
 .idea/
-.idea\
 venv/
 abacus.csv
-mm2.sav
-goblin*
 __pycache__/
+legacy/
+.vscode/
