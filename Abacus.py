@@ -93,7 +93,6 @@ class Cell:
     def __init__(self, deck: str, pl: int, rid: str):
         self.id = rid + '.c' + str(pl * 6)  # .c0 or .c6
         self.size = (deck == 'earth')
-        self.abacus = []
         self.pl = pl
         self.deck = deck
 
@@ -192,7 +191,6 @@ class Rod:
         self.pl = pl
         self.id = 'r' + str(pl)
         self.color = color
-        self.abacus = []
 
         self.earth = Cell('earth', 0, self.id)  # lower cell
         self.sky = Cell('sky', 1, self.id)  # upper cell
@@ -280,8 +278,6 @@ class Abacus:
         self.val = (self.r0, self.r1, self.r2, self.r3, self.r4, self.r5,)
         self.overflow = False
         self.underflow = False
-        for r in self.val:
-            r.abacus = self.val
 
     def __repr__(self):
         return str([(r.quad_sex(), str(r)) for r in self.val])
