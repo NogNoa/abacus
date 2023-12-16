@@ -92,7 +92,7 @@ class End:
 class Cell:
     def __init__(self, deck: str, pl: int, rid: str):
         self.id = rid + '.c' + str(pl * 6)  # .c0 or .c6
-        self.size = bool(pl)
+        self.size = bool(not pl)
         self.abacus = []
         self.pl = pl
         self.deck = deck
@@ -224,9 +224,9 @@ class Rod:
     def push_pull(self, force: int, push: bool) -> int:
         force = self.earth.push_pull(force, push)
         if force:
-            sky_done = self.sky.push_pull(1, push)
+            sky_already_done = self.sky.push_pull(1, push)
             self.earth.set_clear(st=not push)
-            if sky_done:
+            if sky_already_done:
                 self.sky.set_clear(st=not push)
                 # we are returning the force as is, the rest of carry/borrow
                 # as well as subtracting 1 from force is handled by abacus.
@@ -251,10 +251,10 @@ class Rod:
             force -= 1
         return force
 
-    def push(self, force: int):
+    def push(self, force: int = 1):
         return self.push_pull(force, True)
 
-    def pull(self, force: int):
+    def pull(self, force: int = 1):
         return self.push_pull(force, False)
 
     def clear(self):
@@ -504,11 +504,15 @@ class Abacus:
                 self.add1(multiplicand, rod_0=min(lngth_ier, 6 - lngth_cand, 5))
             if count < min((6 - lngth_cand), 5):
                 self.right()
+        if verbose:
+            print("Done")
 
     def multi_multiplication(self, multplicand: int, *multiplieri: int):
         self.multiplication(multiplieri[0], multplicand)
         for m in multiplieri[1:]:
             self.mult1(m)
+        if verbose:
+            print("Done all of 'em!")
 
     def mult1(self, multiplicand: int):
         """multiply what's in the abacus by another number"""
@@ -528,6 +532,8 @@ class Abacus:
                 self.pull(self.r0, 1)
                 self.add1(multiplicand, rod_0=lngth)
             self.right()
+        if verbose:
+            print("Done")
 
     def div1(self, divisor: int):
         """divide what's in the abacus by another number"""
@@ -563,11 +569,12 @@ class Abacus:
 if __name__ == "__main__":
     verbose = True
     abacus = Abacus()
-    abacus.multiplication(24 ** 2, 24 ** 4 - 1)
-    # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1])
+    # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
+    abacus.num_read([4 + 2*6, 0, 23, 23, 23, 5 + 6])
+    print(int(abacus))
     abacus.load(12 * 24 ** 3)
-    # abacus.subfrom1(24 ** 2)
-    # abacus.div1(2)
+    abacus.subfrom1(24 ** 2)
+    abacus.div1(2)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
