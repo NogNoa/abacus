@@ -2,7 +2,7 @@ help_dscrpt = \
     """
 An interactive quad-seximal abacus for fun. 
 The Abacus have 12 cells in 6 rods. 
-Each rod has a lower cell with 5 beeds and a high cell with 3 beeds. 
+Each rod has a lower cell with 5 beads and a high cell with 3 beads. 
 When the cell is full this is a distinct state, only when you add one to it does the next cell change 
     and the first one empties. 
 This make the abacus base 24 by rod. 
@@ -84,7 +84,7 @@ class End:
 
     def push_pull(self, force: int, push: bool) -> int:
         if push == self.up:
-            print('Error! While moving beeds on a cell I got to the wrong end.')
+            print('Error! While moving beads on a cell I got to the wrong end.')
             raise IndexError
         return force
 
@@ -92,7 +92,7 @@ class End:
 class Cell:
     def __init__(self, deck: str, pl: int, rid: str):
         self.id = rid + '.c' + str(pl * 6)  # .c0 or .c6
-        self.size = (deck == 'earth')
+        self.size = bool(pl)
         self.abacus = []
         self.pl = pl
         self.deck = deck
@@ -150,11 +150,11 @@ class Cell:
         return force
 
     def push(self, force=1):
-        """Move beeds in a given cell to the Right"""
+        """Move beads in a given cell to the Right"""
         self.push_pull(force, push=True)
 
     def pull(self, force=1):
-        """Return beeds in a given cell to the Left"""
+        """Return beads in a given cell to the Left"""
         self.push_pull(force, push=False)
 
     def set_clear(self, st: bool):
@@ -162,11 +162,11 @@ class Cell:
             b.up = st  # true->set false->clear
 
     def set(self):
-        """Move all beeds in a given cell to the Right"""
+        """Move all beads in a given cell to the Right"""
         self.set_clear(st=True)
 
     def clear(self):
-        """Return all beeds in a given cell to the Left, reseting it to Zero."""
+        """Return all beads in a given cell to the Left, reseting it to Zero."""
         self.set_clear(st=False)
 
     def load(self, const: int):
@@ -355,11 +355,11 @@ class Abacus:
             # We subtract 1 force to pay for the set/clear. We continue the loop until force is zero.
 
     def push(self, rod: Rod, force=1):
-        """Move beeds in a given cell to the Right"""
+        """Move beads in a given cell to the Right"""
         self.push_pull(rod, force, push=True, )
 
     def pull(self, rod: Rod, force=1):
-        """Return beeds in a given cell to the Left"""
+        """Return beads in a given cell to the Left"""
         self.push_pull(rod, force, push=False)
 
     def set_clear(self, st=False, start=0, verbose=verbose, fromhigh=False):
@@ -398,14 +398,12 @@ class Abacus:
             return 7
         if self.underflow:
             return -1
-        back = 6
-        for i in range(6):
-            icositetrigit = self.val[i - 1].not_zero()  #  base 24 digit
-            if not icositetrigit:
-                back -= 1
-            else:
+        for back in range(6, -1, -1):
+            icositetrigit = self.val[back-1].not_zero()  #  base 24 digit
+            if icositetrigit:
                 break
         if verbose:
+            # noinspection PyUnboundLocalVariable
             print(f'Mesuring the base-24 order of magnitude of loaded value as {back}\n')
         return back
 
@@ -565,7 +563,7 @@ class Abacus:
 if __name__ == "__main__":
     verbose = True
     abacus = Abacus()
-    # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
+    abacus.multiplication(24 ** 2, 24 ** 4 - 1)
     # abacus.num_read([4, 2, 0, 0, 5, 3, 5, 3, 5, 3, 5, 1])
     abacus.load(12 * 24 ** 3)
     # abacus.subfrom1(24 ** 2)
@@ -591,7 +589,7 @@ more rebust solution for length_lier+length_cand = 5
 replace length24
 how to treat the carry and borrow flags
 treat the clear issue
-trying to make a function that will actually be more localised to the one beed, 
+trying to make a function that will actually be more localised to the one bead, 
 at the price of running more of them, it will also be more ready to add carry.
 will probably want to seperate push and pull anyway"""
 
