@@ -101,6 +101,7 @@ def call_parse(call):
 if __name__ == "__main__":
     file = 'abacus.csv'
     abacus = Aba.Abacus()
+    hum = Aba.Human(abacus)
     decimal = False
     try:
         abacus.num_read(table_num_listise(file))
@@ -117,9 +118,9 @@ if __name__ == "__main__":
     actions.add_argument('--set', help=Aba.Cell.set.__doc__)
     actions.add_argument('--add', help=abacus.add1.__doc__)
     actions.add_argument('--sub', '--subtract', help=abacus.sub1.__doc__)
-    actions.add_argument('--sub_from', '--subtract_from', help=abacus.subfrom1.__doc__)
-    actions.add_argument('--multi', '--multiply', help=abacus.mult1.__doc__)
-    actions.add_argument('--div', '--divide', help=abacus.div1.__doc__)
+    actions.add_argument('--sub_from', '--subtract_from', help=hum.subfrom1.__doc__)
+    actions.add_argument('--multi', '--multiply', help=hum.mult1.__doc__)
+    actions.add_argument('--div', '--divide', help=hum.div1.__doc__)
     actions.add_argument('--load', help=Aba.Cell.load.__doc__, nargs=2)
     actions.add_argument('--load_full', help=abacus.load.__doc__)
     actions.add_argument('--push', help=Aba.Cell.push.__doc__, nargs=2)
@@ -156,7 +157,7 @@ if __name__ == "__main__":
         abacus.load(value, cell)
     if args.push is not None:
         force, cell = call_parse(args.push)
-        abacus.push(abacus.val[cell], force)
+        abacus.push(cell, force)
     if args.pull is not None:
         force, cell = call_parse(args.pull)
         abacus.pull(abacus.val[cell], force)
@@ -165,11 +166,11 @@ if __name__ == "__main__":
     if args.sub is not None:
         abacus.sub1(decide_base(args.sub))
     if args.sub_from is not None:
-        abacus.subfrom1(decide_base(args.sub_from))
+        hum.subfrom1(decide_base(args.sub_from))
     if args.multi is not None:
-        abacus.mult1(decide_base(args.multi))
+        hum.mult1(decide_base(args.multi))
     if args.div is not None:
-        abacus.div1(decide_base(args.div))
+        hum.div1(decide_base(args.div))
     if args.ico:
         numi = table_num_listise()
         print(icositetrise(numi))
