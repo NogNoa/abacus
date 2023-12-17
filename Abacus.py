@@ -435,26 +435,6 @@ class Abacus:
             print('Moving down', self.expose(), sep='\n')
         return back
 
-    def add1(self, addend: int, rod_0=0):
-        """Adds a number to the abacus """
-        self.overflow = False
-        if verbose:
-            print(f'Adding {addend} at the {colorise(rod_0)} rod')
-        self.push(rod_0, addend)
-        if verbose:
-            self.chk_flow(over=True)
-            print(self.expose())
-
-    def sub1(self, subtrahend: int, rod_0=0):
-        """Subtract a number from the abacus"""
-        self.underflow = False
-        if verbose:
-            print(f'subtracting {subtrahend} at the {colorise(rod_0)} rod')
-        self.pull(self.val[rod_0], subtrahend)
-        if verbose:
-            self.chk_flow(over=False)
-            print(self.expose())
-
     def mutual_consume(self, hybris: int, nemesis: int):
         lngth = abs(nemesis-hybris)
         hybris = self.val[hybris]
@@ -470,17 +450,37 @@ class Human:
     def __init__(self, abacus: Abacus):
         self.abacus = abacus
 
+    def add1(self, addend: int, rod_0=0):
+        """Adds a number to the abacus """
+        self.abacus.overflow = False
+        if verbose:
+            print(f'Adding {addend} at the {colorise(rod_0)} rod')
+        self.abacus.push(rod_0, addend)
+        if verbose:
+            self.abacus.chk_flow(over=True)
+            print(self.abacus.expose())
+
+    def sub1(self, subtrahend: int, rod_0=0):
+        """Subtract a number from the abacus"""
+        self.abacus.underflow = False
+        if verbose:
+            print(f'subtracting {subtrahend} at the {colorise(rod_0)} rod')
+        self.abacus.pull(force=subtrahend)
+        if verbose:
+            self.abacus.chk_flow(over=False)
+            print(self.abacus.expose())
+
     def addition(self, augend: int, *addendi: int):
         if augend is not None:  # For using former answer
             self.abacus.load(augend)
         for a in addendi:
-            self.abacus.add1(a)
+            self.add1(a)
 
     def subtraction(self, minuend: int, *subtrahendi: int):
         if minuend is not None:  # For using former answer
             self.abacus.load(minuend)
         for s in subtrahendi:
-            self.abacus.sub1(s)
+            self.sub1(s)
 
     def subfrom1(self, minuend: int):
         """Subtract the current abacus from a number"""
@@ -511,8 +511,8 @@ class Human:
         # The main operation
         for count in range(lngth_ier):
             while self.abacus.r0.not_zero():
-                self.abacus.sub1(1)  # to offer verbose option
-                self.abacus.add1(multiplicand, rod_0=min(lngth_ier, 6 - lngth_cand, 5))
+                self.sub1(1)  # to offer verbose option
+                self.add1(multiplicand, rod_0=min(lngth_ier, 6 - lngth_cand, 5))
             if count < min((6 - lngth_cand), 5):
                 self.abacus.right()
         if verbose:
@@ -541,7 +541,7 @@ class Human:
         for count in range(lngth):
             while self.abacus.r0.not_zero():
                 self.abacus.pull(force=1)
-                self.abacus.add1(multiplicand, rod_0=lngth)
+                self.add1(multiplicand, rod_0=lngth)
             self.abacus.right()
         if verbose:
             print("Done")
@@ -569,10 +569,10 @@ class Human:
             # pl happen to correspond to number of iterations.
             self.abacus.left()
             while not self.abacus.underflow:
-                self.abacus.sub1(divisor, rod_0=pl)
-                self.abacus.add1(1)
-            self.abacus.add1(divisor, pl)
-            self.abacus.sub1(1)
+                self.sub1(divisor, rod_0=pl)
+                self.add1(1)
+            self.add1(divisor, pl)
+            self.sub1(1)
         print(f'Red rod to {colorise(pl - 1)} rod are qutient, '
               f'{colorise(pl)} rod to Violet rod are reminder')
 
@@ -582,7 +582,6 @@ class Human:
 #       standardise and managing verbose, perhaps make printing and logging into it's own module.
 #       or at least make a function for verbose.
 #       add operator built-in functions (__add__ etc)
-#       separate Abacus to one additional level of abstraction. The highest- Human/Operator/User.
 #
 """
 Done:
@@ -596,6 +595,7 @@ trying to make a function that will actually be more localised to the one bead,
 at the price of running more of them, it will also be more ready to add carry.
 will probably want to seperate push and pull anyway
 add rod to hierarchy
+separate Abacus to one additional level of abstraction. The highest- Human/Operator/User.
 """
 """
 rod to write to = lngth + length_cand - 2 (starting at 0)
