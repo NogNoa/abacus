@@ -19,7 +19,8 @@ def drc(x): return - 1 + (2 * x)  # True : +1; False : -1
 
 
 def colorise(rod: int) -> str:
-    return abacus.val[rod].color
+    colors = ('Red', 'Yellow', 'Green', 'Blue', 'Indigo', 'Violet')
+    return colors[rod]
 
 
 def exchange(donor, acceptor):
@@ -268,12 +269,12 @@ class Rod:
 
 class Abacus:
     def __init__(self):
-        self.r0 = Rod(0, 'Red')
-        self.r1 = Rod(1, 'Yellow')
-        self.r2 = Rod(2, 'Green')
-        self.r3 = Rod(3, 'Blue')
-        self.r4 = Rod(4, 'Indigo')
-        self.r5 = Rod(5, 'Violet')
+        self.r0 = Rod(0, colorise(0))
+        self.r1 = Rod(1, colorise(1))
+        self.r2 = Rod(2, colorise(2))
+        self.r3 = Rod(3, colorise(3))
+        self.r4 = Rod(4, colorise(4))
+        self.r5 = Rod(5, colorise(5))
         self.val = (self.r0, self.r1, self.r2, self.r3, self.r4, self.r5,)
         self.overflow = False
         self.underflow = False
@@ -394,7 +395,7 @@ class Abacus:
         if self.underflow:
             return -1
         for back in range(6, -1, -1):
-            icositetrigit = self.val[back-1].not_zero()  #  base 24 digit
+            icositetrigit = self.val[back - 1].not_zero()  # base 24 digit
             if icositetrigit:
                 break
         if verbose:
@@ -559,19 +560,6 @@ class Abacus:
         print(f'Red rod to {colorise(pl - 1)} rod are qutient, '
               f'{colorise(pl)} rod to Violet rod are reminder')
 
-
-if __name__ == "__main__":
-    verbose = True
-    abacus = Abacus()
-    # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
-    # abacus.num_read([4 + 2*6, 0, 23, 23, 23, 5 + 6])
-    # print(int(abacus))
-    abacus.load(24 ** 1)
-    abacus.subfrom1(12 * 24 ** 2)
-    # abacus.div1(2)
-    abacus.prnt(tee=not verbose)
-    if verbose:
-        print("FIN")
 
 # TODO: num_read dec -> quad-sex
 #       What to do with flow and its check. mayhaps exception
