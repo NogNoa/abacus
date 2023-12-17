@@ -116,8 +116,8 @@ if __name__ == "__main__":
     actions.add_argument('--clear', help=Aba.Cell.clear.__doc__)
     actions.add_argument('--clear_full', help=abacus.clear.__doc__, action="store_true")
     actions.add_argument('--set', help=Aba.Cell.set.__doc__)
-    actions.add_argument('--add', help=abacus.add1.__doc__)
-    actions.add_argument('--sub', '--subtract', help=abacus.sub1.__doc__)
+    actions.add_argument('--add', help=hum.add1.__doc__)
+    actions.add_argument('--sub', '--subtract', help=hum.sub1.__doc__)
     actions.add_argument('--sub_from', '--subtract_from', help=hum.subfrom1.__doc__)
     actions.add_argument('--multi', '--multiply', help=hum.mult1.__doc__)
     actions.add_argument('--div', '--divide', help=hum.div1.__doc__)
@@ -162,9 +162,9 @@ if __name__ == "__main__":
         force, cell = call_parse(args.pull)
         abacus.pull(abacus.val[cell], force)
     if args.add is not None:
-        abacus.add1(decide_base(args.add))
+        hum.add1(decide_base(args.add))
     if args.sub is not None:
-        abacus.sub1(decide_base(args.sub))
+        hum.sub1(decide_base(args.sub))
     if args.sub_from is not None:
         hum.subfrom1(decide_base(args.sub_from))
     if args.multi is not None:
