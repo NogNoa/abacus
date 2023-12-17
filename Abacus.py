@@ -23,16 +23,20 @@ def colorise(rod: int) -> str:
     return colors[rod]
 
 
-def exchange(donor, acceptor):
+def exchange(donor, acceptor) -> int:
+    back = 0
     while donor.not_zero():
         donor.pull()
-        acceptor.push()
+        back =acceptor.push()
+    return back
 
 
-def consume(hybris, nemesis):
+def consume(hybris, nemesis) -> int:
+    back = 0
     while hybris.not_zero():
         hybris.pull()
-        nemesis.pull()
+        back = nemesis.pull()
+    return back
 
 
 class Bead:
@@ -469,11 +473,14 @@ class Abacus:
         if verbose:
             print('subtracting current value from', minuend)
         lngth_subt = self.magnitude()
+        self.load(minuend, lngth_subt)
         minu_start = self.val[lngth_subt]
-        minu_start.load(minuend)
         for count in range(lngth_subt):
             consume(self.r0, minu_start)
             self.right()
+            if self.underflow:
+                minu_start.pull()
+                self.underflow = False
         if verbose:
             self.chk_flow(over=False)
             print(self.expose())
@@ -565,7 +572,7 @@ class Abacus:
 #       What to do with flow and its check. mayhaps exception
 #       standardise and managing verbose, perhaps make printing and logging into it's own module.
 #       or at least make a function for verbose.
-#       add rod to hierarchy
+
 #       add operator built-in functions (__add__ etc)
 #       separate Abacus to one additional level of abstraction. The highest- Human/Operator/User.
 #
@@ -579,7 +586,9 @@ how to treat the carry and borrow flags
 treat the clear issue
 trying to make a function that will actually be more localised to the one bead, 
 at the price of running more of them, it will also be more ready to add carry.
-will probably want to seperate push and pull anyway"""
+will probably want to seperate push and pull anyway
+add rod to hierarchy
+"""
 
 """
 rod to write to = lngth + length_cand - 2 (starting at 0)

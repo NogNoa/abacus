@@ -1,7 +1,7 @@
-from Abacus import *
+import Abacus as aba
 
-verbose = True
-abacus = Abacus()
+verbose = aba.verbose = True
+abacus = aba.Abacus()
 # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
 # abacus.num_read([4 + 2*6, 0, 23, 23, 23, 5 + 6])
 # print(int(abacus))
