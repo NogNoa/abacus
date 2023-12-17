@@ -27,7 +27,7 @@ def exchange(donor, acceptor) -> int:
     back = 0
     while donor.not_zero():
         donor.pull()
-        back =acceptor.push()
+        back |= acceptor.push()
     return back
 
 
@@ -35,7 +35,7 @@ def consume(hybris, nemesis) -> int:
     back = 0
     while hybris.not_zero():
         hybris.pull()
-        back = nemesis.pull()
+        back |= nemesis.pull()
     return back
 
 
@@ -476,11 +476,10 @@ class Abacus:
         self.load(minuend, lngth_subt)
         minu_start = self.val[lngth_subt]
         for count in range(lngth_subt):
-            consume(self.r0, minu_start)
+            borrow = consume(self.r0, minu_start)
             self.right()
-            if self.underflow:
+            if borrow:
                 minu_start.pull()
-                self.underflow = False
         if verbose:
             self.chk_flow(over=False)
             print(self.expose())
