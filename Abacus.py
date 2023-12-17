@@ -354,13 +354,13 @@ class Abacus:
             # Then we set or clear the cell and pass a push or pull command to the ends as before.
             # We subtract 1 force to pay for the set/clear. We continue the loop until force is zero.
 
-    def push(self, rod: Rod, force=1):
+    def push(self, rod=0, force=1):
         """Move beads in a given cell to the Right"""
-        self.push_pull(rod, force, push=True, )
+        self.push_pull(self.val[rod], force, push=True, )
 
-    def pull(self, rod: Rod, force=1):
+    def pull(self, rod=0, force=1):
         """Return beads in a given cell to the Left"""
-        self.push_pull(rod, force, push=False)
+        self.push_pull(self.val[rod], force, push=False)
 
     def set_clear(self, st=False, start=0, verbose=verbose, fromhigh=False):
         """Clear every Cell of the abacus"""
@@ -388,7 +388,7 @@ class Abacus:
         self.overflow = False
         self.clear(verbose=False, start=start)
         # clears length-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
-        self.push(self.val[start], call)
+        self.push(start, call)
         self.chk_flow(over=True)
         if verbose:
             print(f'Loading {call} at the {colorise(start)} rod', self.expose(), sep='\n')
@@ -435,76 +435,86 @@ class Abacus:
             print('Moving down', self.expose(), sep='\n')
         return back
 
+    def mutual_consume(self, hybris: int, nemesis: int):
+        lngth = abs(nemesis-hybris)
+        hybris = self.val[hybris]
+        nemesis = self.val[nemesis]
+        for count in range(lngth):
+            borrow = consume(hybris, nemesis)
+            self.right()
+            if borrow:
+                nemesis.pull()
+
+
+class Human:
+    def __init__(self, abacus: Abacus):
+        self.abacus = abacus
+
     def add1(self, addend: int, rod_0=0):
         """Adds a number to the abacus """
-        self.overflow = False
+        self.abacus.overflow = False
         if verbose:
             print(f'Adding {addend} at the {colorise(rod_0)} rod')
-        self.push(self.val[rod_0], addend)
+        self.abacus.push(rod_0, addend)
         if verbose:
-            self.chk_flow(over=True)
-            print(self.expose())
+            self.abacus.chk_flow(over=True)
+            print(self.abacus.expose())
 
     def sub1(self, subtrahend: int, rod_0=0):
         """Subtract a number from the abacus"""
-        self.underflow = False
+        self.abacus.underflow = False
         if verbose:
             print(f'subtracting {subtrahend} at the {colorise(rod_0)} rod')
-        self.pull(self.val[rod_0], subtrahend)
+        self.abacus.pull(force=subtrahend)
         if verbose:
-            self.chk_flow(over=False)
-            print(self.expose())
+            self.abacus.chk_flow(over=False)
+            print(self.abacus.expose())
 
     def addition(self, augend: int, *addendi: int):
         if augend is not None:  # For using former answer
-            self.load(augend)
+            self.abacus.load(augend)
         for a in addendi:
             self.add1(a)
 
     def subtraction(self, minuend: int, *subtrahendi: int):
         if minuend is not None:  # For using former answer
-            self.load(minuend)
+            self.abacus.load(minuend)
         for s in subtrahendi:
             self.sub1(s)
 
     def subfrom1(self, minuend: int):
         """Subtract the current abacus from a number"""
-        self.underflow = False
+        self.abacus.underflow = False
         if verbose:
             print('subtracting current value from', minuend)
-        lngth_subt = self.magnitude()
-        self.load(minuend, lngth_subt)
-        minu_start = self.val[lngth_subt]
-        for count in range(lngth_subt):
-            borrow = consume(self.r0, minu_start)
-            self.right()
-            if borrow:
-                minu_start.pull()
+        lngth_subt = self.abacus.magnitude()
+        self.abacus.load(minuend, lngth_subt)
+        self.abacus.mutual_consume(0, lngth_subt)
         if verbose:
-            self.chk_flow(over=False)
-            print(self.expose())
+            self.abacus.chk_flow(over=False)
+            print(self.abacus.expose())
 
     def multiplication(self, multiplier: int, multiplicand: int):
         # Measuring the factors
-        self.load(multiplicand)
-        lngth_cand = self.magnitude()
-        self.load(multiplier)
-        lngth_ier = self.magnitude()
+        self.abacus.load(multiplicand)
+        lngth_cand = self.abacus.magnitude()
+        self.abacus.load(multiplier)
+        lngth_ier = self.abacus.magnitude()
 
         # High edge cases
         if lngth_cand + lngth_ier > 7:
             print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
                   f'Try to have their order of magnitude sum as 7 or less.')
-            self.clear()
+            self.abacus.clear()
             return
 
         # The main operation
         for count in range(lngth_ier):
-            while self.r0.not_zero():
+            while self.abacus.r0.not_zero():
                 self.sub1(1)  # to offer verbose option
                 self.add1(multiplicand, rod_0=min(lngth_ier, 6 - lngth_cand, 5))
             if count < min((6 - lngth_cand), 5):
-                self.right()
+                self.abacus.right()
         if verbose:
             print("Done")
 
@@ -517,22 +527,22 @@ class Abacus:
 
     def mult1(self, multiplicand: int):
         """multiply what's in the abacus by another number"""
-        lngth = self.magnitude()
+        lngth = self.abacus.magnitude()
         try:
-            self.push(self.val[lngth], multiplicand)
+            self.abacus.push(lngth, multiplicand)
         except IndexError:
-            self.flow(over=True)
-        if self.overflow or self.r5.not_zero():
+            self.abacus.flow(over=True)
+        if self.abacus.overflow or self.abacus.magnitude() >= 6:
             print(f'Sorry chemp, both previous answer and {multiplicand} were too big. '
                   f'Try to have their order of magnitude sum as 7 or less.')
-            self.overflow = False
+            self.abacus.overflow = False
             return
-        self.pull(self.val[lngth], multiplicand)
+        self.abacus.pull(lngth, multiplicand)
         for count in range(lngth):
-            while self.r0.not_zero():
-                self.pull(self.r0, 1)
+            while self.abacus.r0.not_zero():
+                self.abacus.pull(force=1)
                 self.add1(multiplicand, rod_0=lngth)
-            self.right()
+            self.abacus.right()
         if verbose:
             print("Done")
 
@@ -540,25 +550,25 @@ class Abacus:
         """divide what's in the abacus by another number"""
         if divisor == 0:
             print("Abacus catches fire.")
-            self.clear(verbose=False)
+            self.abacus.clear(verbose=False)
             if verbose:
-                print(self.expose())
+                print(self.abacus.expose())
             # we don't want the self description of clear,
             # but we want to print self.expose() whether or not verbose is on.
             return
-        lngth_dend = self.magnitude()
+        lngth_dend = self.abacus.magnitude()
         try:
-            self.load(divisor, start=lngth_dend)
+            self.abacus.load(divisor, start=lngth_dend)
         except IndexError:
             print('Sorry. You need to leave enough room for both dividend and divisor')
             return
-        lngth_sor = (self.magnitude()) - lngth_dend
-        self.clear(start=lngth_dend)
+        lngth_sor = (self.abacus.magnitude()) - lngth_dend
+        self.abacus.clear(start=lngth_dend)
         pl = lngth_dend - lngth_sor + 1
         for count in range(pl):
             # pl happen to correspond to number of iterations.
-            self.left()
-            while not self.underflow:
+            self.abacus.left()
+            while not self.abacus.underflow:
                 self.sub1(divisor, rod_0=pl)
                 self.add1(1)
             self.add1(divisor, pl)
@@ -571,9 +581,7 @@ class Abacus:
 #       What to do with flow and its check. mayhaps exception
 #       standardise and managing verbose, perhaps make printing and logging into it's own module.
 #       or at least make a function for verbose.
-
 #       add operator built-in functions (__add__ etc)
-#       separate Abacus to one additional level of abstraction. The highest- Human/Operator/User.
 #
 """
 Done:
@@ -587,8 +595,8 @@ trying to make a function that will actually be more localised to the one bead,
 at the price of running more of them, it will also be more ready to add carry.
 will probably want to seperate push and pull anyway
 add rod to hierarchy
+separate Abacus to one additional level of abstraction. The highest- Human/Operator/User.
 """
-
 """
 rod to write to = lngth + length_cand - 2 (starting at 0)
 too big rod = 5
