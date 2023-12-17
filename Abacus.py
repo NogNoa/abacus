@@ -470,9 +470,9 @@ class Abacus:
         lngth_subt = self.magnitude()
         minu_start = self.val[lngth_subt]
         minu_start.load(minuend)
-        for count in range(lngth_subt):
-            while self.r0.not_zero():
-                consume(self.r0, minu_start)
+        for count in range(lngth_subt, -1, -1):
+            minu_start = self.val[count]
+            consume(self.r0, minu_start)
             self.right()
         if verbose:
             self.chk_flow(over=False)
@@ -565,11 +565,11 @@ if __name__ == "__main__":
     verbose = True
     abacus = Abacus()
     # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
-    abacus.num_read([4 + 2*6, 0, 23, 23, 23, 5 + 6])
-    print(int(abacus))
+    # abacus.num_read([4 + 2*6, 0, 23, 23, 23, 5 + 6])
+    # print(int(abacus))
     abacus.load(12 * 24 ** 3)
     abacus.subfrom1(24 ** 2)
-    abacus.div1(2)
+    # abacus.div1(2)
     abacus.prnt(tee=not verbose)
     if verbose:
         print("FIN")
