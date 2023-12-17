@@ -15,6 +15,22 @@ If both inputs are required always enter value before rod.
 verbose = False
 
 
+class OverFlow(Exception):
+    def __init__(self, force, *args):
+        super().__init__(args)
+        self.force = force
+
+
+class UnderFlow(Exception):
+    def __init__(self, force, *args):
+        super().__init__(args)
+        self.force = force
+
+
+def raise_flow(over: bool, force):
+    raise OverFlow(force) if over else UnderFlow(force)
+
+
 def drc(x): return - 1 + (2 * x)  # True : +1; False : -1
 
 
@@ -61,7 +77,7 @@ class Bead:
         if force < 1:
             return force
         if push == self.up:
-            return force
+            raise_flow(push, force)
         else:
             self.up = push
             return force - 1
@@ -142,8 +158,6 @@ class Cell:
 
     def push_pull(self, force: int, push: bool) -> int:
         for b in self.val[::-drc(push)]:
-            if not force:
-                break
             force = b.push_pull(force, push)
         # force = self.val[push * -1 - drc(push)].push_pull(force, push)
         # push * -1 - drc(push) == {0,1} * -1 - drc({0,1}) = {0,-1} - {-1,1) = {1,-2}
@@ -224,17 +238,18 @@ class Rod:
         self.sky.set_clear(st)
 
     def push_pull(self, force: int, push: bool) -> int:
-        force = self.earth.push_pull(force, push)
-        if force:
-            sky_already_done = self.sky.push_pull(1, push)
-            self.earth.set_clear(st=not push)
-            if sky_already_done:
+        try:
+            force = self.earth.push_pull(force, push)
+        except (OverFlow, UnderFlow):
+            try:
+                self.sky.push_pull(1, push)
+                self.earth.set_clear(st=not push)
+            except (OverFlow, UnderFlow):
                 self.sky.set_clear(st=not push)
-                # we are returning the force as is, the rest of carry/borrow
-                # as well as subtracting 1 from force is handled by abacus.
             else:
-                force = self.push_pull(force - 1, push)
-        return force
+                self.push_pull(force - 1, push)
+        else:
+            return force
 
     def push_pull2(self, cell: Cell, force: int, push: bool) -> int:
         sky_done = False
@@ -309,28 +324,11 @@ class Abacus:
         for pl, num in enumerate(call):
             self.val[pl].load(num)
 
-    def flow(self, over: bool):
-        if over:
-            self.overflow = True
-        else:
-            self.underflow = True
-
-    def chk_flow(self, over: bool):
-        if over:
-            flow = self.overflow
-            word = 'overflowed'
-        else:
-            flow = self.underflow
-            word = 'underflowed'
-        if flow:
-            print(f"I got {word}\n")
-
     def push_pull(self, rod: Rod, force: int, push: bool):
         if force >= 24 ** 6:
             print(f'\nVery funny. The input {force} is too big for my brain. '
                   f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
-            self.flow(over=push)  # push -> overflow; pull -> underflow
-            force = 0
+            raise_flow(over=push, force=force)  # push -> overflow; pull -> underflow
             # if the number is higher than what the abacus could hold in the first place,
             # we set the respective flow flag, and empty the force so the operation will finish
             # wherever control is returned to.
@@ -436,7 +434,7 @@ class Abacus:
         return back
 
     def mutual_consume(self, hybris: int, nemesis: int):
-        lngth = abs(nemesis-hybris)
+        lngth = abs(nemesis - hybris)
         hybris = self.val[hybris]
         nemesis = self.val[nemesis]
         for count in range(lngth):
