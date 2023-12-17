@@ -23,16 +23,20 @@ def colorise(rod: int) -> str:
     return colors[rod]
 
 
-def exchange(donor, acceptor):
+def exchange(donor, acceptor) -> int:
+    back = 0
     while donor.not_zero():
         donor.pull()
-        acceptor.push()
+        back |= acceptor.push()
+    return back
 
 
-def consume(hybris, nemesis):
+def consume(hybris, nemesis) -> int:
+    back = 0
     while hybris.not_zero():
         hybris.pull()
-        nemesis.pull()
+        back |= nemesis.pull()
+    return back
 
 
 class Bead:
@@ -395,7 +399,7 @@ class Abacus:
         if self.underflow:
             return -1
         for back in range(6, -1, -1):
-            icositetrigit = self.val[back-1].not_zero()  #  base 24 digit
+            icositetrigit = self.val[back - 1].not_zero()  # base 24 digit
             if icositetrigit:
                 break
         if verbose:
@@ -452,10 +456,14 @@ class Abacus:
             print(self.expose())
 
     def mutual_consume(self, hybris: int, nemesis: int):
-        for count in range(abs(nemesis-hybris)):
-            while self.val[hybris].not_zero():
-                consume(self.val[hybris], self.val[nemesis])
+        lngth = abs(nemesis-hybris)
+        hybris = self.val[hybris]
+        nemesis = self.val[nemesis]
+        for count in range(lngth):
+            borrow = consume(hybris, nemesis)
             self.right()
+            if borrow:
+                nemesis.pull()
 
 
 class Human:
@@ -568,22 +576,6 @@ class Human:
         print(f'Red rod to {colorise(pl - 1)} rod are qutient, '
               f'{colorise(pl)} rod to Violet rod are reminder')
 
-
-if __name__ == "__main__":
-    def main():
-        verbose = True
-        abacus = Abacus()
-        hum = Human(abacus)
-        # abacus.multiplication(24 ** 2, 24 ** 4 - 1)
-        abacus.num_read([4 + 2*6, 0, 23, 23, 23, 5 + 6])
-        print(int(abacus))
-        abacus.load(12 * 24 ** 3)
-        hum.subfrom1(24 ** 2)
-        hum.div1(2)
-        abacus.prnt(tee=not verbose)
-        if verbose:
-            print("FIN")
-    main()
 
 # TODO: num_read dec -> quad-sex
 #       What to do with flow and its check. mayhaps exception
