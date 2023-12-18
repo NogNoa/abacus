@@ -575,6 +575,7 @@ class Human:
             self.sub1(1)
         print(f'Red rod to {colorise(pl - 1)} rod are qutient, '
               f'{colorise(pl)} rod to Violet rod are reminder')
+        return pl
 
 
 # TODO: num_read dec -> quad-sex
