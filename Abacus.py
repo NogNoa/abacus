@@ -501,7 +501,7 @@ class Human:
 
     def multiplication(self, multiplier: int, multiplicand: int):
         # Measuring the factors
-        self.abacus.load(multiplicand)
+        self.abacus._fast_load(multiplicand)
         lngth_cand = self.abacus.magnitude()
         self.abacus._fast_load(multiplier)
         lngth_ier = self.abacus.magnitude()
@@ -518,13 +518,16 @@ class Human:
             self.abacus.clear()
             return
 
+        if lngth_cand > lngth_ier:
+            self.abacus.load(multiplicand)
+            lngth_cand, lngth_ier = lngth_ier, lngth_cand
+
         # The main operation
         for count in range(lngth_ier):
             while self.abacus.r0.not_zero():
                 self.sub1(1)  # to offer verbose option
-                self.add1(multiplicand, rod_0=min(lngth_ier, 6 - lngth_cand))
-            if count < (6 - lngth_cand):
-                self.abacus.right()
+                self.add1(multiplicand, rod_0=lngth_ier)
+            self.abacus.right()
         if verbose:
             print("Done")
 
