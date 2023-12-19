@@ -503,25 +503,28 @@ class Human:
         # Measuring the factors
         self.abacus.load(multiplicand)
         lngth_cand = self.abacus.magnitude()
-        self.abacus.load(multiplier)
+        self.abacus._fast_load(multiplier)
         lngth_ier = self.abacus.magnitude()
 
+        # zero edge case
+        if not lngth_cand:
+            self.abacus.clear()
+            return
+
         # High edge cases
-        if lngth_cand + lngth_ier > 7:
+        if lngth_cand + lngth_ier > 6:
             print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
                   f'Try to have their order of magnitude sum as 7 or less.')
             self.abacus.clear()
             return
 
         # The main operation
-        upper_rod = min(lngth_ier, 6 - lngth_cand, 5)
         for count in range(lngth_ier):
             while self.abacus.r0.not_zero():
                 self.sub1(1)  # to offer verbose option
-                self.add1(multiplicand, rod_0=upper_rod)
-            if count < min((6 - lngth_cand), 5):
+                self.add1(multiplicand, rod_0=min(lngth_ier, 6 - lngth_cand))
+            if count < (6 - lngth_cand):
                 self.abacus.right()
-                upper_rod -= 1
         if verbose:
             print("Done")
 
