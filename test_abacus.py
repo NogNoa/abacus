@@ -5,21 +5,39 @@ import unittest
 abacus = aba.Abacus()
 human = aba.Human(abacus)
 
+P24_3 = 13823
+P24_6 = 191102975
 
 class MyTestCase(unittest.TestCase):
 
     def test_load(self):
-        numb = random.randint(0, 191102975)
+        numb = random.randint(0, P24_6)
         abacus.load(numb)
-        self.assertEqual(numb, int(abacus))  # add assertion here
+        self.assertEqual(numb, int(abacus))
+
+    def test_right(self):
+        numb = random.randint(0, P24_6)
+        abacus.load(numb)
+        rem = abacus.right()
+        result = int(abacus)
+        self.assertEqual(numb // 24, result)
+        self.assertEqual(numb / 24, result + rem / 24)
+
+    def test_left(self):
+        numb = random.randint(0, P24_6)
+        abacus.load(numb)
+        rem = abacus.left()
+        result = int(abacus)
+        self.assertEqual(numb * 24 % (P24_6 + 1), result)
+        self.assertEqual(numb * 24, result + rem * (P24_6 + 1))
 
     def test_mult(self):
-        a, b = (random.randint(0, 13824) for _ in range(2))
+        a, b = (random.randint(0, P24_3) for _ in range(2))
         human.multiplication(a, b)
         self.assertEqual(a * b, int(abacus))
 
     def test_div(self):
-        a, b = (random.randint(0, 13824) for _ in range(2))
+        a, b = (random.randint(0, P24_3) for _ in range(2))
         if b > a: a, b = b, a
         abacus.load(a)
         reminder = human.div1(b)

@@ -413,7 +413,7 @@ class Abacus:
         back = int(self.r0)
         self.r0.clear()
         # r5 is the one that's actually end up cleared, as the last nxt
-        for r in self.val[:-2]:
+        for r in self.val[:-1]:
             nxt = self.val[r.pl + 1]
             exchange(nxt, r)
         self.chk_flow(over=True)
@@ -427,7 +427,7 @@ class Abacus:
         back = int(self.r5)
         self.r5.clear()
         # Similarly to right, c0 end up cleared
-        for r in self.val[:1:-1]:
+        for r in self.val[:0:-1]:
             nxt = self.val[r.pl - 1]
             exchange(nxt, r)
         self.chk_flow(over=False)
