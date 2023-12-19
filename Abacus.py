@@ -393,6 +393,11 @@ class Abacus:
         if verbose:
             print(f'Loading {call} at the {colorise(start)} rod', self.expose(), sep='\n')
 
+    def _fast_load(self, call: int):
+        for rod in self.val:
+            rod.load(call % 24)
+            call //= 24
+
     def magnitude(self) -> int:
         if self.overflow:
             return 7

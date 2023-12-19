@@ -8,6 +8,7 @@ human = aba.Human(abacus)
 P24_3 = 13823
 P24_6 = 191102975
 
+
 class MyTestCase(unittest.TestCase):
 
     def test_load(self):
@@ -17,7 +18,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_right(self):
         numb = random.randint(0, P24_6)
-        abacus.load(numb)
+        abacus._fast_load(numb)
         rem = abacus.right()
         result = int(abacus)
         self.assertEqual(numb // 24, result)
@@ -25,7 +26,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_left(self):
         numb = random.randint(0, P24_6)
-        abacus.load(numb)
+        abacus._fast_load(numb)
         rem = abacus.left()
         result = int(abacus)
         self.assertEqual(numb * 24 % (P24_6 + 1), result)
@@ -39,7 +40,7 @@ class MyTestCase(unittest.TestCase):
     def test_div(self):
         a, b = (random.randint(0, P24_3) for _ in range(2))
         if b > a: a, b = b, a
-        abacus.load(a)
+        abacus._fast_load(a)
         reminder = human.div1(b)
         abacus.clear(start=reminder)
         self.assertEqual(a // b, int(abacus))
