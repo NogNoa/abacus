@@ -309,6 +309,15 @@ class Abacus:
         for pl, num in enumerate(call):
             self.val[pl].load(num)
 
+    def num_print(self, *args: int):
+        if len(args) == 0:
+            return int(self)
+        elif len(args) == 1:
+            rod_0, rod_f = None, args[0]
+        else:  # if len(args) >= 2:
+            rod_0, rod_f = args[:2]
+        return sum(int(r) * 24 ** r.pl for r in self.val[rod_0:rod_f])
+
     def flow(self, over: bool):
         if over:
             self.overflow = True
