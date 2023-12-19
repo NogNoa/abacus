@@ -514,12 +514,14 @@ class Human:
             return
 
         # The main operation
+        upper_rod = min(lngth_ier, 6 - lngth_cand, 5)
         for count in range(lngth_ier):
             while self.abacus.r0.not_zero():
                 self.sub1(1)  # to offer verbose option
-                self.add1(multiplicand, rod_0=min(lngth_ier, 6 - lngth_cand, 5))
+                self.add1(multiplicand, rod_0=upper_rod)
             if count < min((6 - lngth_cand), 5):
                 self.abacus.right()
+                upper_rod -= 1
         if verbose:
             print("Done")
 
