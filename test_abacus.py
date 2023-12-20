@@ -55,9 +55,9 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(a - b, int(abacus))
 
     def test_mult(self):
-        length = random.choice((0, 1, 1, 2, 2, 2, 3, 3, 3, 3))
+        length = random.choice((0, 1, 1, 2, 2, 2))
         a = random.randint(0, 24 ** length)
-        b = random.randint(0, 24 ** (6 - length))
+        b = random.randint(0, 24 ** (4 - length))
         human.multiplication(a, b)
         self.assertEqual(a * b, int(abacus))
 

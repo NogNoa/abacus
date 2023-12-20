@@ -309,7 +309,12 @@ class Abacus:
     def num_print(self, *args: int):
         if len(args) == 0:
             args = (5,)
-        return sum(int(self.val[r]) * 24 ** r for r in range(*args))
+            rod_0 = 0
+        elif len(args) == 1:
+            rod_0 = 0
+        else:  # if len(args) >= 2:
+            rod_0 = args[0]
+        return sum(int(self.val[r]) * 24 ** (r - rod_0) for r in range(*args))
 
     def flow(self, over: bool):
         if over:
@@ -347,7 +352,7 @@ class Abacus:
             # If we got here it means the force was bigger than the number of beads that were down.
             """
             if rod.id != 'r5':
-                self.push_pull(self.val[rod_ind + 1], 1, push)
+                self.push_pull(rod_ind + 1, 1, push)
                 # For most cells we pass a carry of 1 to the next cell
             else:
                 self.flow(over=push)
@@ -421,9 +426,9 @@ class Abacus:
         back = int(self.r0)
         self.r0.clear()
         # r5 is the one that's actually end up cleared, as the last nxt
-        for r in self.val[:-1]:
-            nxt = self.val[r.pl + 1]
-            exchange(nxt, r)
+        for r in range(5):
+            curr, nxt = self.val[r], self.val[r + 1]
+            exchange(nxt, curr)
         self.chk_flow(over=True)
         if verbose:
             print('Moving up', self.expose(), sep='\n')
@@ -435,9 +440,9 @@ class Abacus:
         back = int(self.r5)
         self.r5.clear()
         # Similarly to right, c0 end up cleared
-        for r in self.val[:0:-1]:
-            nxt = self.val[r.pl - 1]
-            exchange(nxt, r)
+        for r in range(5, 0, -1):
+            curr, nxt = self.val[r], self.val[r - 1]
+            exchange(nxt, curr)
         self.chk_flow(over=False)
         if verbose:
             print('Moving down', self.expose(), sep='\n')
@@ -515,14 +520,15 @@ class Human:
             return
 
         # High edge cases
-        if lngth_cand + lngth_ier > 6:
+        if lngth_cand + lngth_ier > 5:
             print(f'Sorry chemp, both {multiplier} and {multiplicand} are too big. '
-                  f'Try to have their order of magnitude sum as 7 or less.')
+                  f'Try to have their order of magnitude sum as 5 or less.')
             self.abacus.clear()
             return
 
-        if lngth_cand > lngth_ier:
+        if lngth_cand < lngth_ier:
             self.abacus.load(multiplicand)
+            multiplicand = multiplier
             lngth_cand, lngth_ier = lngth_ier, lngth_cand
 
         # The main operation
