@@ -42,7 +42,6 @@ def consume(hybris, nemesis) -> int:
 class Bead:
     def __init__(self, pl: int, cid: str):
         self.up = False
-        self.pl = pl
         self.id = cid + '.b' + str(pl)
 
     def __str__(self):
@@ -94,7 +93,6 @@ class Cell:
     def __init__(self, deck: str, pl: int, rid: str):
         self.id = rid + '.c' + str(pl * 6)  # .c0 or .c6
         self.size = bool(not pl)
-        self.pl = pl
         self.deck = deck
 
         self.bottom = End(up=False, cid=self.id)  # self.bottom.pl = 0
@@ -192,7 +190,6 @@ class Cell:
 
 class Rod:
     def __init__(self, pl: int, color: str):
-        self.pl = pl
         self.id = 'r' + str(pl)
         self.color = color
 
@@ -287,7 +284,7 @@ class Abacus:
         return str([(r.quad_sex(), str(r)) for r in self.val])
 
     def __int__(self):
-        return sum(int(r) * 24 ** r.pl for r in self.val)
+        return self.num_print(5)
 
     def quad_sex(self) -> str:
         return ':'.join(r.quad_sex() for r in self.val)
@@ -311,12 +308,8 @@ class Abacus:
 
     def num_print(self, *args: int):
         if len(args) == 0:
-            return int(self)
-        elif len(args) == 1:
-            rod_0, rod_f = None, args[0]
-        else:  # if len(args) >= 2:
-            rod_0, rod_f = args[:2]
-        return sum(int(r) * 24 ** r.pl for r in self.val[rod_0:rod_f])
+            args = (5,)
+        return sum(int(self.val[r]) * 24 ** r for r in range(*args))
 
     def flow(self, over: bool):
         if over:
@@ -334,7 +327,7 @@ class Abacus:
         if flow:
             print(f"I got {word}\n")
 
-    def push_pull(self, rod: Rod, force: int, push: bool):
+    def push_pull(self, rod_ind: int, force: int, push: bool):
         if force >= 24 ** 6:
             print(f'\nVery funny. The input {force} is too big for my brain. '
                   f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
@@ -343,6 +336,7 @@ class Abacus:
             # if the number is higher than what the abacus could hold in the first place,
             # we set the respective flow flag, and empty the force so the operation will finish
             # wherever control is returned to.
+        rod = self.val[rod_ind]
         force = rod.push_pull(force, push)
         while force:
             """
@@ -353,7 +347,7 @@ class Abacus:
             # If we got here it means the force was bigger than the number of beads that were down.
             """
             if rod.id != 'r5':
-                self.push_pull(self.val[rod.pl + 1], 1, push)
+                self.push_pull(self.val[rod_ind + 1], 1, push)
                 # For most cells we pass a carry of 1 to the next cell
             else:
                 self.flow(over=push)
@@ -365,11 +359,11 @@ class Abacus:
 
     def push(self, rod=0, force=1):
         """Move beads in a given cell to the Right"""
-        self.push_pull(self.val[rod], force, push=True, )
+        self.push_pull(rod, force, push=True, )
 
     def pull(self, rod=0, force=1):
         """Return beads in a given cell to the Left"""
-        self.push_pull(self.val[rod], force, push=False)
+        self.push_pull(rod, force, push=False)
 
     def set_clear(self, st=False, start=0, verbose=verbose, fromhigh=False):
         """Clear every Cell of the abacus"""
