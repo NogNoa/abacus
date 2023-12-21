@@ -45,7 +45,7 @@ class MyTestCase(unittest.TestCase):
         if b > a: a, b = b, a
         abacus._fast_load(a)
         human.add1(b)
-        self.assertEqual(a + b, int(abacus))
+        self.assertEqual((a + b) % (P24_6 + 1), int(abacus))
 
     def test_sub(self):
         a, b = (random.randint(0, P24_6) for _ in range(2))
@@ -62,7 +62,9 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(a * b, int(abacus))
 
     def test_div(self):
-        a, b = (random.randint(0, P24_3) for _ in range(2))
+        length = random.choice((0, 1, 1, 2, 2, 2))
+        a = random.randint(0, 24 ** length)
+        b = random.randint(0, 24 ** (4 - length))
         if b > a: a, b = b, a
         abacus._fast_load(a)
         reminder = human.div1(b)

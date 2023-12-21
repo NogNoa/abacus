@@ -478,7 +478,7 @@ class Human:
         self.abacus.underflow = False
         if verbose:
             print(f'subtracting {subtrahend} at the {colorise(rod_0)} rod')
-        self.abacus.pull(force=subtrahend)
+        self.abacus.pull(rod_0, subtrahend)
         if verbose:
             self.abacus.chk_flow(over=False)
             print(self.abacus.expose())
