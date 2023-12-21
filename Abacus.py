@@ -1,3 +1,5 @@
+import math
+
 help_dscrpt = \
     """
 An interactive quad-seximal abacus for fun. 
@@ -579,13 +581,7 @@ class Human:
             # but we want to print self.expose() whether or not verbose is on.
             return
         lngth_dend = self.abacus.magnitude()
-        try:
-            self.abacus.load(divisor, start=lngth_dend)
-        except IndexError:
-            print('Sorry. You need to leave enough room for both dividend and divisor')
-            return
-        lngth_sor = (self.abacus.magnitude()) - lngth_dend
-        self.abacus.clear(start=lngth_dend)
+        lngth_sor = math.ceil(math.log(divisor, 24))
         pl = lngth_dend - lngth_sor + 1
         for count in range(pl):
             # pl happen to correspond to number of iterations.

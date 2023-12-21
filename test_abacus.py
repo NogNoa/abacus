@@ -8,6 +8,7 @@ abacus = aba.Abacus()
 human = aba.Human(abacus)
 
 P24_3 = 13823
+P24_5 = 7962624
 P24_6 = 191102975
 
 
@@ -62,14 +63,14 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(a * b, int(abacus))
 
     def test_div(self):
-        length = random.choice((0, 1, 1, 2, 2, 2))
-        a = random.randint(0, 24 ** length)
-        b = random.randint(0, 24 ** (4 - length))
-        if b > a: a, b = b, a
-        abacus._fast_load(a)
-        reminder = human.div1(b)
+        divisor = random.randint(1, P24_5)
+        lngth_sor = math.ceil(math.log(divisor, 24))
+        dividand = random.randint(0, min(int(24 ** (5 + lngth_sor) / 2), P24_5))
+
+        abacus._fast_load(dividand)
+        reminder = human.div1(divisor)
         abacus.clear(start=reminder)
-        self.assertEqual(a // b, int(abacus))
+        self.assertEqual(dividand // divisor, int(abacus))
 
 
 if __name__ == '__main__':
