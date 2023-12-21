@@ -1,0 +1,7 @@
+lngth_dend + pl < 6
+lngth_dend + lngth_dend - lngth_sor + 1 < 6
+lngth_dend * 2 < 5 + lngth_sor
+lngth_dend < (5 + lngth_sor) / 2
+
+lngth_sor + lngth_dend < 6
+lngth_dend < 6 - lngth_dend
