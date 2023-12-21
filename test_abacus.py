@@ -8,7 +8,7 @@ abacus = aba.Abacus()
 human = aba.Human(abacus)
 
 P24_3 = 13823
-P24_5 = 7962624
+P24_5 = 7962623
 P24_6 = 191102975
 
 
@@ -65,7 +65,7 @@ class MyTestCase(unittest.TestCase):
     def test_div(self):
         divisor = random.randint(1, P24_5)
         lngth_sor = math.ceil(math.log(divisor, 24))
-        dividand = random.randint(0, min(int(24 ** (5 + lngth_sor) / 2), P24_5))
+        dividand = random.randint(divisor, min(int(24 ** (5 + lngth_sor) / 2), P24_5))
 
         abacus._fast_load(dividand)
         reminder = human.div1(divisor)

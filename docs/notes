@@ -5,3 +5,8 @@ lngth_dend < (5 + lngth_sor) / 2
 
 lngth_sor + lngth_dend < 6
 lngth_dend < 6 - lngth_dend
+
+length_sor <= length_dend
+length_sor <= (5 + lngth_sor) / 2
+length_sor * 2 <= 5 + lngth_sor
+length_sor <= 5
