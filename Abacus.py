@@ -511,9 +511,9 @@ class Human:
 
     def multiplication(self, multiplier: int, multiplicand: int):
         # Measuring the factors
-        self.abacus._fast_load(multiplicand)
+        self.abacus.load(multiplicand)
         lngth_cand = self.abacus.magnitude()
-        self.abacus._fast_load(multiplier)
+        self.abacus.load(multiplier)
         lngth_ier = self.abacus.magnitude()
 
         # zero edge case
@@ -558,7 +558,7 @@ class Human:
             self.abacus.flow(over=True)
         if self.abacus.overflow or self.abacus.magnitude() >= 6:
             print(f'Sorry chemp, both previous answer and {multiplicand} were too big. '
-                  f'Try to have their order of magnitude sum as 7 or less.')
+                  f'Try to have their order of magnitude sum as 5 or less.')
             self.abacus.overflow = False
             return
         self.abacus.pull(lngth, multiplicand)
@@ -582,6 +582,33 @@ class Human:
             return
         lngth_dend = self.abacus.magnitude()
         lngth_sor = math.ceil(math.log(divisor, 24))
+        pl = lngth_dend - lngth_sor + 1
+        for count in range(pl):
+            # pl happen to correspond to number of iterations.
+            self.abacus.left()
+            while not self.abacus.underflow:
+                self.sub1(divisor, rod_0=pl)
+                self.add1(1)
+            self.add1(divisor, pl)
+            self.sub1(1)
+        print(f'Red rod to {colorise(pl - 1)} rod are qutient, '
+              f'{colorise(pl)} rod to Violet rod are reminder')
+        return pl
+
+    def division(self, dividend: int, divisor: int):
+        """divide what's in the abacus by another number"""
+        if divisor == 0:
+            print("Abacus catches fire.")
+            self.abacus.clear(verbose=False)
+            if verbose:
+                print(self.abacus.expose())
+            # we don't want the self description of clear,
+            # but we want to print self.expose() whether or not verbose is on.
+            return
+        self.abacus.load(divisor)
+        lngth_sor = self.abacus.magnitude()
+        self.abacus.load(dividend)
+        lngth_dend = self.abacus.magnitude()
         pl = lngth_dend - lngth_sor + 1
         for count in range(pl):
             # pl happen to correspond to number of iterations.

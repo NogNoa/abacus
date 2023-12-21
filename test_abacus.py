@@ -55,11 +55,19 @@ class MyTestCase(unittest.TestCase):
         human.sub1(b)
         self.assertEqual(a - b, int(abacus))
 
-    def test_mult(self):
+    def test_mult2(self):
         length = random.choice((0, 1, 1, 2, 2, 2))
         a = random.randint(0, 24 ** length)
         b = random.randint(0, 24 ** (4 - length))
         human.multiplication(a, b)
+        self.assertEqual(a * b, int(abacus))
+
+    def test_mult1(self):
+        length = random.choice((0, 1, 1, 2, 2, 2))
+        a = random.randint(0, 24 ** length)
+        b = random.randint(0, 24 ** (4 - length))
+        abacus._fast_load(a)
+        human.mult1(b)
         self.assertEqual(a * b, int(abacus))
 
     def test_div(self):
