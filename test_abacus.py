@@ -14,6 +14,18 @@ P24_6 = 191102975
 
 class MyTestCase(unittest.TestCase):
 
+    def test_clear(self):
+        numb = random.randint(0, P24_6)
+        abacus._fast_load(numb)
+        abacus.clear()
+        self.assertEqual(0, int(abacus))
+
+    def test_set(self):
+        numb = random.randint(0, P24_6)
+        abacus._fast_load(numb)
+        abacus.set()
+        self.assertEqual(P24_6, int(abacus))
+
     def test_load(self):
         numb = random.randint(0, P24_6)
         abacus.load(numb)

@@ -282,7 +282,7 @@ class Abacus:
         return str([(r.quad_sex(), str(r)) for r in self.val])
 
     def __int__(self):
-        return self.num_print(5)
+        return self.num_print(6)
 
     def quad_sex(self) -> str:
         return ':'.join(r.quad_sex() for r in self.val)
@@ -306,7 +306,7 @@ class Abacus:
 
     def num_print(self, *args: int):
         if len(args) == 0:
-            args = (5,)
+            args = (6,)
             rod_0 = 0
         elif len(args) == 1:
             rod_0 = 0
