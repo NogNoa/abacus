@@ -226,9 +226,11 @@ class Rod:
 
     def push_pull(self, force: int, push: bool) -> int:
         force = self.earth.push_pull(force, push)
-        if force:
-            self.sky.push_pull(1, push)
+        while force:
             force -= 1
+            if self.sky.push_pull(1, push):
+                break
+            force = self.earth.push_pull(force, push)
         return force
 
     def push_pull2(self, cell: Cell, force: int, push: bool) -> int:
