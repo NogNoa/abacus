@@ -15,6 +15,10 @@ If both inputs are required always enter value before rod.
     """
 
 verbose = False
+Up = True
+Down = False
+Set = True
+Clear = False
 
 
 def drc(x): return - 1 + (2 * x)  # True : +1; False : -1
@@ -43,11 +47,11 @@ def consume(hybris, nemesis) -> int:
 
 class Bead:
     def __init__(self, pl: int, cid: str):
-        self.up = False
+        self.side = Down
         self.id = cid + '.b' + str(pl)
 
     def __str__(self):
-        if self.up:
+        if self.side:
             return 'Up'
         else:
             return 'Down'
@@ -56,25 +60,25 @@ class Bead:
         return self.id
 
     def __int__(self):
-        return int(self.up)
+        return int(self.side)
 
     def push_pull(self, force: int, push: bool) -> int:
         if force < 1:
             return force
-        if push == self.up:
+        if push == self.side:
             return force
         else:
-            self.up = push
+            self.side = push
             return force - 1
 
 
 class End:
-    def __init__(self, up: bool, cid: str):
-        self.up = up
-        self.id = cid + ".e" + str(up * 6)  # .e0 or .e6
+    def __init__(self, side: bool, cid: str):
+        self.side = side
+        self.id = cid + ".e" + str(side * 6)  # .e0 or .e6
 
     def __str__(self):
-        if self.up:
+        if self.side:
             return 'Top'
         else:
             return 'Bottom'
@@ -97,7 +101,7 @@ class Cell:
         self.size = bool(not pl)
         self.deck = deck
 
-        self.bottom = End(up=False, cid=self.id)  # self.bottom.pl = 0
+        self.bottom = End(side=Down, cid=self.id)  # self.bottom.pl = 0
         self.b1 = Bead(1, self.id)
         self.b2 = Bead(2, self.id)
         self.b3 = Bead(3, self.id)
@@ -106,29 +110,29 @@ class Cell:
             self.b4 = Bead(4, self.id)
             self.b5 = Bead(5, self.id)
             self.val.extend((self.b4, self.b5))
-        self.top = End(up=True, cid=self.id)  # self.top.pl = 6
+        self.top = End(side=Up, cid=self.id)  # self.top.pl = 6
         self.val.append(self.top)
         self.e0, self.e6 = self.bottom, self.top
 
     def expose(self):
         back = ''
-        up = False
+        side = Down
         for b in self.val:
             if isinstance(b, End):
-                if not b.up:
+                if not b.side:
                     back += '||- '
                 else:
-                    if not up:
+                    if not side:
                         back += '--- '
                         back += '--- ' * 2 * self.size
                     back += '-|| '
-            elif b.up == up:
+            elif b.side == side:
                 assert isinstance(b, Bead)
                 back += '-O- '
             else:
-                assert b.up != up
+                assert b.side != side
                 back += '--- ' + '--- ' * 2 * self.size + '-O- '
-                up = True
+                side = Up
         return back
 
     def __str__(self):
@@ -154,23 +158,23 @@ class Cell:
 
     def push(self, force=1):
         """Move beads in a given cell to the Right"""
-        self.push_pull(force, push=True)
+        self.push_pull(force, push=Up)
 
     def pull(self, force=1):
         """Return beads in a given cell to the Left"""
-        self.push_pull(force, push=False)
+        self.push_pull(force, push=Down)
 
     def set_clear(self, st: bool):
         for b in self.val[1:-1]:
-            b.up = st  # true->set false->clear
+            b.side = st == Set
 
     def set(self):
         """Move all beads in a given cell to the Right"""
-        self.set_clear(st=True)
+        self.set_clear(st=Set)
 
     def clear(self):
         """Return all beads in a given cell to the Left, reseting it to Zero."""
-        self.set_clear(st=False)
+        self.set_clear(st=Clear)
 
     def load(self, const: int):
         """Set a given cell to a speicific number."""
@@ -178,10 +182,10 @@ class Cell:
         self.push(const)
 
     def not_zero(self) -> bool:
-        return self.val[-2].up
+        return self.val[-2].side
 
     def not_full(self) -> bool:
-        return not self.val[1].up
+        return not self.val[1].side
 
     def not_zero_full(self, push: bool) -> bool:
         if push:
@@ -218,7 +222,7 @@ class Rod:
         back += self.color + '\n'
         return back
 
-    def set_clear(self, st=False):
+    def set_clear(self, st=Clear):
         self.earth.set_clear(st)
         self.sky.set_clear(st)
 
@@ -238,9 +242,9 @@ class Rod:
     def push_pull2(self, cell: Cell, force: int, push: bool) -> int:
         sky_done = False
         while (not sky_done) and force:
-            if push and cell.not_full():
+            if (push == Up) and cell.not_full():
                 print('Error! I tried to carry while cell is not full')
-            elif (not push) and cell.not_zero():
+            elif (push == Down) and cell.not_zero():
                 print('Error! I tried to borrow while cell is not empty')
             # If we got here it means the force was bigger than the number of beads that were down.
             force = cell.push_pull(force, push)
@@ -248,7 +252,7 @@ class Rod:
                 self.push_pull2(self.sky, 1, push)
             else:
                 sky_done = True
-            cell.set_clear(st=not push)
+            cell.set_clear(st=push == Down)
             force -= 1
         return force
 
@@ -338,7 +342,7 @@ class Abacus:
         if force >= 24 ** 6:
             print(f'\nVery funny. The input {force} is too big for my brain. '
                   f'I\'m not wasting my time. Try {24 ** 6 - 1} max.\n')
-            self.flow(over=push)  # push -> overflow; pull -> underflow
+            self.flow(over=push)
             force = 0
             # if the number is higher than what the abacus could hold in the first place,
             # we set the respective flow flag, and empty the force so the operation will finish
@@ -366,32 +370,33 @@ class Abacus:
 
     def push(self, rod=0, force=1):
         """Move beads in a given cell to the Right"""
-        self.push_pull(rod, force, push=True, )
+        self.push_pull(rod, force, push=Up)
 
     def pull(self, rod=0, force=1):
-        """Return beads in a given cell to the Left"""
-        self.push_pull(rod, force, push=False)
+        """a.k.a push down.
+        Return beads in a given cell to the Left"""
+        self.push_pull(rod, force, push=Down)
 
-    def set_clear(self, st=False, start=0, verbose=verbose, fromhigh=False):
+    def set_clear(self, st=Clear, start=0, verbose=verbose, from_side=Down):
         """Clear every Cell of the abacus"""
-        if fromhigh:
+        if from_side == Up:
             #  To start from the upper cell of a rod
             self.val[start].sky.set_clear(st)
             start += 1
         for r in self.val[start:]:
             r.set_clear(st)
         if verbose:
-            if st:
+            if st == Set:
                 print(f'Setting all from the {colorise(start)} rod')
             else:
                 print(f'Clearing all from the {colorise(start)} rod')
             print(self.expose())
 
-    def set(self, start=0, verbose=verbose, fromhigh=False):
-        self.set_clear(True, start, verbose, fromhigh)
+    def set(self, start=0, verbose=verbose, from_side=Down):
+        self.set_clear(True, start, verbose, from_side)
 
-    def clear(self, start=0, verbose=verbose, fromhigh=False):
-        self.set_clear(False, start, verbose, fromhigh)
+    def clear(self, start=0, verbose=verbose, from_side=Down):
+        self.set_clear(False, start, verbose, from_side)
 
     def load(self, call: int, start=0):
         """Set the abacus to a specific number"""
@@ -451,7 +456,7 @@ class Abacus:
         return back
 
     def mutual_consume(self, hybris: int, nemesis: int):
-        lngth = abs(nemesis-hybris)
+        lngth = abs(nemesis - hybris)
         hybris = self.val[hybris]
         nemesis = self.val[nemesis]
         for count in range(lngth):
