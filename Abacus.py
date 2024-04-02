@@ -312,11 +312,9 @@ class Abacus:
         for pl, num in enumerate(call):
             self.val[pl].load(num)
 
-    def num_print(self, *args: int):
-        if len(args) == 0:
-            args = (5,)
-            rod_0 = 0
-        elif len(args) == 1:
+    def num_print(self, *args: int) -> int:
+        args = (6,) or args  # len at least 1
+        if len(args) == 1:
             rod_0 = 0
         else:  # if len(args) >= 2:
             rod_0 = args[0]

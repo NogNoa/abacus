@@ -76,9 +76,11 @@ class MyTestCase(unittest.TestCase):
         dividand = random.randint(divisor, min(int(24 ** (5 + lngth_sor) / 2), P24_5))
 
         abacus._fast_load(dividand)
-        reminder = human.div1(divisor)
-        abacus.clear(start=reminder)
+        reminder_p = human.div1(divisor)
+        reminder = abacus.num_print(reminder_p, 6)
+        abacus.clear(start=reminder_p)
         self.assertEqual(dividand // divisor, int(abacus))
+        self.assertEqual(dividand % divisor, reminder)
 
 
 if __name__ == '__main__':
