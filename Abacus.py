@@ -227,10 +227,9 @@ class Rod:
     def push_pull(self, force: int, push: bool) -> int:
         force = self.earth.push_pull(force, push)
         while force:
-            force -= 1
             if self.sky.push_pull(1, push):
                 break
-            force = self.earth.push_pull(force, push)
+            force = self.earth.push_pull(force - 1, push)
         return force
 
     def push_pull2(self, cell: Cell, force: int, push: bool) -> int:
@@ -344,13 +343,14 @@ class Abacus:
         rod = self.val[rod_ind]
         force = rod.push_pull(force, push)
         while force:
-            if rod.id != 'r5':
-                self.push_pull(rod_ind + 1, 1, push)
+            rod_ind = self.val.index(rod) + 1
+            while rod_ind < 6 and self.val[rod_ind].push_pull(1, push):
+                rod_ind += 1
                 # For most cells we pass a carry of 1 to the next cell
-            else:
+            if rod_ind == 6:
                 self.flow(over=push)
                 # But if it is the last cell we have to flag the corresponding flow flag instead.
-            force = rod.push_pull(force, push)
+            force = rod.push_pull(force - 1, push)
             # Then we set or clear the cell and pass a push or pull command to the ends as before.
             # We subtract 1 force to pay for the set/clear. We continue the loop until force is zero.
 

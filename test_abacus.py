@@ -61,8 +61,35 @@ class AbacusTestCase(unittest.TestCase):
         self.abacus.set()
         self.assertEqual(P24_6, int(self.abacus))
 
+    def test_push(self):
+        numb = random.randint(0, P24_6)
+        self.abacus._fast_load(numb)
+        a =  random.randint(0, P24_6 - numb)
+        self.abacus.push(0, a)
+        self.assertEqual(numb + a, int(self.abacus))
+
+    def test_push_0(self):
+        numb = random.randint(0, P24_6)
+        self.abacus.push(0, numb)
+        self.assertEqual(numb, int(self.abacus))
+
+    def test_push_pos(self):
+        numb = random.randint(0, P24_6)
+        self.abacus._fast_load(numb)
+        a =  random.randint(0, 24)
+        rod = random.randint(0, 5)
+        self.abacus.push(rod, a)
+        self.assertEqual(numb + a * 24 ** rod, int(self.abacus))
+
+    def test_push_pos_carry(self):
+        numb = random.randint(0, P24_6)
+        self.abacus._fast_load(numb)
+        rod = random.randint(0, 5)
+        a =  random.randint(24 - int(self.abacus.val[rod]), 48)
+        self.abacus.push(rod, a)
+        self.assertEqual(numb + a * 24 ** rod, int(self.abacus))
+
     def test_load(self):
-        # broken
         numb = random.randint(0, P24_6)
         self.abacus.load(numb)
         self.assertEqual(numb, int(self.abacus))
@@ -97,7 +124,6 @@ class HumanTestCase(unittest.TestCase):
         self.human = aba.Human(self.abacus)
 
     def test_add(self):
-        # broken
         a, b = (random.randint(0, P24_6) for _ in range(2))
         if b > a: a, b = b, a
         self.abacus._fast_load(a)
@@ -105,7 +131,6 @@ class HumanTestCase(unittest.TestCase):
         self.assertEqual((a + b) % (P24_6 + 1), int(self.abacus))
 
     def test_sub(self):
-        # broken
         a, b = (random.randint(0, P24_6) for _ in range(2))
         if b > a: a, b = b, a
         self.abacus._fast_load(a)
@@ -128,6 +153,7 @@ class HumanTestCase(unittest.TestCase):
         self.assertEqual(a * b, int(self.abacus))
 
     def test_div(self):
+        # broken
         divisor = random.randint(1, P24_5)
         lngth_sor = math.ceil(math.log(divisor, 24))
         dividand = random.randint(divisor, min(int(24 ** (5 + lngth_sor) / 2), P24_5))
