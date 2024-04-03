@@ -149,6 +149,8 @@ class Cell:
             if not force:
                 break
             force = b.push_pull(force, push)
+        if force:
+            self.set_clear(st=not push)
         # force = self.val[push * -1 - drc(push)].push_pull(force, push)
         # push * -1 - drc(push) == {0,1} * -1 - drc({0,1}) = {0,-1} - {-1,1) = {1,-2}
         # We pass the operation to bottom of the cell if pull (0 * -1 --1 = 1, first in cell) or to top if push
@@ -228,15 +230,10 @@ class Rod:
 
     def push_pull(self, force: int, push: bool) -> int:
         force = self.earth.push_pull(force, push)
-        if force:
-            sky_already_done = self.sky.push_pull(1, push)
-            self.earth.set_clear(st=not push)
-            if sky_already_done:
-                self.sky.set_clear(st=not push)
-                # we are returning the force as is, the rest of carry/borrow
-                # as well as subtracting 1 from force is handled by abacus.
-            else:
-                force = self.push_pull(force - 1, push)
+        while force:
+            if self.sky.push_pull(1, push):
+                break
+            force = self.earth.push_pull(force - 1, push)
         return force
 
     def push_pull2(self, cell: Cell, force: int, push: bool) -> int:
@@ -290,7 +287,7 @@ class Abacus:
         return str([(r.quad_sex(), str(r)) for r in self.val])
 
     def __int__(self):
-        return self.num_print(5)
+        return self.num_print(6)
 
     def quad_sex(self) -> str:
         return ':'.join(r.quad_sex() for r in self.val)
@@ -348,20 +345,13 @@ class Abacus:
         rod = self.val[rod_ind]
         force = rod.push_pull(force, push)
         while force:
-            """
-            if push and cell.not_full():
-                print('Error! I tried to carry while cell is not full')
-            elif (not push) and cell.not_zero():
-                print('Error! I tried to borrow while cell is not empty')
-            # If we got here it means the force was bigger than the number of beads that were down.
-            """
-            if rod.id != 'r5':
-                self.push_pull(rod_ind + 1, 1, push)
+            rod_ind = self.val.index(rod) + 1
+            while rod_ind < 6 and self.val[rod_ind].push_pull(1, push):
+                rod_ind += 1
                 # For most cells we pass a carry of 1 to the next cell
-            else:
+            if rod_ind == 6:
                 self.flow(over=push)
                 # But if it is the last cell we have to flag the corresponding flow flag instead.
-            rod.set_clear(st=not push)  # push-> set, pull-> clear
             force = rod.push_pull(force - 1, push)
             # Then we set or clear the cell and pass a push or pull command to the ends as before.
             # We subtract 1 force to pay for the set/clear. We continue the loop until force is zero.
