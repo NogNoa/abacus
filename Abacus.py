@@ -365,7 +365,7 @@ class Abacus:
         Return beads in a given cell to the Left"""
         self.push_pull(rod, force, push=Down)
 
-    def set_clear(self, st=Clear, start=0, verbose=verbose, from_side=Down):
+    def set_clear(self, st: bool = Clear, start=0, verbose=verbose, from_side=Down):
         """Clear every Cell of the abacus"""
         if from_side == Up:
             #  To start from the upper cell of a rod
@@ -577,7 +577,7 @@ class Human:
         lngth_sor = math.ceil(math.log(divisor, 24))
         pl = lngth_dend - lngth_sor + 1
         for count in range(pl):
-            # pl happen to correspond to number of iterations.
+            # pl corresponds to number of iterations.
             self.abacus.left()
             while not self.abacus.underflow:
                 self.sub1(divisor, rod_0=pl)

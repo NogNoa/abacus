@@ -55,6 +55,16 @@ class AbacusTestCase(unittest.TestCase):
         self.abacus.clear()
         self.assertEqual(0, int(self.abacus))
 
+    def test_clear_pos(self):
+        # broken
+        numb = random.randint(0, P24_6)
+        rod = random.randint(1, 6)
+        self.abacus._fast_load(numb)
+        for _ in range(rod):
+            numb //= 24
+        self.abacus.clear(start=rod)
+        self.assertEqual(numb, int(self.abacus))
+
     def test_set(self):
         numb = random.randint(0, P24_6)
         self.abacus._fast_load(numb)
@@ -115,6 +125,15 @@ class AbacusTestCase(unittest.TestCase):
         result = int(self.abacus)
         self.assertEqual(numb * 24 % (P24_6 + 1), result)
         self.assertEqual(numb * 24, result + rem * (P24_6 + 1))
+
+    def test_num_print(self):
+        # broken
+        numb = random.randint(0, P24_6)
+        rod = random.randint(1, 6)
+        self.abacus._fast_load(numb)
+        for _ in range(rod):
+            numb //= 24
+        self.assertEqual(numb, self.abacus.num_print(rod))
 
 
 class HumanTestCase(unittest.TestCase):
