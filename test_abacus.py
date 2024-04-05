@@ -59,11 +59,10 @@ class AbacusTestCase(unittest.TestCase):
         # broken
         numb = random.randint(0, P24_6)
         rod = random.randint(1, 6)
+        factor = 24 ** rod
         self.abacus._fast_load(numb)
-        for _ in range(rod):
-            numb //= 24
         self.abacus.clear(start=rod)
-        self.assertEqual(numb, int(self.abacus))
+        self.assertEqual(numb // factor * factor, int(self.abacus))
 
     def test_set(self):
         numb = random.randint(0, P24_6)
@@ -126,13 +125,19 @@ class AbacusTestCase(unittest.TestCase):
         self.assertEqual(numb * 24 % (P24_6 + 1), result)
         self.assertEqual(numb * 24, result + rem * (P24_6 + 1))
 
-    def test_num_print(self):
-        # broken
+    def test_num_print_top(self):
         numb = random.randint(0, P24_6)
-        rod = random.randint(1, 6)
+        rod = random.randint(1, 6)  # the zero case is in almost every test here
         self.abacus._fast_load(numb)
         for _ in range(rod):
             numb //= 24
+        self.assertEqual(numb, self.abacus.num_print(rod, 6))
+
+    def test_num_print_bottom(self):
+        numb = random.randint(0, P24_6)
+        rod = random.randint(0, 6)
+        self.abacus._fast_load(numb)
+        numb %= (24 ** rod)
         self.assertEqual(numb, self.abacus.num_print(rod))
 
 
@@ -172,7 +177,6 @@ class HumanTestCase(unittest.TestCase):
         self.assertEqual(a * b, int(self.abacus))
 
     def test_div(self):
-        # broken
         divisor = random.randint(1, P24_5)
         lngth_sor = math.ceil(math.log(divisor, 24))
         dividand = random.randint(divisor, min(int(24 ** (5 + lngth_sor) / 2), P24_5))

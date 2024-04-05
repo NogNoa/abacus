@@ -310,7 +310,7 @@ class Abacus:
             self.val[pl].load(num)
 
     def num_print(self, *args: int) -> int:
-        args = (6,) or args  # len at least 1
+        args = args or (6,)  # len at least 1
         if len(args) == 1:
             rod_0 = 0
         else:  # if len(args) >= 2:
