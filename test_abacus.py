@@ -178,14 +178,21 @@ class HumanTestCase(unittest.TestCase):
     def test_div(self):
         divisor = random.randint(1, P24_5)
         lngth_sor = math.ceil(math.log(divisor, 24))
-        dividand = random.randint(divisor, min(int(24 ** (5 + lngth_sor) / 2), P24_5))
+        dividend = random.randint(divisor, min(int(24 ** (5 + lngth_sor) / 2), P24_5))
 
-        self.abacus._fast_load(dividand)
+        self.abacus._fast_load(dividend)
         reminder_p = self.human.div1(divisor)
-        reminder = self.abacus.num_print(reminder_p, 6)
-        self.abacus.clear(rod_0=reminder_p)
-        self.assertEqual(dividand // divisor, int(self.abacus))
-        self.assertEqual(dividand % divisor, reminder)
+        self.assertEqual(dividend // divisor, self.abacus.num_print(reminder_p))
+        self.assertEqual(dividend % divisor, self.abacus.num_print(reminder_p, 6))
+
+    def test_div2(self):
+        divisor = random.randint(1, P24_5)
+        lngth_sor = math.ceil(math.log(divisor, 24))
+        dividend = random.randint(divisor, min(int(24 ** (5 + lngth_sor) / 2), P24_5))
+
+        reminder_p = self.human.division(dividend, divisor)
+        self.assertEqual(dividend // divisor, self.abacus.num_print(reminder_p))
+        self.assertEqual(dividend % divisor, self.abacus.num_print(reminder_p, 6))
 
 
 if __name__ == '__main__':
