@@ -236,23 +236,6 @@ class Rod:
             force = self.earth.push_pull(force - 1, push)
         return force
 
-    def push_pull2(self, cell: Cell, force: int, push: bool) -> int:
-        sky_done = False
-        while (not sky_done) and force:
-            if (push == Up) and cell.not_full():
-                print('Error! I tried to carry while cell is not full')
-            elif (push == Down) and cell.not_zero():
-                print('Error! I tried to borrow while cell is not empty')
-            # If we got here it means the force was bigger than the number of beads that were down.
-            force = cell.push_pull(force, push)
-            if cell.size:  # earth->True sky->False
-                self.push_pull2(self.sky, 1, push)
-            else:
-                sky_done = True
-            cell.set_clear(st=push == Down)
-            force -= 1
-        return force
-
     def push(self, force: int = 1):
         return self.push_pull(force, True)
 
@@ -345,11 +328,11 @@ class Abacus:
         rod = self.val[rod_ind]
         force = rod.push_pull(force, push)
         while force:
-            rod_ind = self.val.index(rod) + 1
-            while rod_ind < 6 and self.val[rod_ind].push_pull(1, push):
-                rod_ind += 1
+            for pl in range(rod_ind + 1, 6):
+                if not self.val[pl].push_pull(1, push):
+                    break
                 # For most cells we pass a carry of 1 to the next cell
-            if rod_ind == 6:
+            else:
                 self.flow(over=push)
                 # But if it is the last cell we have to flag the corresponding flow flag instead.
             force = rod.push_pull(force - 1, push)
