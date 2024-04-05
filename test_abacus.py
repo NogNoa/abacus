@@ -56,13 +56,12 @@ class AbacusTestCase(unittest.TestCase):
         self.assertEqual(0, int(self.abacus))
 
     def test_clear_pos(self):
-        # broken
         numb = random.randint(0, P24_6)
         rod = random.randint(1, 6)
         factor = 24 ** rod
         self.abacus._fast_load(numb)
-        self.abacus.clear(start=rod)
-        self.assertEqual(numb // factor * factor, int(self.abacus))
+        self.abacus.clear(rod_0=rod)
+        self.assertEqual(numb % factor, int(self.abacus))
 
     def test_set(self):
         numb = random.randint(0, P24_6)
@@ -184,7 +183,7 @@ class HumanTestCase(unittest.TestCase):
         self.abacus._fast_load(dividand)
         reminder_p = self.human.div1(divisor)
         reminder = self.abacus.num_print(reminder_p, 6)
-        self.abacus.clear(start=reminder_p)
+        self.abacus.clear(rod_0=reminder_p)
         self.assertEqual(dividand // divisor, int(self.abacus))
         self.assertEqual(dividand % divisor, reminder)
 

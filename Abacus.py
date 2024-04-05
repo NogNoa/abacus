@@ -365,9 +365,9 @@ class Abacus:
         Return beads in a given cell to the Left"""
         self.push_pull(rod, force, push=Down)
 
-    def set_clear(self, st: bool = Clear, start=0, verbose=verbose, from_side=Down):
-        """Clear every Cell of the abacus"""
-        if from_side == Up:
+    def set_clear(self, st: bool = Clear, start=0, verbose=verbose, cell=Down):
+        """Set or clear every Cell of the abacus"""
+        if cell == Up:
             #  To start from the upper cell of a rod
             self.val[start].sky.set_clear(st)
             start += 1
@@ -380,16 +380,16 @@ class Abacus:
                 print(f'Clearing all from the {colorise(start)} rod')
             print(self.expose())
 
-    def set(self, start=0, verbose=verbose, from_side=Down):
-        self.set_clear(True, start, verbose, from_side)
+    def set(self, rod_0=0, verbose=verbose, cell_0=Down):
+        self.set_clear(True, rod_0, verbose, cell_0)
 
-    def clear(self, start=0, verbose=verbose, from_side=Down):
-        self.set_clear(False, start, verbose, from_side)
+    def clear(self, rod_0=0, verbose=verbose, cell_0=Down):
+        self.set_clear(False, rod_0, verbose, cell_0)
 
     def load(self, call: int, start=0):
         """Set the abacus to a specific number"""
         self.overflow = False
-        self.clear(verbose=False, start=start)
+        self.clear(verbose=False, rod_0=start)
         # clears length-1 cells, starting from the one after cell_0. cell_0 will already be cleared by load()
         self.push(start, call)
         self.chk_flow(over=True)
