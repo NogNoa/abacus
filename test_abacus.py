@@ -9,11 +9,32 @@ P24_5 = 7962623
 P24_6 = 191102975
 
 
+class BeedTestCase(unittest.TestCase):
+    def setUp(self):
+        self.bead = aba.Bead(0, 'c0')
+
+    def test_push_0(self):
+        self.bead.push_pull(1, True)
+        self.assertTrue(self.bead.side)
+
+    def test_push_1(self):
+        self.bead.push_pull(1, True)
+        self.assertRaises(aba.OverFlow, self.bead.push_pull, force=1, push=True)
+
+
 class CellTestCase(unittest.TestCase):
     def setUp(self):
-        self.id = 'r0'
-        self.earth = aba.Cell('earth', 0, self.id)  # lower cell
-        self.sky = aba.Cell('sky', 1, self.id)  # upper cell
+        self.rid = 'r0'
+        self.earth = aba.Cell('earth', 0, self.rid)  # lower cell
+        self.sky = aba.Cell('sky', 1, self.rid)  # upper cell
+
+    def test_push_0(self):
+        a = random.randint(0, 5)
+        b = random.randint(0, 3)
+        self.earth.push(a)
+        self.sky.push(b)
+        self.assertEqual(a, int(self.earth))
+        self.assertEqual(b, int(self.sky))
 
 
 class RodTestCase(unittest.TestCase):
@@ -21,14 +42,14 @@ class RodTestCase(unittest.TestCase):
         self.rod = aba.Rod(0, 'red')
 
     def test_push_0(self):
-        a = random.randint(0, 24)
+        a = random.randint(0, 23)
         self.rod.push(a)
         self.assertEqual(a, int(self.rod))
 
     def test_exchange(self):
         other_rod = aba.Rod(1, 'yellow')
-        a = random.randint(0, 24)
-        b = random.randint(0, 24 - a)
+        a = random.randint(0, 23)
+        b = random.randint(0, 23 - a)
         self.rod.push(a)
         other_rod.push(b)
         aba.exchange(self.rod, other_rod)
@@ -37,7 +58,7 @@ class RodTestCase(unittest.TestCase):
 
     def test_exchange_0(self):
         other_rod = aba.Rod(1, 'yellow')
-        a = random.randint(0, 24)
+        a = random.randint(0, 23)
         self.rod.push(a)
         aba.exchange(self.rod, other_rod)
         self.assertFalse(int(self.rod))
@@ -84,7 +105,7 @@ class AbacusTestCase(unittest.TestCase):
     def test_push_pos(self):
         numb = random.randint(0, P24_6)
         self.abacus._fast_load(numb)
-        a =  random.randint(0, 24)
+        a = random.randint(0, 24)
         rod = random.randint(0, 5)
         self.abacus.push(rod, a)
         self.assertEqual(numb + a * 24 ** rod, int(self.abacus))
