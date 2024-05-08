@@ -5,7 +5,7 @@ import argparse
 from string import ascii_lowercase
 
 
-def table_num_listise(table='abacus.csv'):
+def table_num_listise(table='abacus.csv') -> list[int]:
     call = open(table, 'r+')
     call = call.readlines()
     call = [pl.split(',') for pl in call]
@@ -17,7 +17,7 @@ def table_num_listise(table='abacus.csv'):
     for line in call:
         up = False
         high = False
-        i, j = 0, 0
+        i = 0
         for pl in line:
             if pl == '---':
                 up = True
@@ -28,8 +28,8 @@ def table_num_listise(table='abacus.csv'):
                 if not high:
                     i += 1
                 else:
-                    j += 1
-        back += (i, j)
+                    i += 6
+        back.append(i)
     return back
 
 
